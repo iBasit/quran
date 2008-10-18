@@ -32,7 +32,7 @@
     };
 
     $.quran.restore_state = function() {
-        console.log('restore_state');
+        //console.log('restore_state');
         if ($.cookie('keys')) {
             var keys_object = $.cookie('keys').split(',');
             $.each(keys_object, function(n,key) {
@@ -87,7 +87,7 @@
     // browser events
     $(window).load(function() {
         // restore state from cookies
-        console.log('load');
+        //console.log('load');
         function get_working_mirror() {
             // this should ping mirrors and check paths
             return $.quran.config.mp3_mirrors[0]; // just return the first thing for now
@@ -114,7 +114,7 @@
 
     /* run-time */
     $(document).ready(function() {
-        console.log('ready');
+        //console.log('ready');
         $(document.body).quranController({
             title: 'Quran Controller'
         });

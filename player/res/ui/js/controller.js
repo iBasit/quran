@@ -34,7 +34,7 @@
                 var index = $(this)[0].value;
                 $.quran.set_state('aya', aya);
                 $.quran.set_state('index', index);
-                console.log('change aya',aya,index);
+                //console.log('change aya',aya,index);
             });
             widget.ui.select_sura    = widget.ui.body.find('.select-sura')
             .change(function() {
@@ -96,6 +96,7 @@
                     next_sura();
                 }
             };
+            $.quran.bind('next-aya',next_aya); // let other widgets hook in
             var next_sura = function() {
                 var selector = widget.ui.select_sura;
                 var dom = selector[0];
@@ -243,7 +244,7 @@
                 var index = widget.ui.select_aya[0].value;
                 $.quran.set_state('aya', aya);
                 $.quran.set_state('index', index);
-                console.log('change sura',aya,index);
+                //console.log('change sura',aya,index);
             };
             widget.ui.select_sura.one('change',make_ayas);
             $.quran.bind('state-restored',function() {

@@ -20,8 +20,13 @@
         // I can't get it to work if its setup anywhere else, including the player widget
         $.extend(soundManager, {
             url: './res/ui/swf/',
-            debugMode: true,
-            useConsole: true,
+            debugMode: false,
+            useConsole: false,
+            flashVersion: 8,
+            flash9Options: {
+                usePeakData: false,
+                useWaveformData: false
+            },
             defaultOptions: {
                 volume: 100,
                 stream: true,

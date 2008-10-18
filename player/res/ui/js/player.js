@@ -113,7 +113,7 @@
                 url : mp3_url
             };
 
-            console.log(mp3_data);
+            //console.log(mp3_data);
 
             return mp3_data;
         },
@@ -125,12 +125,12 @@
         },
         load_mp3: function(data, play) {
             var widget = this;
-            console.log('load_mp3',data,play);
+            //console.log('load_mp3',data,play);
             widget.sound.createSound({
                 id: data.id,
                 url: data.url,
                 onload: function() {
-                    console.log('onload');
+                    //console.log('onload');
                     var sound = this;
                     widget.ui.position_slider.slider('destroy');
                     widget.ui.position_slider.slider({
@@ -143,40 +143,40 @@
                         widget.play_mp3(data);
                 },
                 onplay: function() {
-                    console.log('onplay');
+                    //console.log('onplay');
                     widget.ui.play_icon.toggleClass('on');
                 },
                 onpause: function() {
-                    console.log('onpause');
+                    //console.log('onpause');
                 },
                 onresume: function() {
-                    console.log('onresume');
+                    //console.log('onresume');
                 },
                 onstop: function() {
-                    console.log('onstop');
+                    //console.log('onstop');
                 },
                 onfinish: function() {
-                    console.log('onfinish');
+                    //console.log('onfinish');
                     widget.ui.play_icon.toggleClass('on');
 
                     // if continuous is on, play the next ayah
                     if (widget.play_mode == 'continuous') {
-                        $.quran.trigger('nextaya');
+                        $.quran.trigger('next-aya');
                         var data = widget._mp3_data();
                         widget.load_mp3(data,true);
                     }
                 },
                 onjustbeforefinish: function() {
-                    console.log('onjustbeforefinish');
+                    //console.log('onjustbeforefinish');
                 },
                 onbeforefinishcomplete: function() {
-                    console.log('onbeforefinishcomplete');
+                    //console.log('onbeforefinishcomplete');
                 },
                 onbeforefinish: function() {
-                    console.log('onbeforefinish');
+                    //console.log('onbeforefinish');
                 },
                 onid3: function() {
-                    console.log('onid3');
+                    //console.log('onid3');
                 },
                 whileplaying: function() {
                     var sound = this;
