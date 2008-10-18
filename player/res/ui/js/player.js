@@ -23,7 +23,7 @@
             });
 
             widget.ui.body.html(
-                widget._inner_body()
+                widget._make_inner_body()
             );
 
             widget.ui.volume_slider = widget.ui.body.find('.volume-slider').slider({
@@ -60,7 +60,7 @@
 
             widget._init_sound();
         },
-        _inner_body: function() {
+        _make_inner_body: function() {
             var widget = this;
             var inner_body = $(
                 '<div class="icon-control-start">&#160;</div>' + // loop
@@ -106,12 +106,14 @@
             aya_number = prepend_zeros.concat(aya_number);
 
             mp3_id  = sura_number + aya_number + '.mp3';
-            mp3_url = $.quran.state.mp3_url + mp3_id;
+            mp3_url = $.quran.get_state('mirror') + $.quran.get_state('recitor') + '/' + mp3_id;
 
             mp3_data = {
                 id  : mp3_id,
                 url : mp3_url
             };
+
+            console.log(mp3_data);
 
             return mp3_data;
         },
@@ -123,11 +125,12 @@
         },
         load_mp3: function(data, play) {
             var widget = this;
+            console.log('load_mp3',data,play);
             widget.sound.createSound({
                 id: data.id,
                 url: data.url,
                 onload: function() {
-                    //console.log('onload');
+                    console.log('onload');
                     var sound = this;
                     widget.ui.position_slider.slider('destroy');
                     widget.ui.position_slider.slider({
@@ -140,20 +143,20 @@
                         widget.play_mp3(data);
                 },
                 onplay: function() {
-                    //console.log('onplay');
+                    console.log('onplay');
                     widget.ui.play_icon.toggleClass('on');
                 },
                 onpause: function() {
-                    //console.log('onpause');
+                    console.log('onpause');
                 },
                 onresume: function() {
-                    //console.log('onresume');
+                    console.log('onresume');
                 },
                 onstop: function() {
-                    //console.log('onstop');
+                    console.log('onstop');
                 },
                 onfinish: function() {
-                    //console.log('onfinish');
+                    console.log('onfinish');
                     widget.ui.play_icon.toggleClass('on');
 
                     // if continuous is on, play the next ayah
@@ -164,16 +167,16 @@
                     }
                 },
                 onjustbeforefinish: function() {
-                    //console.log('onjustbeforefinish');
+                    console.log('onjustbeforefinish');
                 },
                 onbeforefinishcomplete: function() {
-                    //console.log('onbeforefinishcomplete');
+                    console.log('onbeforefinishcomplete');
                 },
                 onbeforefinish: function() {
-                    //console.log('onbeforefinish');
+                    console.log('onbeforefinish');
                 },
                 onid3: function() {
-                    //console.log('onid3');
+                    console.log('onid3');
                 },
                 whileplaying: function() {
                     var sound = this;

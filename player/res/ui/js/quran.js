@@ -23,39 +23,34 @@
     // application-level state
     $.quran.state = new Object();
 
-    // e.g. temporary placed here as an example, 
-    // hopefully not more confusing then beneficial;
-    // the code for these should go in the widget that created them
-    // todo: extract all this sura/aya selection stuff out of here and put it in the control widget
-    $.quran.bind('selectsura',function(ev,data) {
-        $.quran.state.sura = data;
-    });
-    $.quran.bind('selectaya',function(ev,data) {
-        //console.log('selectaya',data);
-        $.quran.state.aya   = data.number;
-        $.quran.state.index = data.index;
-    });
-    $.quran.bind('nextaya',function() {
-        $('#aya').map(function() {
-            var dom = $(this)[0];
-            var next = dom.selectedIndex+1;
-            if (dom.options[next]) {
-                this.selectedIndex = next;
-                var index = parseInt(dom.value);
-                var number = parseInt($(dom.options[next]).text());
-                $.quran.trigger('selectaya', {
-                    index: index,
-                    number: number
-                });
-            }
-        });
-    });
-    $.quran.bind('selectrecitor', function(ev,data) {
-        // generically set it to the first listing for now
-        // todo: dynamically set this based on existence
-        var mirror = $.quran.config.mp3_mirrors[0];
-        $.quran.state.mp3_url = mirror + data + '/';
-    });
+    $.quran.get_state = function(key) {
+        return $.quran.state[key] || false;
+    };
+
+    $.quran.set_state = function(key, value) {
+        $.quran.state[key] = value;
+    };
+
+    $.quran.restore_state = function() {
+        console.log('restore_state');
+        if ($.cookie('keys')) {
+            var keys_object = $.cookie('keys').split(',');
+            $.each(keys_object, function(n,key) {
+                $.quran.set_state(key, $.cookie(key));
+            });
+        }
+
+        $.quran.trigger('state-restored');
+    };
+
+    $.quran.save_state = function() {
+        var keys = new Array();
+        for (var key in $.quran.state) {
+            keys.push(key);
+            $.cookie(key, $.quran.state[key]);
+        }
+        $.cookie('keys',keys);
+    };
 
     // user interface notification
     $.quran.notify_user = function(options) {
@@ -91,16 +86,26 @@
 
     // browser events
     $(window).load(function() {
+        // restore state from cookies
+        console.log('load');
+        function get_working_mirror() {
+            // this should ping mirrors and check paths
+            return $.quran.config.mp3_mirrors[0]; // just return the first thing for now
+        };
+        var mirror = get_working_mirror();
+        $.quran.set_state('mirror', mirror);
 
+        $.quran.restore_state();
+    });
+    $(window).unload(function() {
+        // save state in cookies
+        $.quran.save_state();
     });
     $(window).resize(function() {
         // resize the app components to fit if they don't behave elastically
     });
     $(window).scroll(function() {
         // attempt to reposition window to 0, 0
-    });
-    $(window).unload(function() {
-        // maybe some garbage collection? who knows
     });
     $(window).error(function(msg, url, line) {
         // maybe send an ajax post to our server so that we can log it
@@ -109,6 +114,10 @@
 
     /* run-time */
     $(document).ready(function() {
+        console.log('ready');
+        $(document.body).quranController({
+            title: 'Quran Controller'
+        });
         $(document.body).quranPlayer({
             title: 'Quran Player'
         });

@@ -8,10 +8,12 @@
         <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/themes/testing/all.css" />
         <script type="text/javascript" src="./res/ui/js/jquery.core.packed.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.ui.packed.js"></script>
+        <script type="text/javascript" src="./res/ui/js/jquery.cookie.js"></script>
         <script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script>
         <script type="text/javascript" src="./res/config/js/quran.js"></script>
         <script type="text/javascript" src="./res/data/js/quran.js"></script>
         <script type="text/javascript" src="./res/ui/js/quran.js"></script>
+        <script type="text/javascript" src="./res/ui/js/controller.js"></script>
         <script type="text/javascript" src="./res/ui/js/player.js"></script>
         <script type="text/javascript">
         // For some reason this only works if it's here in the index page
@@ -30,98 +32,6 @@
         </script>
     </head>
     <body>
-
-    <div class="widget" id="controls">
-        <div class="head">controls</div>
-        <div class="body">
-            <select id="recitor"></select>
-            <select id="sura"></select>
-            <select id="aya" style="display: none;"></select>
-            <div class="icon-resultset-first">&#160;</div>
-            <div class="icon-resultset-previous">&#160;</div>
-            <div class="icon-resultset-next">&#160;</div>
-            <div class="icon-resultset-last">&#160;</div>
-            <script type="text/javascript">
-            (function ($) {
-
-                // create aya select 'options'
-                function make_ayas_for_sura(sura_index) {
-                    var ayas = $.quran.data.sura[sura_index][1]; // 2nd array index '1' corresponds to number of ayas
-                    $('#aya').html('');
-                    for (var i=1; i <= ayas; i++) {
-                        var aya_index = parseInt($.quran.data.sura[sura_index][0]) + parseInt(i);
-                        $('#aya').append('<option value='+ aya_index +'>'+ i +'</option>');
-                    }
-                    $('#aya').show();
-
-                    // initially trigger the 'selectaya' event to account for the default state
-                    var initial_index = parseInt($('#aya')[0].value);
-                    var initial_number = parseInt($('#aya')[0].options[$('#aya')[0].selectedIndex].text);
-                    $.quran.trigger('selectaya', {
-                        index: initial_index,
-                        number: initial_number
-                    });
-
-                };
-
-                // bind a 'selectsura' event to this internal method
-                $.quran.bind('selectsura',function(ev,data) {
-                    make_ayas_for_sura(data);
-                });
-
-                for (var i=0; i < $.quran.config.recitors.length; i++) {
-                    $('#recitor').append('<option value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] + '</option>');
-                }
-
-                // create sura select 'options'
-                for (var i=1; i < $.quran.data.sura.length - 1; i++) { // iterates from '1' to '114'
-                    $('#sura').append('<option value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>'); // 2nd array index: '5' corresponds to 'transliterated name'
-                }
-
-                // initially trigger the 'selectsura' event to account for the default state
-                var initial = $('#sura')[0].value;
-                $.quran.trigger('selectsura', initial); 
-
-                // notify the entire application when the aya changes
-                $('#recitor').change(function(ev) {
-                    var path  = ev.target.value;
-                    $.quran.trigger('selectrecitor', path);
-                });
-                initial = $('#recitor')[0].value;
-                $.quran.trigger('selectrecitor', initial); 
-
-                // notify the entire application when the sura changes
-                $('#sura').change(function(ev) {
-                    var sura_index = ev.target.value;
-                    $.quran.trigger('selectsura',sura_index); 
-                });
-
-                // notify the entire application when the aya changes
-                $('#aya').change(function(ev) {
-                    var aya_index  = parseInt(ev.target.value);
-                    var aya_number = parseInt(ev.target.options[ev.target.selectedIndex].text);
-                    $.quran.trigger('selectaya',{
-                        index: aya_index,
-                        number: aya_number
-                    }); 
-                });
-
-            })(jQuery);
-            </script>
-        </div>
-    </div>
-    <!--
-    <div class="widget" id="player">
-        <div class="head">Player</div>
-        <div class="body">
-            <div class="position-slider">
-                <div class="position-slider-handle"></div>
-            </div>
-        </div>
-    </div>
-    -->
-
-
     <!-- notice div: used for dialogs, pop-ups, alerts, errors, notices, modals, whatever -->
     <!--<div id="notice" style="display: none;" class="ui-dialog"></div>-->
 
@@ -249,52 +159,5 @@
 
 
     <!--</div>--><!-- end main -->
-
     </body>
-
-    <!-- script testing area: production code goes elsewhere -->
-    <script type="text/javascript">
-    /*
-    $.myVolume = $('#media-player .volume-slider').slider({
-        handle: '.volume-slider-handle',
-        axis: 'vertical'
-    });
-    $.myPosition = $('#media-player .position-slider').slider({
-        handle: '.position-slider-handle',
-        axis: 'horizontal'
-    });
-    */
-                /*
-                $.myPosition.slider('destroy');
-                $.myPosition.slider({
-                    handle: '.position-slider-handle',
-                    axis: 'horizontal',
-                    min: 0,
-                    max: this.durationEstimate
-                });
-                */
-                //$.myPosition.slider('moveTo',this.position)
-    /*
-    $.extend(soundManager, {
-        url: './res/ui/swf/',
-        debugMode: false,
-        defaultOptions: {
-            volume: 100,
-            stream: true,
-            autoLoad: true,
-            autoPlay: true
-        }
-    });
-    soundManager.onload = function() {
-        soundManager.createSound({
-            id: 'test3',
-            url: 'http://dev.globalquran.com/audio/www.everyayah.com/data/Muhammad_Ayyoub_128kbps/003000.mp3',
-            onload: function() {
-            },
-            whileplaying: function() {
-            }
-        });
-    };
-    */
-    </script>
 </html>
