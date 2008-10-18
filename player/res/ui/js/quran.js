@@ -26,12 +26,29 @@
     // e.g. temporary placed here as an example, 
     // hopefully not more confusing then beneficial;
     // the code for these should go in the widget that created them
+    // todo: extract all this sura/aya selection stuff out of here and put it in the control widget
     $.quran.bind('selectsura',function(ev,data) {
         $.quran.state.sura = data;
     });
     $.quran.bind('selectaya',function(ev,data) {
+        //console.log('selectaya',data);
         $.quran.state.aya   = data.number;
         $.quran.state.index = data.index;
+    });
+    $.quran.bind('nextaya',function() {
+        $('#aya').map(function() {
+            var dom = $(this)[0];
+            var next = dom.selectedIndex+1;
+            if (dom.options[next]) {
+                this.selectedIndex = next;
+                var index = parseInt(dom.value);
+                var number = parseInt($(dom.options[next]).text());
+                $.quran.trigger('selectaya', {
+                    index: index,
+                    number: number
+                });
+            }
+        });
     });
     $.quran.bind('selectrecitor', function(ev,data) {
         // generically set it to the first listing for now

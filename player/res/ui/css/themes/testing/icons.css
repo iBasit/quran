@@ -61,5 +61,19 @@ div[class*="icon-"] {
 .icon-arrow-undo { background: url(../../../img/icons/fam/png/arrow_undo.png) no-repeat center center !important; }
 .icon-arrow-up { background: url(../../../img/icons/fam/png/arrow_up.png) no-repeat center center !important; }
 
-.icon-star { background: url(../../../img/icons/fam/png/star.png) no-repeat center center !important; }
-.icon-tux { background: url(../../../img/icons/fam/png/tux.png) no-repeat center center !important; }
+.icon-star {
+    background: url(../../../img/icons/fam/png/star.png) no-repeat center center !important;
+    opacity: 0.50;
+}
+.icon-star.on {
+    background: url(../../../img/icons/fam/png/star.png) no-repeat center center !important;
+    opacity: 1.00;
+}
+.icon-tux {
+    background: url(../../../img/icons/fam/png/tux.png) no-repeat center center !important;
+    opacity: 0.50;
+}
+.icon-tux.on {
+    background: url(../../../img/icons/fam/png/tux.png) no-repeat center center !important;
+    opacity: 1.00;
+}

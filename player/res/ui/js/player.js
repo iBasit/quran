@@ -38,7 +38,7 @@
 
             widget.ui.play_icon = widget.ui.body.find('.icon-control-play').click(function() {
                 var data = widget._mp3_data();
-                console.log(data.url);
+                //console.log(data.url);
                 widget.play_mp3(data);
             });
 
@@ -51,6 +51,11 @@
                 // show the vertical slider and make it control volume
                 widget.ui.volume_icon.toggleClass('on');
                 widget.ui.volume_slider.toggle();
+            });
+
+            widget.ui.continuous_icon = widget.ui.body.find('.icon-tux').click(function() {
+                $(this).toggleClass('on');
+                widget.play_mode = 'continuous';
             });
 
             widget._init_sound();
@@ -67,6 +72,8 @@
                 '<div class="icon-control-pause">&#160;</div>' + // loop
                 '<div class="icon-control-repeat">&#160;</div>' + // loop
                 '<div class="icon-control-equalizer">&#160;</div>' + // volume
+                '<div class="icon-tux">&#160;</div>' + // continuous
+                '<div class="icon-star">&#160;</div>' + // undecided yet
                 '<div class="position-slider">' +
                     '<div class="position-slider-handle"></div>' +
                 '</div>' +
@@ -148,6 +155,13 @@
                 onfinish: function() {
                     //console.log('onfinish');
                     widget.ui.play_icon.toggleClass('on');
+
+                    // if continuous is on, play the next ayah
+                    if (widget.play_mode == 'continuous') {
+                        $.quran.trigger('nextaya');
+                        var data = widget._mp3_data();
+                        widget.load_mp3(data,true);
+                    }
                 },
                 onjustbeforefinish: function() {
                     //console.log('onjustbeforefinish');
