@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+        <title>Quran 2.0 Media Player with Example Interface Protototype</title>
+        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/themes/testing/all.css" />
+        <script type="text/javascript" src="./res/ui/js/jquery.core.packed.js"></script>
+        <script type="text/javascript" src="./res/ui/js/jquery.ui.packed.js"></script>
+        <script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script>
+        <script type="text/javascript" src="./res/config/js/quran.js"></script>
+        <script type="text/javascript" src="./res/data/js/quran.js"></script>
+        <script type="text/javascript" src="./res/ui/js/quran.js"></script>
+        <script type="text/javascript" src="./res/ui/js/player.js"></script>
+        <script type="text/javascript">
+        // For some reason this only works if it's here in the index page
+        // I can't get it to work if its setup anywhere else, including the player widget
+        $.extend(soundManager, {
+            url: './res/ui/swf/',
+            debugMode: true,
+            useConsole: true,
+            defaultOptions: {
+                volume: 100,
+                stream: true,
+                autoLoad: true,
+                autoPlay: false
+            }
+        });
+        </script>
+    </head>
+    <body>
+
+    <div class="widget" id="controls">
+        <div class="head">controls</div>
+        <div class="body">
+            <select id="recitor"></select>
+            <select id="sura"></select>
+            <select id="aya" style="display: none;"></select>
+            <div class="icon-resultset-first">&#160;</div>
+            <div class="icon-resultset-previous">&#160;</div>
+            <div class="icon-resultset-next">&#160;</div>
+            <div class="icon-resultset-last">&#160;</div>
+            <script type="text/javascript">
+            (function ($) {
+
+                // create aya select 'options'
+                function make_ayas_for_sura(sura_index) {
+                    var ayas = $.quran.data.sura[sura_index][1]; // 2nd array index '1' corresponds to number of ayas
+                    $('#aya').html('');
+                    for (var i=1; i <= ayas; i++) {
+                        var aya_index = parseInt($.quran.data.sura[sura_index][0]) + parseInt(i);
+                        $('#aya').append('<option value='+ aya_index +'>'+ i +'</option>');
+                    }
+                    $('#aya').show();
+
+                    // initially trigger the 'selectaya' event to account for the default state
+                    var initial_index = parseInt($('#aya')[0].value);
+                    var initial_number = parseInt($('#aya')[0].options[$('#aya')[0].selectedIndex].text);
+                    $.quran.trigger('selectaya', {
+                        index: initial_index,
+                        number: initial_number
+                    });
+
+                };
+
+                // bind a 'selectsura' event to this internal method
+                $.quran.bind('selectsura',function(ev,data) {
+                    make_ayas_for_sura(data);
+                });
+
+                for (var i=0; i < $.quran.config.recitors.length; i++) {
+                    $('#recitor').append('<option value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] + '</option>');
+                }
+
+                // create sura select 'options'
+                for (var i=1; i < $.quran.data.sura.length - 1; i++) { // iterates from '1' to '114'
+                    $('#sura').append('<option value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>'); // 2nd array index: '5' corresponds to 'transliterated name'
+                }
+
+                // initially trigger the 'selectsura' event to account for the default state
+                var initial = $('#sura')[0].value;
+                $.quran.trigger('selectsura', initial); 
+
+                // notify the entire application when the aya changes
+                $('#recitor').change(function(ev) {
+                    var path  = ev.target.value;
+                    $.quran.trigger('selectrecitor', path);
+                });
+                initial = $('#recitor')[0].value;
+                $.quran.trigger('selectrecitor', initial); 
+
+                // notify the entire application when the sura changes
+                $('#sura').change(function(ev) {
+                    var sura_index = ev.target.value;
+                    $.quran.trigger('selectsura',sura_index); 
+                });
+
+                // notify the entire application when the aya changes
+                $('#aya').change(function(ev) {
+                    var aya_index  = parseInt(ev.target.value);
+                    var aya_number = parseInt(ev.target.options[ev.target.selectedIndex].text);
+                    $.quran.trigger('selectaya',{
+                        index: aya_index,
+                        number: aya_number
+                    }); 
+                });
+
+            })(jQuery);
+            </script>
+        </div>
+    </div>
+    <!--
+    <div class="widget" id="player">
+        <div class="head">Player</div>
+        <div class="body">
+            <div class="position-slider">
+                <div class="position-slider-handle"></div>
+            </div>
+        </div>
+    </div>
+    -->
+
+
+    <!-- notice div: used for dialogs, pop-ups, alerts, errors, notices, modals, whatever -->
+    <!--<div id="notice" style="display: none;" class="ui-dialog"></div>-->
+
+    <!-- main ui: essentially the interface 'body' -->
+    <!--<div id="main" class="ui-wrapper">-->
+
+        <!-- header strip (unobtrusive, thin, elegant)                -->
+        <!-- ideally should be draggable and dockable to both the top -->
+        <!-- and bottom of the ui, and also feature a 'hide' button   -->
+        <!-- which would minimize this panel horizontally. to the     -->
+        <!-- left or right corner; i.e. standard widget functionality -->
+        <!--<div id="header" class="primary">
+            <h1>Header</h1>-->
+
+            <!-- navigation menu: displayed as a horizontal strip, -->
+            <!-- and should behave likes a nested drop-down menu   -->
+            <!-- e.g. File, Edit, View, Tools, Help, whatever...   -->
+            <!-- Displays inline wth the main header (above)       -->
+            <!--<ul id="navigation"></ul>
+        </div>--><!-- end header -->
+
+        <!-- content area: dockable panels would be nice... -->
+        <!-- e.g. lateral or vertical side by side view of  -->
+        <!-- quran, tafseer, translation, or whatever else  -->
+        <!--<div id="content" class="ui-sortable ui-resizable">
+            <h2>Content</h2>
+
+            <div class="panel sort ui-resizable">
+                <div class="head">one</div>
+                <div>random</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">two</div>
+                <div>something</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">three</div>
+                <div>random</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">four</div>
+                <div>something</div>
+            </div>
+        </div>--><!-- end content -->
+
+        <!-- side panel: this is where the ui control widgets    -->
+        <!-- would go, and perhaps also user-contributed widgets -->
+        <!-- if we can think of practical use-cases for such a   -->
+        <!-- thing and figure out an open-standard solution      -->
+        <!--<div id="side" class="ui-sortable ui-resizable">
+            <h2>Sidebar</h2>-->
+            <!-- todo: build range functionality interval listening -->
+            <!--<div class="widget sort ui-resizable" id="media-player">
+                <div class="head">media player</div>
+                <div class="body">
+                    <div class="position-slider">
+                        <div class="position-slider-handle"></div>
+                    </div>
+                    <div class="volume-slider">
+                        <div class="volume-slider-handle"></div>
+                    </div>
+                    <div class="icon-control-eject">&#160;</div>
+                    <div class="icon-control-eject-blue">&#160;</div>
+                    <div class="icon-control-end">&#160;</div>
+                    <div class="icon-control-end-blue">&#160;</div>
+                    <div class="icon-control-equalizer">&#160;</div>
+                    <div class="icon-control-equalizer-blue">&#160;</div>
+                    <div class="icon-control-fastforward">&#160;</div>
+                    <div class="icon-control-fastforward-blue">&#160;</div>
+                    <div class="icon-control-pause">&#160;</div>
+                    <div class="icon-control-pause-blue">&#160;</div>
+                    <div class="icon-control-play">&#160;</div>
+                    <div class="icon-control-play-blue">&#160;</div>
+                    <div class="icon-control-repeat">&#160;</div>
+                    <div class="icon-control-repeat-blue">&#160;</div>
+                    <div class="icon-control-rewind">&#160;</div>
+                    <div class="icon-control-rewind-blue">&#160;</div>
+                    <div class="icon-control-start">&#160;</div>
+                    <div class="icon-control-start-blue">&#160;</div>
+                    <div class="icon-control-stop">&#160;</div>
+                    <div class="icon-control-stop-blue">&#160;</div>
+                    <div class="icon-sound">&#160;</div>
+                    <div class="icon-sound-add">&#160;</div>
+                    <div class="icon-sound-delete">&#160;</div>
+                    <div class="icon-sound-low">&#160;</div>
+                    <div class="icon-sound-mute">&#160;</div>
+                    <div class="icon-sound-none">&#160;</div>
+                    <div class="icon-resultset-first">&#160;</div>
+                    <div class="icon-resultset-last">&#160;</div>
+                    <div class="icon-resultset-next">&#160;</div>
+                    <div class="icon-resultset-previous">&#160;</div>
+                    <div class="icon-arrow-branch">&#160;</div>
+                    <div class="icon-arrow-divide">&#160;</div>
+                    <div class="icon-arrow-down">&#160;</div>
+                    <div class="icon-arrow-inout">&#160;</div>
+                    <div class="icon-arrow-in">&#160;</div>
+                    <div class="icon-arrow-join">&#160;</div>
+                    <div class="icon-arrow-left">&#160;</div>
+                    <div class="icon-arrow-merge">&#160;</div>
+                    <div class="icon-arrow-out">&#160;</div>
+                    <div class="icon-arrow-redo">&#160;</div>
+                    <div class="icon-arrow-refresh">&#160;</div>
+                    <div class="icon-arrow-refresh-small">&#160;</div>
+                    <div class="icon-arrow-right">&#160;</div>
+                    <div class="icon-arrow-rotate-anticlockwise">&#160;</div>
+                    <div class="icon-arrow-rotate-clockwise">&#160;</div>
+                    <div class="icon-arrow-switch">&#160;</div>
+                    <div class="icon-arrow-turn-left">&#160;</div>
+                    <div class="icon-arrow-turn-right">&#160;</div>
+                    <div class="icon-arrow-undo">&#160;</div>
+                    <div class="icon-arrow-up">&#160;</div>
+                    <div class="icon-star">&#160;</div>
+                    <div class="icon-tux">&#160;</div>
+                </div>
+            </div>
+            <div class="widget sort ui-resizable">
+                <div class="head">display</div>
+                <div class="body">widget</div>
+            </div>
+            <div class="widget sort ui-resizable">
+                <div class="head">control</div>
+                <div class="body">widget</div>
+            </div>
+        </div>--><!-- end side -->
+
+
+    <!--</div>--><!-- end main -->
+
+    </body>
+
+    <!-- script testing area: production code goes elsewhere -->
+    <script type="text/javascript">
+    /*
+    $.myVolume = $('#media-player .volume-slider').slider({
+        handle: '.volume-slider-handle',
+        axis: 'vertical'
+    });
+    $.myPosition = $('#media-player .position-slider').slider({
+        handle: '.position-slider-handle',
+        axis: 'horizontal'
+    });
+    */
+                /*
+                $.myPosition.slider('destroy');
+                $.myPosition.slider({
+                    handle: '.position-slider-handle',
+                    axis: 'horizontal',
+                    min: 0,
+                    max: this.durationEstimate
+                });
+                */
+                //$.myPosition.slider('moveTo',this.position)
+    /*
+    $.extend(soundManager, {
+        url: './res/ui/swf/',
+        debugMode: false,
+        defaultOptions: {
+            volume: 100,
+            stream: true,
+            autoLoad: true,
+            autoPlay: true
+        }
+    });
+    soundManager.onload = function() {
+        soundManager.createSound({
+            id: 'test3',
+            url: 'http://dev.globalquran.com/audio/www.everyayah.com/data/Muhammad_Ayyoub_128kbps/003000.mp3',
+            onload: function() {
+            },
+            whileplaying: function() {
+            }
+        });
+    };
+    */
+    </script>
+</html>

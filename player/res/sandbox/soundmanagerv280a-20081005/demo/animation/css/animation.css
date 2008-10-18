@@ -1,0 +1,17 @@
+body {
+ font-size:75%;
+}
+
+h1, h2 {
+ font-size:2em;
+}
+
+p {
+ font:normal 1em verdana,tahoma,arial,"sans serif";
+}
+
+.balls img {
+ position:absolute;
+ width:12px;
+ height:12px;
+}

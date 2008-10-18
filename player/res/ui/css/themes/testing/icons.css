@@ -1,0 +1,65 @@
+div[class*="icon-"] {
+    display        : inline-block;
+    position       : relative;
+    vertical-align : top;
+    width          : 16px;
+    height         : 16px;
+    cursor         : pointer;
+}
+
+.icon-control-eject { background: url(../../../img/icons/fam/png/control_eject.png) no-repeat center center !important; }
+.icon-control-eject.on { background: url(../../../img/icons/fam/png/control_eject_blue.png) no-repeat center center !important; }
+.icon-control-end { background: url(../../../img/icons/fam/png/control_end.png) no-repeat center center !important; }
+.icon-control-end.on { background: url(../../../img/icons/fam/png/control_end_blue.png) no-repeat center center !important; }
+.icon-control-equalizer { background: url(../../../img/icons/fam/png/control_equalizer.png) no-repeat center center !important; }
+.icon-control-equalizer.on { background: url(../../../img/icons/fam/png/control_equalizer_blue.png) no-repeat center center !important; }
+.icon-control-fastforward { background: url(../../../img/icons/fam/png/control_fastforward.png) no-repeat center center !important; }
+.icon-control-fastforward.on { background: url(../../../img/icons/fam/png/control_fastforward_blue.png) no-repeat center center !important; }
+.icon-control-pause { background: url(../../../img/icons/fam/png/control_pause.png) no-repeat center center !important; }
+.icon-control-pause.on { background: url(../../../img/icons/fam/png/control_pause_blue.png) no-repeat center center !important; }
+.icon-control-play { background: url(../../../img/icons/fam/png/control_play.png) no-repeat center center !important; }
+.icon-control-play.on { background: url(../../../img/icons/fam/png/control_play_blue.png) no-repeat center center !important; }
+.icon-control-repeat { background: url(../../../img/icons/fam/png/control_repeat.png) no-repeat center center !important; }
+.icon-control-repeat.on { background: url(../../../img/icons/fam/png/control_repeat_blue.png) no-repeat center center !important; }
+.icon-control-rewind { background: url(../../../img/icons/fam/png/control_rewind.png) no-repeat center center !important; }
+.icon-control-rewind.on { background: url(../../../img/icons/fam/png/control_rewind_blue.png) no-repeat center center !important; }
+.icon-control-start { background: url(../../../img/icons/fam/png/control_start.png) no-repeat center center !important; }
+.icon-control-start.on { background: url(../../../img/icons/fam/png/control_start_blue.png) no-repeat center center !important; }
+.icon-control-stop { background: url(../../../img/icons/fam/png/control_stop.png) no-repeat center center !important; }
+.icon-control-stop.on { background: url(../../../img/icons/fam/png/control_stop_blue.png) no-repeat center center !important; }
+
+.icon-sound { background: url(../../../img/icons/fam/png/sound.png) no-repeat center center !important; }
+.icon-sound-add { background: url(../../../img/icons/fam/png/sound_add.png) no-repeat center center !important; }
+.icon-sound-delete { background: url(../../../img/icons/fam/png/sound_delete.png) no-repeat center center !important; }
+.icon-sound-low { background: url(../../../img/icons/fam/png/sound_low.png) no-repeat center center !important; }
+.icon-sound-mute { background: url(../../../img/icons/fam/png/sound_mute.png) no-repeat center center !important; }
+.icon-sound-none { background: url(../../../img/icons/fam/png/sound_none.png) no-repeat center center !important; }
+
+.icon-resultset-first { background: url(../../../img/icons/fam/png/resultset_first.png) no-repeat center center !important; }
+.icon-resultset-last { background: url(../../../img/icons/fam/png/resultset_last.png) no-repeat center center !important; }
+.icon-resultset-next { background: url(../../../img/icons/fam/png/resultset_next.png) no-repeat center center !important; }
+.icon-resultset-previous { background: url(../../../img/icons/fam/png/resultset_previous.png) no-repeat center center !important; }
+
+.icon-arrow-branch { background: url(../../../img/icons/fam/png/arrow_branch.png) no-repeat center center !important; }
+.icon-arrow-divide { background: url(../../../img/icons/fam/png/arrow_divide.png) no-repeat center center !important; }
+.icon-arrow-down { background: url(../../../img/icons/fam/png/arrow_down.png) no-repeat center center !important; }
+.icon-arrow-inout { background: url(../../../img/icons/fam/png/arrow_inout.png) no-repeat center center !important; }
+.icon-arrow-in { background: url(../../../img/icons/fam/png/arrow_in.png) no-repeat center center !important; }
+.icon-arrow-join { background: url(../../../img/icons/fam/png/arrow_join.png) no-repeat center center !important; }
+.icon-arrow-left { background: url(../../../img/icons/fam/png/arrow_left.png) no-repeat center center !important; }
+.icon-arrow-merge { background: url(../../../img/icons/fam/png/arrow_merge.png) no-repeat center center !important; }
+.icon-arrow-out { background: url(../../../img/icons/fam/png/arrow_out.png) no-repeat center center !important; }
+.icon-arrow-redo { background: url(../../../img/icons/fam/png/arrow_redo.png) no-repeat center center !important; }
+.icon-arrow-refresh { background: url(../../../img/icons/fam/png/arrow_refresh.png) no-repeat center center !important; }
+.icon-arrow-refresh-small { background: url(../../../img/icons/fam/png/arrow_refresh_small.png) no-repeat center center !important; }
+.icon-arrow-right { background: url(../../../img/icons/fam/png/arrow_right.png) no-repeat center center !important; }
+.icon-arrow-rotate-anticlockwise { background: url(../../../img/icons/fam/png/arrow_rotate_anticlockwise.png) no-repeat center center !important; }
+.icon-arrow-rotate-clockwise { background: url(../../../img/icons/fam/png/arrow_rotate_clockwise.png) no-repeat center center !important; }
+.icon-arrow-switch { background: url(../../../img/icons/fam/png/arrow_switch.png) no-repeat center center !important; }
+.icon-arrow-turn-left { background: url(../../../img/icons/fam/png/arrow_turn_left.png) no-repeat center center !important; }
+.icon-arrow-turn-right { background: url(../../../img/icons/fam/png/arrow_turn_right.png) no-repeat center center !important; }
+.icon-arrow-undo { background: url(../../../img/icons/fam/png/arrow_undo.png) no-repeat center center !important; }
+.icon-arrow-up { background: url(../../../img/icons/fam/png/arrow_up.png) no-repeat center center !important; }
+
+.icon-star { background: url(../../../img/icons/fam/png/star.png) no-repeat center center !important; }
+.icon-tux { background: url(../../../img/icons/fam/png/tux.png) no-repeat center center !important; }

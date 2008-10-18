@@ -1,0 +1,41 @@
+.position-slider {
+    display        : inline-block;
+    position       : relative;
+    vertical-align : top;
+    background     : #cccccc;
+    width          : 100%; 
+    height         : 3px;
+    margin-top     : 4px;
+    margin-bottom  : 4px;
+    border         : 1px solid #777777;
+}
+.position-slider-handle {
+    display        : inline-block;
+    position       : relative;
+    top            : -5px;
+    vertical-align : top;
+    background     : url(handle.png);
+    width          : 21px;
+    height         : 13px;
+}
+
+.volume-slider {
+    display        : inline-block;
+    position       : relative;
+    vertical-align : top;
+    background     : #cccccc;
+    width          : 3px;
+    margin-left    : 4px;
+    margin-right   : 4px;
+    height         : 72px;
+    border         : 1px solid #777777;
+}
+.volume-slider-handle {
+    display        : inline-block;
+    position       : relative;
+    left           : -9px;
+    vertical-align : top;
+    background     : url(handle.png);
+    width          : 21px;
+    height         : 13px;
+}

@@ -1,0 +1,2 @@
+# would like to redirect http://whatever/any/path/get/param1/value1/param2/value2 to /lib/get.php i.e. rails style routing 
+# have to lookup rules on mod_rewrite for apache to do this

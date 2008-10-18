@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<link rel="stylesheet" href="css/animation.css" media="screen" />
+<script type="text/javascript" src="../../script/soundmanager2-nodebug-jsmin.js"></script>
+<script type="text/javascript" src="script/animation.js"></script>
+</head>
+<body>
+
+<h1>Interval-based animation (with sound)</h1>
+
+<p>
+ Click + drag for fun.
+</p>
+
+<p>
+ <input id="useMouse" name="usemouse" value="usemouse" type="checkbox"> Throw from mouse
+</p>
+<p>
+ <button id="b-start" onclick="startAnimation()" disabled="disabled">Start</button>
+ <button id="b-stop" onclick="stopAnimation()" disabled="disabled">Stop</button>
+</p>
+
+<p>Note there may be a noticeable delay in sound (behind animation.) This may be due to the way javascript parsing XML and using eval() is apparently used when doing JS-to-Flash communication with externalInterface - this has yet to be investigated. If minimizing delay is crucial, the <a href="http://www.schillmania.com/projects/soundmanager/" title="SoundManager 1">original SoundManager 1 project</a> can provide virtually delay-free audio (albeit with a few other quirks and limitations.)</p>
+
+<p>Sound source: <a href="http://freesound.iua.upf.edu/samplesViewSingle.php?id=19987">"Acclivity"</a>, Free Sound Project</p>
+
+<p>
+ <a href="../">SoundManager 2 Demos</a>
+</p>
+
+<div id="ball-container" class="balls">
+ <img src="image/ball.gif" alt="" />
+</div>
+
+</body>
+</html>
