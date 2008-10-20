@@ -29,6 +29,10 @@
 
     $.quran.set_state = function(key, value) {
         $.quran.state[key] = value;
+        $.quran.trigger('state-change',{
+            key: key,
+            value: value
+        });
     };
 
     $.quran.restore_state = function() {
