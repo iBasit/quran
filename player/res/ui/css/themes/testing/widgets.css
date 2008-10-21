@@ -31,3 +31,18 @@
     padding-right : 3px;
     height: 100%;
 }
+.name-label {
+    float: left;
+}
+.sort-handle {
+    width: 20px;
+    height: 20px;
+    background: white;
+    float: right;
+}
+.drag-handle {
+    width: 20px;
+    height: 20px;
+    background: gray;
+    float: right;
+}

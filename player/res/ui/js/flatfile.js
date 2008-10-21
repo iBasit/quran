@@ -24,6 +24,7 @@ $.quran.save_application_state = function() {
                 }
             }
         } else if ((typeof $.quran._state[key] == 'number') || (typeof $.quran._state[key] == 'string')) {
+            keys.push(key);
             $.cookie(key, $.quran._state[key]);
         }
     }
@@ -48,9 +49,7 @@ $.quran.restore_application_state = function() {
         for (var key in objects) {
             $.quran.set_state(key, objects[key]);
         }
-        
     }
-
     $.quran.trigger('application-state-restored');
 };
 $(window).load(function() {
@@ -62,17 +61,25 @@ $(window).unload(function() {
 var widgets_selector = '#widgets';
 $.quran._init_widget = function(widget,options) {
     var callbacks = options.bind;
-    for (var event_name in callbacks) {
-        $.quran.bind(event_name, function(ev,data) {
-            callbacks[event_name].call(widget,data);
+    $.each(callbacks, function(ev_name, callback) {
+        $.quran.bind(ev_name, function(ev,data) {
+            callback.call(widget,data);
         });
-    }
+    });
 
     var name = options.name || 'give me a name!';
     var node = $('<div class="widget" id="'+ widget.widgetBaseClass +'">');
-    var head = $('<div class="head">'+ name +'</div>');
+    var head = $('<div class="head">');
+    var name_label = $('<div class="name-label">'+ name +'</div>');
+    var sort_handle = $('<div class="sort-handle">');
+    var drag_handle = $('<div class="drag-handle">');
     var body = $('<div class="body">');
     $(document).ready(function() {
+        head
+            .append(name_label)
+            .append(sort_handle)
+            .append(drag_handle)
+        ;
         node
             .append(head)
             .append(body)
@@ -237,11 +244,25 @@ function change_aya(ev, keyword_or_obj) {
 
     aya_after = $.quran.get_state('aya');
 
-    if (aya_before && (aya_before.id != aya_after.id)) {
+    if (!aya_before || (aya_before.id != aya_after.id)) {
         $.quran.trigger('aya-changed', aya_after);
     }
 }
+function change_recitor(ev, recitor) {
+    var recitor_before, recitor_after;
+
+    recitor_before = $.quran.get_state('recitor');
+
+    $.quran.set_state('recitor', recitor);
+
+    recitor_after = $.quran.get_state('recitor');
+
+    if (!recitor_before || (recitor_before != recitor_after)) {
+        $.quran.trigger('recitor-changed', recitor_after);
+    }
+}
 $.quran.bind('change-aya', change_aya);
+$.quran.bind('change-recitor', change_recitor);
 })(jQuery);
 (function($) {
 $.widget('quran.controller', {
@@ -251,7 +272,9 @@ $.widget('quran.controller', {
             name: 'Controller',
             bind: {
                 'aya-changed': this.set_aya,
+                'recitor-changed': this.set_recitor,
                 'application-state-restored': function() {
+                    console.log('state restore',arguments);
                     var aya_obj = $.quran.get_state('aya');
                     if (aya_obj) {
                         this.set_aya(aya_obj);
@@ -263,48 +286,147 @@ $.widget('quran.controller', {
                 }
             }
         });
-        var recitor_select = $('<select>');
-        var sura_select = $('<select>');
-        var aya_select = $('<select>');
+        this.recitor_select = $('<select>');
+        this.sura_select = $('<select>');
+        this.aya_select = $('<select>');
 
+        var my = this;
         function populate_recitors() {
             console.log('populate recitors');
+            for (var i=0; i < $.quran.config.recitors.length; i++) {
+                my.recitor_select
+                    .append('<option value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] +'</option>');
+            }
         }
         function populate_suras() {
             console.log('populate suras');
+            for (var i=1; i < $.quran.data.sura.length - 1; i++) {
+                 my.sura_select
+                    .append('<option value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>');
+            }
         }
-        function populate_ayas() {
-            console.log('populate ayas');
+        function set_defaults() {
+            if (!$.quran.get_state('recitor')) {
+                $.quran.set_state('recitor', my.recitor_select[0].options[my.recitor_select[0].selectedIndex].value);
+            }
+            if (!$.quran.get_state('aya')) {
+                $.quran.set_state('aya', { id: 1, aya: 1, sura: 1 });
+            }
         }
 
         populate_recitors();
         populate_suras();
-        populate_ayas();
+        set_defaults();
 
-        this.body.append(recitor_select);
-        this.body.append(sura_select);
-        this.body.append(aya_select);
+        this.recitor_select.change(function() {
+            console.log('recitor select change setting state');
+            $.quran.trigger('change-recitor', $(this)[0].options[$(this)[0].selectedIndex].value);
+        });
+        this.sura_select.change(function() {
+            console.log('sura select change setting state');
+            $.quran.trigger('change-aya', { sura: $(this)[0].options[$(this)[0].selectedIndex].value });
+        });
+        this.aya_select.change(function() {
+            console.log('aya select change setting state');
+            $.quran.trigger('change-aya', { id: $(this)[0].options[$(this)[0].selectedIndex].value });
+        });
+
+        this.body.append(this.recitor_select);
+        this.body.append(this.sura_select);
+        this.body.append(this.aya_select);
+
+        this.prev_sura_button = $('<div class="icon-resultset-first">&#160;</div>');
+        this.prev_aya_button = $('<div class="icon-resultset-previous">&#160;</div>');
+        this.next_aya_button = $('<div class="icon-resultset-next">&#160;</div>');
+        this.next_sura_button = $('<div class="icon-resultset-last">&#160;</div>');
+
+        this.prev_sura_button.click(function() { my.prev_sura.call(my); });
+        this.prev_aya_button.click(function() { my.prev_aya.call(my); });
+        this.next_aya_button.click(function() { my.next_aya.call(my); });
+        this.next_sura_button.click(function() { my.next_sura.call(my); });
+
+        this.body.append(this.prev_sura_button);
+        this.body.append(this.prev_aya_button);
+        this.body.append(this.next_aya_button);
+        this.body.append(this.next_sura_button);
     },
     set_aya: function(aya_obj) {
         console.log('set_aya',aya_obj);
+        if (!this.last_sura || (this.last_sura != aya_obj.sura)) {
+            console.log('!= sura');
+            this.set_sura(aya_obj.sura);
+            this.aya_select.html('');
+            for (var i=1; i <= $.quran.data.sura[aya_obj.sura][1]; i++) {
+                var index = $.quran.data.sura[aya_obj.sura][0] + i;
+                this.aya_select
+                    .append('<option value='+ index +'>'+ i + '</option>');
+            }
+            this.last_sura = aya_obj.sura;
+        }
+        var selectedIndex = 0;
+        for (var i = 0; i < this.aya_select[0].options.length; i++) {
+            var option = this.aya_select[0].options[i];
+            if (option.value == aya_obj.id) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        this.aya_select[0].selectedIndex = selectedIndex;
     },
     get_aya: function() {
+        return parseInt(this.aya_select[0].options[this.aya_select[0].selectedIndex].value);
     },
-    set_sura: function() {
+    set_sura: function(sura) {
+        console.log('set sura',sura);
+        var selectedIndex = 0;
+        for (var i = 0; i < this.sura_select[0].options.length; i++) {
+            var option = this.sura_select[0].options[i];
+            if (option.value == sura) {
+                selectedIndex = i;
+                break;
+            }
+        }
+        this.sura_select[0].selectedIndex = selectedIndex;
     },
     get_sura: function() {
+        return parseInt(this.sura_select[0].options[this.sura_select[0].selectedIndex].value);
     },
-    set_recitor: function() {
+    set_recitor: function(recitor) {
+        if (recitor != this.get_recitor()) { 
+            console.log('set recitor',recitor);
+            var selectedIndex = 0;
+            for (var i = 0; i < this.recitor_select[0].options.length; i++) {
+                var option = this.recitor_select[0].options[i];
+                if (option.value == recitor) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+            this.recitor_select[0].selectedIndex = selectedIndex;
+        }
     },
     get_recitor: function() {
+        return this.recitor_select[0].options[this.recitor_select[0].selectedIndex].value;
     },
     prev_aya: function() {
+        $.quran.trigger('change-aya','prev');
     },
     prev_sura: function() {
+        var sura = this.get_sura() - 1;
+        if ((sura <= 0) || (sura > 114)) {
+            sura = 114;
+        }
+        $.quran.trigger('change-aya', { sura: sura });
     },
     next_aya: function() {
+        $.quran.trigger('change-aya','next');
     },
     next_sura: function() {
+        var sura = this.get_sura() + 1;
+        if ((sura <= 0) || (sura > 114)) {
+            sura = 1;
+        }
+        $.quran.trigger('change-aya', { sura: sura });
     }
 });
 $(document).ready(function() {
@@ -316,13 +438,46 @@ $.widget('quran.player', {
         this.body = $.quran._init_widget(this, {
             name: 'Player',
             bind: {
-                'aya-changed': this.set_track
+                'aya-changed': this.set_track,
+                'recitor-changed': function(recitor) {
+                    this.set_track(undefined, recitor);
+                },
+                'application-state-restored': function() {
+                    var aya_obj = $.quran.get_state('aya');
+                    var recitor = $.quran.get_state('recitor');
+                    if (aya_obj && recitor) {
+                        this.set_track(aya_obj,recitor);
+                    }
+                }
             }
         });
-        this.body.append('content!');
+
+        this.play_button = $('<div class="icon-control-play">');
+        this.position_slider = $('<div class="position-slider">');
+        this.position_slider_handle = $('<div class="position-slider-handle">').appendTo(this.position_slider);
+        this.time_played_indicator = $('<div>');
+        this.time_total_indicator = $('<div>');
+        this.volume_slider = $('<div class="volume-slider">');
+        this.volume_slider_handle = $('<div class="volume-slider-handle">').appendTo(this.volume_slider);
+        this.more_options_menu = $('<div>');
+
+
+        this.body.append(this.play_button);
+        this.body.append(this.position_slider);
+        this.body.append(this.time_played_indicator);
+        this.body.append(this.time_total_indicator);
+        this.body.append(this.volume_slider);
+        this.body.append(this.more_options_menu);
     },
-    set_track: function(aya_obj) {
-        console.log('set_track',aya_obj);
+    set_track: function(aya_obj,recitor) {
+        if (aya_obj === undefined) { //recitor change
+            console.log('set_track (recitor change)',aya_obj,recitor);
+        } else
+        if (recitor === undefined) { //aya change
+            console.log('set_track (aya change)',aya_obj,recitor);
+        } else { //fresh
+            console.log('set_track (fresh change)',aya_obj,recitor);
+        }
     },
     get_track: function() {
     },
