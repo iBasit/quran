@@ -12,9 +12,12 @@
         <script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script>
         <script type="text/javascript" src="./res/config/js/quran.js"></script>
         <script type="text/javascript" src="./res/data/js/quran.js"></script>
+        <!--
         <script type="text/javascript" src="./res/ui/js/quran.js"></script>
         <script type="text/javascript" src="./res/ui/js/controller.js"></script>
         <script type="text/javascript" src="./res/ui/js/player.js"></script>
+        -->
+        <script type="text/javascript" src="./res/ui/js/flatfile.js"></script>
         <script type="text/javascript">
         // For some reason this only works if it's here in the index page
         // I can't get it to work if its setup anywhere else, including the player widget
@@ -37,6 +40,7 @@
         </script>
     </head>
     <body>
+        <div id="widgets"></div>
     <!-- notice div: used for dialogs, pop-ups, alerts, errors, notices, modals, whatever -->
     <!--<div id="notice" style="display: none;" class="ui-dialog"></div>-->
 
@@ -165,4 +169,14 @@
 
     <!--</div>--><!-- end main -->
     </body>
+    <script type="text/javascript">
+        $(document.body).height($(document).height())
+        $('#widgets').sortable({
+            handle: '.head'
+        })
+        $('#widgets').draggable({
+            handle: '.body'
+        })
+
+    </script>
 </html>

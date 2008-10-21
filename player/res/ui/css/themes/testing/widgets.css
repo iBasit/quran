@@ -5,20 +5,29 @@
 @import "widgets/sortables.css";
 @import "widgets/tabs.css";
 
+#widgets {
+    width: 33%;
+    height: 66%;
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+}
 .widget {
     display     : block;
     font-family : sans-serif;
     font-size   : 11px;
     border      : 1px solid black;
+    background    : gray;
 }
 .widget>.head {
     background : black;
     color      : white;
+    height: 20px;
 }
 .widget>.body {
-    background    : gray;
     color         : black;
     padding       : 1px;
     padding-top   : 2px;
     padding-right : 3px;
+    height: 100%;
 }
