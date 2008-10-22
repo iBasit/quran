@@ -244,6 +244,9 @@ function change_aya(ev, keyword_or_obj) {
 
     aya_after = $.quran.get_state('aya');
 
+    if (!aya_before || (aya_before.sura != aya_after.sura)) {
+        $.quran.trigger('sura-changed', { previous: aya_before.sura, current: aya_after.sura });
+    }
     if (!aya_before || (aya_before.id != aya_after.id)) {
         $.quran.trigger('aya-changed', aya_after);
     }
@@ -445,16 +448,17 @@ $.widget('quran.player', {
         this.body = $.quran._init_widget(this, {
             name: 'Player',
             bind: {
-                'aya-changed': this.set_track,
-                'recitor-changed': function(recitor) {
-                    this.set_track(undefined, recitor);
-                },
                 'application-state-restored': function() {
                     var aya_obj = $.quran.get_state('aya');
                     var recitor = $.quran.get_state('recitor');
                     if (aya_obj && recitor) {
                         this.set_track(aya_obj,recitor);
                     }
+                },
+                'aya-changed': this.set_track,
+                'sura-changed': this.clear_cache,
+                'recitor-changed': function(recitor) {
+                    this.set_track(undefined, recitor);
                 }
             }
         });
@@ -467,6 +471,20 @@ $.widget('quran.player', {
             $(my).trigger(ev, data);
         };
         soundManager.onload  = function() {
+            function display_play_button() {
+                my.play_button.removeClass('pause-button');
+                my.play_button.addClass('play-button');
+            }
+            function display_pause_button() {
+                my.play_button.removeClass('play-button');
+                my.play_button.addClass('pause-button');
+            }
+            function turn_button_on() {
+                my.play_button.addClass('on');
+            }
+            function turn_button_off() {
+                my.play_button.removeClass('on');
+            }
             my.play_button = $('<div class="play-button">')
                 .hover(
                     function() {
@@ -479,25 +497,45 @@ $.widget('quran.player', {
                 .click(
                     function() {
                         if ($(this).hasClass('play-button')) {
-                            $(this).removeClass('play-button');
-                            $(this).addClass('pause-button');
+                            turn_button_off();
+                            display_pause_button();
                             my.play();
                         } else
-                        if ($(this).hasClass('pause-button') && !$(this).hasClass('on')) {
-                            my.pause();
-                            $(this).addClass('on');
-                        } else {
+                        if ($(this).hasClass('pause-button') && $(this).hasClass('on')) {
+                            turn_button_off();
                             my.resume();
-                            $(this).removeClass('on');
+                        } else {
+                            turn_button_on();
+                            my.pause();
                         }
                     }
                 )
             ;
+            my.bind('track-played', display_pause_button);
+            my.bind('track-paused', turn_button_on);
+            my.bind('track-resumed', turn_button_off);
+            my.bind('track-stopped', display_play_button);
+            my.bind('track-loaded', function() {
+                console.log('track loaded');
+                if ((my.get_mode() === 'continuous') && (my.get_state() === 'playing')) {
+                    my.play();
+                }
+            });
+            my.bind('track-loading', function() {
+                console.log('track loading');
+            });
+            var count = 0;
+            my.bind('track-playing', function() {
+                console.log('track playing',count++);
+            });
             my.bind('track-finished', function() {
+                count = 0;
                 console.log('track finished');
-                if (my.play_button.hasClass('pause-button')) {
-                    my.play_button.removeClass('pause-button');
-                    my.play_button.addClass('play-button');
+                if ((my.get_mode() === 'continuous') && (my.get_state() === 'playing')) {
+                    $.quran.trigger('change-aya','next');
+                } else
+                if (my.get_mode() === 'single') {
+                    display_play_button();
                 }
             });
             my.position_slider = $('<div class="position-slider">');
@@ -553,7 +591,35 @@ $.widget('quran.player', {
             });
         }
     },
+    clear_cache: function(sura_obj) {
+        console.log('clear cache');
+        function get_sura_prefix(sura) {
+            var prepend = '';
+            sura = sura.toString();
+
+            for (var i = sura.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            sura = prepend.concat(sura);
+
+            return sura;
+        }
+        var clear = $.grep(soundManager.soundIDs, function(id,n) {
+            var result = eval("id.match(/^"+ get_sura_prefix(sura_obj.previous) +"/)")? true : false;
+            return result;
+        });
+        $.each(clear, function(n,id) {
+            soundManager.destroySound(id);
+        });
+    },
     set_track: function(aya_obj,recitor) {
+        console.log('set track');
+        if (this.get_track()) {
+            console.log('attempting to stop');
+            this.stop();
+        } else {
+            console.log('!this dot get track');
+        }
         var mp3_id, mp3_url, mp3_name;
         if (aya_obj === undefined) { //recitor change
             aya_obj = $.quran.get_state('aya');
@@ -586,7 +652,7 @@ $.widget('quran.player', {
         }
         mp3_name = get_mp3_name(aya_obj.sura, aya_obj.aya);
         mp3_url = get_mp3_url(mp3_name);
-        mp3_id = recitor + ':' + mp3_name;
+        mp3_id = mp3_name + ':' + recitor;
 
         var my = this;
         if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
@@ -594,14 +660,24 @@ $.widget('quran.player', {
                 id: mp3_id,
                 url: mp3_url,
                 onfinish: function() {
-                    console.log('finish');
+                    console.log('onfinish');
                     my.trigger('track-finished');
+                },
+                onload: function() {
+                    my.trigger('track-loaded');
+                },
+                whileloading: function() {
+                    my.trigger('track-loading');
+                },
+                whileplaying: function() {
+                    my.trigger('track-playing');
                 }
             });
         } else {
             this._track = soundManager.getSoundById(mp3_id);
         }
         //debug
+        window.player = this;
         window.sound = this._track;
     },
     get_track: function() {
@@ -622,21 +698,46 @@ $.widget('quran.player', {
     },
     get_volume: function() {
     },
-    set_mode: function() {
+    set_mode: function(mode) {
+        this._mode = mode;
     },
     get_mode: function() {
+        return this._mode || 'single';
+    },
+    set_state: function(state) {
+        this._state = state;
+    },
+    get_state: function() {
+        return this._state || 'stopped';
     },
     play: function() {
         console.log('play');
         this.get_track().play();
+        this.set_state('playing');
+        this.trigger('track-played');
     },
     pause: function() {
         console.log('pause');
         this.get_track().pause();
+        this.set_state('paused');
+        this.trigger('track-paused');
     },
     resume: function() {
         console.log('resume');
         this.get_track().resume();
+        this.set_state('playing');
+        this.trigger('track-resumed');
+    },
+    stop: function() {
+        console.log('stop attempt',this.get_state());
+        if (this.get_track().playState == 1) {
+            console.log('stop', this.get_track().playState);
+            this.get_track().stop();
+            this.set_state('stopped');
+            this.trigger('track-stopped');
+        } else {
+            console.log('!stop', this.get_track().playState);
+        }
     }
 });
 $(document).ready(function() {
