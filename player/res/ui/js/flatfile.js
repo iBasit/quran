@@ -286,6 +286,11 @@ $.widget('quran.controller', {
                 }
             }
         });
+
+        this.body.css({
+            height: '60px'
+        });
+
         this.recitor_select = $('<select>');
         this.sura_select = $('<select>');
         this.aya_select = $('<select>');
@@ -334,6 +339,8 @@ $.widget('quran.controller', {
         this.body.append(this.recitor_select);
         this.body.append(this.sura_select);
         this.body.append(this.aya_select);
+
+        this.body.append($('<div>'));
 
         this.prev_sura_button = $('<div class="icon-resultset-first">&#160;</div>');
         this.prev_aya_button = $('<div class="icon-resultset-previous">&#160;</div>');
@@ -452,42 +459,164 @@ $.widget('quran.player', {
             }
         });
 
-        this.play_button = $('<div class="icon-control-play">');
-        this.position_slider = $('<div class="position-slider">');
-        this.position_slider_handle = $('<div class="position-slider-handle">').appendTo(this.position_slider);
-        this.time_played_indicator = $('<div>');
-        this.time_total_indicator = $('<div>');
-        this.volume_slider = $('<div class="volume-slider">');
-        this.volume_slider_handle = $('<div class="volume-slider-handle">').appendTo(this.volume_slider);
-        this.more_options_menu = $('<div>');
+        var my = this;
+        my.bind = function(ev, fn) {
+            $(my).bind(ev, fn);
+        };
+        my.trigger = function(ev, data) {
+            $(my).trigger(ev, data);
+        };
+        soundManager.onload  = function() {
+            my.play_button = $('<div class="play-button">')
+                .hover(
+                    function() {
+                        $(this).toggleClass('hover');
+                    },
+                    function() {
+                        $(this).toggleClass('hover');
+                    }
+                )
+                .click(
+                    function() {
+                        if ($(this).hasClass('play-button')) {
+                            $(this).removeClass('play-button');
+                            $(this).addClass('pause-button');
+                            my.play();
+                        } else
+                        if ($(this).hasClass('pause-button') && !$(this).hasClass('on')) {
+                            my.pause();
+                            $(this).addClass('on');
+                        } else {
+                            my.resume();
+                            $(this).removeClass('on');
+                        }
+                    }
+                )
+            ;
+            my.bind('track-finished', function() {
+                console.log('track finished');
+                if (my.play_button.hasClass('pause-button')) {
+                    my.play_button.removeClass('pause-button');
+                    my.play_button.addClass('play-button');
+                }
+            });
+            my.position_slider = $('<div class="position-slider">');
+            my.position_slider_handle = $('<div class="position-slider-handle">')
+                .appendTo(this.position_slider)
+            ;
+            my.time_played_indicator = $('<div class="time-played-indicator">');
+            my.time_total_indicator = $('<div class="time-total-indicator">');
+            my.volume_button = $('<div class="volume-button icon-sound">')
+                .click(
+                    function() {
+                        my.volume_slider.css({
+                            position: 'fixed',
+                            left: $(this).offset().left,
+                            top: $(this).offset().top + 16
+                        });
+                        my.volume_slider.toggle();
+                    }
+                )
+            ;
+            my.volume_slider = $('<div class="volume-slider">')
+                .hide()
+            ;
+            my.volume_slider_handle = $('<div class="volume-slider-handle">')
+                .appendTo(this.volume_slider)
+            ;
+            my.more_options_button = $('<div class="more-options-button icon-arrow-down">')
+                .click(
+                    function() {
+                        my.more_options_menu.css({
+                            position: 'fixed',
+                            left: $(this).offset().left,
+                            top: $(this).offset().top + 16
+                        });
+                        my.more_options_menu.toggle();
+                    }
+                )
+            ;
+            my.more_options_menu = $('<div class="more-options-menu">')
+                .hide()
+            ;
 
-
-        this.body.append(this.play_button);
-        this.body.append(this.position_slider);
-        this.body.append(this.time_played_indicator);
-        this.body.append(this.time_total_indicator);
-        this.body.append(this.volume_slider);
-        this.body.append(this.more_options_menu);
-    },
-    set_track: function(aya_obj,recitor) {
-        if (aya_obj === undefined) { //recitor change
-            console.log('set_track (recitor change)',aya_obj,recitor);
-        } else
-        if (recitor === undefined) { //aya change
-            console.log('set_track (aya change)',aya_obj,recitor);
-        } else { //fresh
-            console.log('set_track (fresh change)',aya_obj,recitor);
+            my.body.append(my.play_button);
+            my.body.append(my.position_slider);
+            my.body.append(my.time_played_indicator);
+            my.body.append(my.time_total_indicator);
+            my.body.append(my.volume_button);
+            my.body.append(my.volume_slider);
+            my.body.append(my.more_options_button);
+            my.body.append(my.more_options_menu);
+            my.body.css({
+                height: '30px'
+            });
         }
     },
+    set_track: function(aya_obj,recitor) {
+        var mp3_id, mp3_url, mp3_name;
+        if (aya_obj === undefined) { //recitor change
+            aya_obj = $.quran.get_state('aya');
+        }
+        if (recitor === undefined) { //aya change
+            recitor = $.quran.get_state('recitor');
+        }
+        function get_mp3_name(sura,aya) {
+            var prepend;
+                
+            sura = sura.toString();
+            aya = aya.toString();
+
+            prepend = '';
+            for (var i = sura.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            sura = prepend.concat(sura);
+
+            prepend = '';
+            for (var i = aya.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            aya = prepend.concat(aya);
+
+            return sura + aya + '.mp3';
+        }
+        function get_mp3_url(mp3_name) {
+            return $.quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
+        }
+        mp3_name = get_mp3_name(aya_obj.sura, aya_obj.aya);
+        mp3_url = get_mp3_url(mp3_name);
+        mp3_id = recitor + ':' + mp3_name;
+
+        var my = this;
+        if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
+            this._track = soundManager.createSound({
+                id: mp3_id,
+                url: mp3_url,
+                onfinish: function() {
+                    console.log('finish');
+                    my.trigger('track-finished');
+                }
+            });
+        } else {
+            this._track = soundManager.getSoundById(mp3_id);
+        }
+        //debug
+        window.sound = this._track;
+    },
     get_track: function() {
+        return this._track;
     },
     set_range: function() {
     },
     get_range: function() {
+        return this._range;
     },
-    set_time: function() {
+    set_time: function(time) {
+        this.get_track().setPosition(time*1000);
     },
     get_time: function() {
+        return this.get_track().duration / 1000;
     },
     set_volume: function() {
     },
@@ -498,10 +627,16 @@ $.widget('quran.player', {
     get_mode: function() {
     },
     play: function() {
+        console.log('play');
+        this.get_track().play();
     },
     pause: function() {
+        console.log('pause');
+        this.get_track().pause();
     },
-    stop: function() {
+    resume: function() {
+        console.log('resume');
+        this.get_track().resume();
     }
 });
 $(document).ready(function() {

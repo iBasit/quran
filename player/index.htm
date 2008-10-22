@@ -9,7 +9,8 @@
         <script type="text/javascript" src="./res/ui/js/jquery.core.packed.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.ui.packed.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.cookie.js"></script>
-        <script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script>
+        <!--script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script-->
+        <script type="text/javascript" src="./res/ui/js/soundmanager.js"></script>
         <script type="text/javascript" src="./res/config/js/quran.js"></script>
         <script type="text/javascript" src="./res/data/js/quran.js"></script>
         <!--
@@ -23,20 +24,23 @@
         // I can't get it to work if its setup anywhere else, including the player widget
         $.extend(soundManager, {
             url: './res/ui/swf/',
-            debugMode: false,
-            useConsole: false,
+            debugMode: true,
+            useConsole: true,
             flashVersion: 8,
             flash9Options: {
                 usePeakData: false,
                 useWaveformData: false
             },
             defaultOptions: {
-                volume: 100,
                 stream: true,
                 autoLoad: true,
                 autoPlay: false
             }
         });
+        //debug
+        function dir(obj) {
+            console.dir(obj)
+        }
         </script>
     </head>
     <body>

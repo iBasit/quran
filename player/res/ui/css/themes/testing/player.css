@@ -1,5 +1,5 @@
 .position-slider {
-    display        : inline-block;
+    float: left;
     position       : relative;
     vertical-align : top;
     background     : #cccccc;
@@ -18,16 +18,44 @@
     width          : 21px;
     height         : 13px;
 }
-
-.volume-slider {
-    display        : inline-block;
+div[class*="-button"] {
+    float: left;
+    display        : inline;
     position       : relative;
+    vertical-align : top;
+    width          : 16px;
+    height         : 16px;
+    cursor         : pointer;
+}
+.play-button {
+    background: url(../../../img/icons/fam/png/control_play.png) no-repeat center center !important;
+}
+.play-button.hover {
+    background: url(../../../img/icons/fam/png/control_play_blue.png) no-repeat center center !important;
+}
+.pause-button {
+    background: url(../../../img/icons/fam/png/control_pause.png) no-repeat center center !important;
+}
+.pause-button.hover {
+    background: url(../../../img/icons/fam/png/control_pause_blue.png) no-repeat center center !important;
+}
+.pause-button.on {
+    background: url(../../../img/icons/fam/png/control_pause_red.png) no-repeat center center !important;
+}
+.volume-button {
+    float: left;
+}
+.more-options-button {
+    float: left;
+}
+.volume-slider {
+    float: left;
     vertical-align : top;
     background     : #cccccc;
     width          : 3px;
     margin-left    : 4px;
     margin-right   : 4px;
-    height         : 72px;
+    height         : 50px;
     border         : 1px solid #777777;
 }
 .volume-slider-handle {
@@ -38,4 +66,22 @@
     background     : url(handle.png);
     width          : 21px;
     height         : 13px;
+}
+.time-played-indicator {
+    float: left;
+    border: 1px solid black;
+    width: 20px;
+    height: 10px;
+}
+.time-total-indicator {
+    float: left;
+    border: 1px solid black;
+    width: 20px;
+    height: 10px;
+}
+.more-options-menu {
+    border: 1px solid black;
+    background: gray;
+    width: 20px;
+    height: 60px;
 }
