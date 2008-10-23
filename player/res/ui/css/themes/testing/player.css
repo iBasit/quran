@@ -9,7 +9,7 @@
     margin-bottom  : 4px;
     border         : 1px solid #777777;
 }
-.position-slider-handle {
+.position-slider .handle {
     display        : inline-block;
     position       : relative;
     top            : -5px;
@@ -58,7 +58,7 @@ div[class*="-button"] {
     height         : 50px;
     border         : 1px solid #777777;
 }
-.volume-slider-handle {
+.volume-slider .handle {
     display        : inline-block;
     position       : relative;
     left           : -9px;
@@ -67,17 +67,17 @@ div[class*="-button"] {
     width          : 21px;
     height         : 13px;
 }
-.time-played-indicator {
+div[class*="time-"] {
     float: left;
     border: 1px solid black;
     width: 20px;
     height: 10px;
 }
-.time-total-indicator {
-    float: left;
-    border: 1px solid black;
-    width: 20px;
-    height: 10px;
+.time-elapsed {
+    color: red;
+}
+.time-duration {
+    color: black;
 }
 .more-options-menu {
     border: 1px solid black;

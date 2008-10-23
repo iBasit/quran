@@ -25,13 +25,14 @@
         $.extend(soundManager, {
             url: './res/ui/swf/',
             debugMode: true,
-            useConsole: true,
+            useConsole: false,
             flashVersion: 8,
             flash9Options: {
                 usePeakData: false,
                 useWaveformData: false
             },
             defaultOptions: {
+                volume: 50,
                 stream: true,
                 autoLoad: true,
                 autoPlay: false
