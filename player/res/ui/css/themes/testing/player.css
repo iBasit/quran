@@ -1,16 +1,25 @@
-.position-slider {
-    float: left;
+.position-slider, .range-slider {
+    float          : left;
     position       : relative;
     vertical-align : top;
-    background     : #cccccc;
     width          : 70%; 
     height         : 3px;
-    margin-top     : 4px;
-    margin-bottom  : 4px;
+    margin-top     : 8px;
+    cursor         : pointer;
+}
+.position-slider {
+    background     : #cccccc;
+    z-index: 999999;
     border         : 1px solid #777777;
 }
-.position-slider .handle {
-    display        : inline-block;
+.range-slider {
+    background     : transparent;
+    z-index: 3;
+    border         : 1px solid transparent;
+}
+.handle.position {
+/*    display        : inline-block;*/
+    float          : left;
     position       : relative;
     top            : -5px;
     vertical-align : top;
@@ -18,8 +27,28 @@
     width          : 21px;
     height         : 13px;
 }
+.handle.position.focus {
+    background     : url(handle_focus.png);
+}
+.handle.range {
+/*    display        : inline; */
+    float          : left;
+    position       : relative;
+    top            : -17px;
+    vertical-align : top;
+    width          : 5px;
+    height         : 21px;
+}
+.handle.range.start {
+    background : url(range_handle_start.png) no-repeat;
+    padding-right: 2px;
+}
+.handle.range.end {
+    background : url(range_handle_end.png) no-repeat;
+    padding-left: 2px;
+}
 div[class*="-button"] {
-    float: left;
+    float          : left;
     display        : inline;
     position       : relative;
     vertical-align : top;
@@ -45,9 +74,6 @@ div[class*="-button"] {
 .volume-button {
     float: left;
 }
-.more-options-button {
-    float: left;
-}
 .volume-slider {
     float: left;
     vertical-align : top;
@@ -55,7 +81,7 @@ div[class*="-button"] {
     width          : 3px;
     margin-left    : 4px;
     margin-right   : 4px;
-    height         : 50px;
+    height         : 100px;
     border         : 1px solid #777777;
 }
 .volume-slider .handle {
@@ -69,7 +95,7 @@ div[class*="-button"] {
 }
 div[class*="time-"] {
     float: left;
-    border: 1px solid black;
+    background: white;
     width: 20px;
     height: 10px;
 }
@@ -79,9 +105,45 @@ div[class*="time-"] {
 .time-duration {
     color: black;
 }
+.more-options-button {
+    background: url(../../../img/icons/fam/png/arrow_down.png) no-repeat center center !important;
+}
 .more-options-menu {
-    border: 1px solid black;
-    background: gray;
-    width: 20px;
+    width: 16px;
     height: 60px;
+}
+.single-play-mode-button {
+    background: url(../../../img/icons/fam/png/arrow_undo.png) no-repeat center center !important;
+    opacity: 0.38;
+}
+.single-play-mode-button.on {
+    opacity: 1.00;
+}
+.interval-repeat-mode-button {
+    background: url(../../../img/icons/fam/png/arrow_refresh.png) no-repeat center center !important;
+    opacity: 0.38;
+}
+.interval-repeat-mode-button.on {
+    opacity: 1.00;
+}
+.aya-repeat-mode-button {
+    background: url(../../../img/icons/fam/png/arrow_redo.png) no-repeat center center !important;
+    opacity: 0.38;
+}
+.aya-repeat-mode-button.on {
+    opacity: 1.00;
+}
+.sura-repeat-mode-button {
+    background: url(../../../img/icons/fam/png/arrow_rotate_anticlockwise.png) no-repeat center center !important;
+    opacity: 0.38;
+}
+.sura-repeat-mode-button.on {
+    opacity: 1.00;
+}
+.continuous-play-mode-button {
+    background: url(../../../img/icons/fam/png/arrow_rotate_clockwise.png) no-repeat center center !important;
+    opacity: 0.38;
+}
+.continuous-play-mode-button.on {
+    opacity: 1.00;
 }
