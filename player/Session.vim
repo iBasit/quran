@@ -2,13 +2,23 @@ let SessionLoad = 1
 if &cp | set nocp | endif
 let s:cpo_save=&cpo
 set cpo&vim
+noremap! <Plug>CCMCCM :
 map! <S-Insert> *
+inoremap <S-Tab> 
 imap <silent> <Plug>IMAP_JumpBack =IMAP_Jumpfunc('b', 0)
 imap <silent> <Plug>IMAP_JumpForward =IMAP_Jumpfunc('', 0)
+noremap! <Plug>CCMCR 
+noremap! <Plug>CCMBS <BS>
+noremap! <Plug>CCMEsc 
+noremap! <Plug>CCMC-O 
+noremap! <Plug>CCMC-R 
+noremap! <Plug>CCMC-C 
+noremap! <Plug>CCMC-U 
 vmap <NL> <Plug>IMAP_JumpForward
 nmap <NL> <Plug>IMAP_JumpForward
 vmap  :call Toggle()
 nmap  :call Toggle()
+nmap o <Plug>ZoomWin
 map  a
 nmap ,cj :em CVS.Join\ in\ 
 nmap ,cp :em CVS.Import\ 
@@ -111,8 +121,27 @@ nmap ,cgf :em CVS.Settings\ .Info\ (buffer)\ 
 nmap ,cf :em CVS.Info\ 
 noremap / :call SearchCompleteStart()/
 map Q gq
-nmap <silent> \aocom :AlignPush:AlignCtrl g /[*/]\acom:AlignPop
+vmap [% [%m'gv``
+nmap <silent> \c <Plug>Traditionalj
+nmap <silent> \x <Plug>Traditional
+vmap <silent> \c <Plug>VisualTraditionalj
+vmap <silent> \x <Plug>VisualTraditional
 nmap <silent> \t@ :AlignCtrl mIp1P1=l @:'a,.Align
+nmap <silent> \aocom :AlignPush:AlignCtrl g /[*/]\acom:AlignPop
+nmap \gs :echo 'URL=' Thlnk_getCurResource()
+nmap \gc :call Thlnk_viewResourceMap()
+vmap \gr :call Thlnk_goUrlVis('read')
+vmap \gE :call Thlnk_goUrlVis('split')
+vmap \gV :call Thlnk_goUrlVis('sview')
+vmap \gu :call Thlnk_goUrlVis('edit')
+vmap \ge :call Thlnk_goUrlVis('edit')
+vmap \gv :call Thlnk_goUrlVis('view')
+nmap \gr :call Thlnk_goUrl('read')
+nmap \gE :call Thlnk_goUrl('split')
+nmap \gV :call Thlnk_goUrl('sview')
+nmap \gu :call Thlnk_goUrl('edit')
+nmap \ge :call Thlnk_goUrl('edit')
+nmap \gv :call Thlnk_goUrl('view')
 nmap \sv <Plug>SVNVimDiff
 nmap \su <Plug>SVNUpdate
 nmap \si <Plug>SVNInfo
@@ -137,6 +166,29 @@ map \mbt <Plug>TMiniBufExplorer
 map \mbu <Plug>UMiniBufExplorer
 map \mbc <Plug>CMiniBufExplorer
 map \mbe <Plug>MiniBufExplorer
+nnoremap <silent> \gwin :GWindow
+nmap \es :call ES_PlaceSigns()
+nmap \sh <Plug>DBHistory
+nmap \slv <Plug>DBListView
+nmap \slp <Plug>DBListProcedure
+nmap \slt <Plug>DBListTable
+vmap <silent> \slc :exec 'DBListColumn '.DB_getVisualBlock()
+nmap \slc <Plug>DBListColumn
+nmap \sbp <Plug>DBPromptForBufferParameters
+nmap \sdpa <Plug>DBDescribeProcedureAskName
+vmap <silent> \sdp :exec 'DBDescribeProcedure '.DB_getVisualBlock()
+nmap \sdp <Plug>DBDescribeProcedure
+nmap \sdta <Plug>DBDescribeTableAskName
+vmap <silent> \sdt :exec 'DBDescribeTable '.DB_getVisualBlock()
+nmap \sdt <Plug>DBDescribeTable
+nmap \sta <Plug>DBSelectFromTableAskName
+nmap \stw <Plug>DBSelectFromTableWithWhere
+vmap <silent> \st :exec 'DBSelectFromTable '.DB_getVisualBlock()
+nmap \st <Plug>DBSelectFromTable
+nmap <silent> \sel :.,.DBExecRangeSQL
+nmap <silent> \sea :1,$DBExecRangeSQL
+nmap \se <Plug>DBExecSQLUnderCursor
+vmap \se <Plug>DBExecVisualSQL
 nmap \cwr <Plug>CVSWatchRemove
 nmap \cwf <Plug>CVSWatchOff
 nmap \cwn <Plug>CVSWatchOn
@@ -157,15 +209,12 @@ nmap \cc <Plug>CVSCommit
 nmap \cG <Plug>CVSClearAndGotoOriginal
 nmap \cn <Plug>CVSAnnotate
 nmap \ca <Plug>CVSAdd
+omap \c <Plug>toggle
 map \rwp <Plug>RestoreWinPosn
 map \swp <Plug>SaveWinPosn
 nmap \ihn :IHN
 nmap \is :IHS:A
 nmap \ih :IHS
-vmap <silent> \x <Plug>VisualTraditional
-vmap <silent> \c <Plug>VisualTraditionalj
-nmap <silent> \x <Plug>Traditional
-nmap <silent> \c <Plug>Traditionalj
 vmap <silent> \Htd :<BS><BS><BS>ma'>\Htd
 vmap <silent> \tt :<BS><BS><BS>ma'>\tt
 vmap <silent> \tp@ :<BS><BS><BS>ma'>\tp@
@@ -206,7 +255,20 @@ map <silent> \tdW@ :AlignCtrl v ^\s*/[/*]:AlignCtrl mWp1P1=l @:'a,.Align
 map <silent> \tW@ :AlignCtrl mWp1P1=l @:'a,.Align
 omap <silent> \t@ :AlignCtrl mIp1P1=l @:'a,.Align
 omap <silent> \aocom :AlignPush:AlignCtrl g /[*/]\acom:AlignPop
+vmap ]% ]%m'gv``
+vmap a% [%v]%
 nmap gx <Plug>NetrwBrowseX
+noremap <Plug>CCMCCM :
+nmap <SNR>33_WS <Plug>AlignMapsWrapperStart
+nmap <SNR>33_WE <Plug>AlignMapsWrapperEnd
+noremap <Plug>Comment :call EnhancedCommentify('', 'comment')
+noremap <Plug>DeComment :call EnhancedCommentify('', 'decomment')
+noremap <Plug>Traditional :call EnhancedCommentify('', 'guess')
+noremap <Plug>FirstLine :call EnhancedCommentify('', 'first')
+noremap <Plug>VisualComment :call EnhancedCommentify('', 'comment',   line("'<"), line("'>"))
+noremap <Plug>VisualDeComment :call EnhancedCommentify('', 'decomment',   line("'<"), line("'>"))
+noremap <Plug>VisualTraditional :call EnhancedCommentify('', 'guess',   line("'<"), line("'>"))
+noremap <Plug>VisualFirstLine :call EnhancedCommentify('', 'first',   line("'<"), line("'>"))
 nnoremap <silent> <Plug>NetrwBrowseX :call netrw#NetrwBrowseX(expand("<cWORD>"),0)
 nnoremap <silent> <Plug>SVNCommitDiff :SVNCommitDiff
 nnoremap <silent> <Plug>SVNVimDiff :SVNVimDiff
@@ -249,28 +311,33 @@ nnoremap <silent> <Plug>CVSDiff :CVSDiff
 nnoremap <silent> <Plug>CVSCommit :CVSCommit
 nnoremap <silent> <Plug>CVSAnnotate :CVSAnnotate
 nnoremap <silent> <Plug>CVSAdd :CVSAdd
+noremap <Plug>CCMCR 
+noremap <Plug>CCMBS <BS>
+noremap <Plug>CCMEsc 
+noremap <Plug>CCMC-O 
+noremap <Plug>CCMC-R 
+noremap <Plug>CCMC-C 
+noremap <Plug>CCMC-U 
+nnoremap <Plug>CCM? ?
+nnoremap <Plug>CCM/ /
+nnoremap <Plug>CCM: :
 nmap <silent> <Plug>RestoreWinPosn :call RestoreWinPosn()
 nmap <silent> <Plug>SaveWinPosn :call SaveWinPosn()
-noremap <Plug>VisualFirstLine :call EnhancedCommentify('', 'first',   line("'<"), line("'>"))
-noremap <Plug>VisualTraditional :call EnhancedCommentify('', 'guess',   line("'<"), line("'>"))
-noremap <Plug>VisualDeComment :call EnhancedCommentify('', 'decomment',   line("'<"), line("'>"))
-noremap <Plug>VisualComment :call EnhancedCommentify('', 'comment',   line("'<"), line("'>"))
-noremap <Plug>FirstLine :call EnhancedCommentify('', 'first')
-noremap <Plug>Traditional :call EnhancedCommentify('', 'guess')
-noremap <Plug>DeComment :call EnhancedCommentify('', 'decomment')
-noremap <Plug>Comment :call EnhancedCommentify('', 'comment')
-nmap <SNR>33_WE <Plug>AlignMapsWrapperEnd
-nmap <SNR>33_WS <Plug>AlignMapsWrapperStart
+nmap <SNR>36_WE <Plug>AlignMapsWrapperEnd
+nmap <SNR>36_WS <Plug>AlignMapsWrapperStart
+imap 	 
 imap <NL> <Plug>IMAP_JumpForward
 imap  :call Toggle()
+imap  =CtrlXPP()
 inoremap  =GetCloseTag()
+imap <silent> \c <Plug>Traditionalji
+imap <silent> \x <Plug>Traditional
 imap \ihn :IHN
 imap \is :IHS:A
 imap \ih :IHS
-imap <silent> \x <Plug>Traditional
-imap <silent> \c <Plug>Traditionalji
 let &cpo=s:cpo_save
 unlet s:cpo_save
+set paste
 set autoindent
 set background=dark
 set backspace=2
@@ -288,14 +355,17 @@ set mouse=a
 set mousemodel=popup
 set ruler
 set shiftwidth=4
+set showtabline=3
 set smarttab
 set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.info,.aux,.log,.dvi,.bbl,.out,.o,.lo
+set tabline=qweqwe
 set tabstop=4
 set termencoding=utf-8
+set toolbar=
 set viminfo=!,'20,\"500
 set window=59
+set winheight=100000
 set winminwidth=20
-set winwidth=25
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
 silent only
@@ -304,8 +374,8 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +78 index.htm
-badd +1 res/ui/js/player.js
+badd +23 index.htm
+badd +33 res/ui/js/player.js
 badd +1 res/ui/js/quran.js
 badd +1 res/ui/js/controller.js
 badd +1 res/config/js/quran.js
@@ -322,8 +392,12 @@ badd +1 res/ui/css/themes/testing/widgets/resizables.css
 badd +1 res/ui/css/themes/testing/widgets/sliders.css
 badd +1 res/ui/css/themes/testing/widgets/sortables.css
 badd +1 res/ui/css/themes/testing/widgets/tabs.css
+badd +1 res/ui/js/flatfile.js
+badd +28 res/ui/css/player2.css
+badd +1 res/ui/js/player2.js
+badd +1 res/ui/js/index.html
 args index.htm res/ui/js/player.js res/ui/js/quran.js res/ui/js/controller.js res/config/js/quran.js res/data/js/quran.js res/ui/css/themes/testing/all.css res/ui/css/themes/testing/icons.css res/ui/css/themes/testing/player.css res/ui/css/themes/testing/screen.css res/ui/css/themes/testing/testing.css res/ui/css/themes/testing/widgets.css res/ui/css/themes/testing/widgets/accordions.css res/ui/css/themes/testing/widgets/dialogs.css res/ui/css/themes/testing/widgets/resizables.css res/ui/css/themes/testing/widgets/sliders.css res/ui/css/themes/testing/widgets/sortables.css res/ui/css/themes/testing/widgets/tabs.css
-edit index.htm
+edit res/ui/css/player2.css
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
@@ -336,9 +410,9 @@ set nosplitbelow
 set nosplitright
 wincmd t
 set winheight=1 winwidth=1
-exe 'vert 1resize ' . ((&columns * 25 + 90) / 180)
-exe 'vert 2resize ' . ((&columns * 95 + 90) / 180)
-exe 'vert 3resize ' . ((&columns * 58 + 90) / 180)
+exe 'vert 1resize ' . ((&columns * 20 + 138) / 276)
+exe 'vert 2resize ' . ((&columns * 81 + 138) / 276)
+exe 'vert 3resize ' . ((&columns * 173 + 138) / 276)
 argglobal
 enew
 file -MiniBufExplorer-
@@ -348,9 +422,9 @@ nnoremap <buffer> 	 :call search('\[[0-9]*:[^\]]*\]'):<BS>
 nnoremap <buffer> j gj
 nnoremap <buffer> k gk
 nnoremap <buffer> p :wincmd p:<BS>
-nnoremap <buffer> <Down> gj
-nnoremap <buffer> <Up> gk
 nnoremap <buffer> <S-Tab> :call search('\[[0-9]*:[^\]]*\]','b'):<BS>
+nnoremap <buffer> <Up> gk
+nnoremap <buffer> <Down> gj
 let &cpo=s:cpo_save
 unlet s:cpo_save
 setlocal keymap=
@@ -453,6 +527,7 @@ setlocal nowrap
 setlocal wrapmargin=0
 wincmd w
 argglobal
+edit res/ui/css/player2.css
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -465,8 +540,8 @@ setlocal nocindent
 setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
 setlocal cinoptions=
 setlocal cinwords=if,else,while,do,for,switch
-setlocal comments=s:<!--,m:\ \ \ \ ,e:-->
-setlocal commentstring=<!--%s-->
+setlocal comments=s1:/*,mb:*,ex:*/
+setlocal commentstring=/*%s*/
 setlocal complete=.,w,b,u,t,i
 setlocal completefunc=
 setlocal nocopyindent
@@ -480,8 +555,8 @@ setlocal nodiff
 setlocal equalprg=
 setlocal errorformat=
 setlocal expandtab
-if &filetype != 'xhtml'
-setlocal filetype=xhtml
+if &filetype != 'css'
+setlocal filetype=css
 endif
 setlocal foldcolumn=0
 setlocal foldenable
@@ -497,9 +572,9 @@ setlocal formatexpr=
 setlocal formatoptions=croql
 setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
 setlocal grepprg=
-setlocal iminsert=2
+setlocal iminsert=0
 setlocal imsearch=2
-setlocal include=
+setlocal include=^\\s*@import\\s\\+\\%(url(\\)\\=
 setlocal includeexpr=
 setlocal indentexpr=
 setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
@@ -510,7 +585,7 @@ setlocal nolinebreak
 setlocal nolisp
 setlocal nolist
 setlocal makeprg=
-setlocal matchpairs=(:),{:},[:],<:>
+setlocal matchpairs=(:),{:},[:]
 setlocal nomodeline
 setlocal modifiable
 setlocal nrformats=octal,hex
@@ -518,7 +593,7 @@ set number
 setlocal number
 set numberwidth=3
 setlocal numberwidth=3
-setlocal omnifunc=htmlcomplete#CompleteTags
+setlocal omnifunc=csscomplete#CompleteCSS
 setlocal path=
 setlocal nopreserveindent
 setlocal nopreviewwindow
@@ -539,8 +614,8 @@ setlocal statusline=
 setlocal suffixesadd=
 setlocal swapfile
 setlocal synmaxcol=3000
-if &syntax != 'xhtml'
-setlocal syntax=xhtml
+if &syntax != 'css'
+setlocal syntax=css
 endif
 setlocal tabstop=4
 setlocal tags=
@@ -552,15 +627,15 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 56 - ((55 * winheight(0) + 29) / 58)
+let s:l = 28 - ((27 * winheight(0) + 41) / 83)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-56
-normal! 012l
+28
+normal! 01l
 wincmd w
 argglobal
-edit res/ui/js/player.js
+edit res/ui/js/flatfile.js
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -660,23 +735,23 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 18 - ((16 * winheight(0) + 29) / 58)
+let s:l = 71 - ((41 * winheight(0) + 41) / 83)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-18
-normal! 0
+71
+normal! 04l
 wincmd w
-2wincmd w
-exe 'vert 1resize ' . ((&columns * 25 + 90) / 180)
-exe 'vert 2resize ' . ((&columns * 95 + 90) / 180)
-exe 'vert 3resize ' . ((&columns * 58 + 90) / 180)
+3wincmd w
+exe 'vert 1resize ' . ((&columns * 20 + 138) / 276)
+exe 'vert 2resize ' . ((&columns * 81 + 138) / 276)
+exe 'vert 3resize ' . ((&columns * 173 + 138) / 276)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
 unlet! s:wipebuf
-set winheight=1 winwidth=25 shortmess=filnxtToO
+set winheight=100000 winwidth=20 shortmess=filnxtToO
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if file_readable(s:sx)
   exe "source " . s:sx

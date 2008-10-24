@@ -6,46 +6,50 @@
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <title>Quran 2.0 Media Player with Example Interface Protototype</title>
         <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/themes/testing/all.css" />
+        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/soundmanager2_player.css" />
         <script type="text/javascript" src="./res/ui/js/jquery.core.pack.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.ui.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.tooltip.pack.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.cookie.js"></script>
-        <!--script type="text/javascript" src="./res/ui/js/soundmanager.minified.js"></script-->
-        <script type="text/javascript" src="./res/ui/js/soundmanager.js"></script>
+        <script type="text/javascript" src="./res/ui/js/soundmanager2.js"></script>
+        <script type="text/javascript" src="./res/ui/js/soundmanager2_player.js"></script>
         <script type="text/javascript" src="./res/config/js/quran.js"></script>
         <script type="text/javascript" src="./res/data/js/quran.js"></script>
-        <!--
-        <script type="text/javascript" src="./res/ui/js/quran.js"></script>
-        <script type="text/javascript" src="./res/ui/js/controller.js"></script>
-        <script type="text/javascript" src="./res/ui/js/player.js"></script>
-        -->
         <script type="text/javascript" src="./res/ui/js/flatfile.js"></script>
-        <script type="text/javascript">
-        // For some reason this only works if it's here in the index page
-        // I can't get it to work if its setup anywhere else, including the player widget
-        $.extend(soundManager, {
-            url: './res/ui/swf/',
-            debugMode: true,
-            useConsole: false,
-            flashVersion: 8,
-            flash9Options: {
-                usePeakData: false,
-                useWaveformData: false
-            },
-            defaultOptions: {
-                volume: 0,
-                stream: true,
-                autoLoad: true,
-                autoPlay: false
-            }
-        });
-        //debug
-        function dir(obj) {
-            console.dir(obj)
-        }
-        </script>
     </head>
     <body>
+
+
+
+
+
+
+ <div style="position:absolute;left:0px;top:-9999px;width:30em">
+
+ <ul>
+
+  <li><a href="http://dev.globalquran.com/audio/www.everyayah.com/data/Abdul_Basit_Murattal_192kbps/002009.mp3">test</a></li>
+  <li><a href="audio/office_lobby.mp3">Office Lobby Entrance</a></li>
+  <li><a href="audio/rain.mp3">Rain</a></li>
+  <li><a href="audio/walking.mp3">Walking</a></li>
+
+  <!-- files from the web (note that ID3 information will *not* load from remote domains without permission, Flash restriction) -->
+
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Rain 3.mp3">Rain 3</a></li>
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Frogs @ Yahoo!.mp3">Frogs @ Yahoo!</a></li>
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Walking past sprinklers, mailbox.mp3">Walking past sprinklers, mailbox</a></li>
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Cup of Coffee.mp3">Cup of Coffee</a></li>
+  <li><a href="http://www.freshly-ground.com/misc/music/carl-3-barlp.mp3">Barrlping with Carl (featureblend.com)</a></li>
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Mak.mp3">Angry cow sound?</a></li>
+  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Things that open, close and roll.mp3">Things that open, close and roll</a></li>
+  <li><a href="http://www.freshly-ground.com/misc/music/20060826%20-%20Armstrong.mp3">20060826 - Armstrong</a></li>
+
+ </ul>
+
+ </div>
+
+
+
         <div id="widgets"></div>
     <!-- notice div: used for dialogs, pop-ups, alerts, errors, notices, modals, whatever -->
     <!--<div id="notice" style="display: none;" class="ui-dialog"></div>-->

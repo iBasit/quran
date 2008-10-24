@@ -270,6 +270,7 @@ $.quran.bind('change-recitor', change_recitor);
 (function($) {
 $.widget('quran.controller', {
     _init: function() {
+        quran._controller = this;
       //--console.log('controller');
         this.body = $.quran._init_widget(this, {
             name: 'Controller',
@@ -298,24 +299,24 @@ $.widget('quran.controller', {
         this.sura_select = $('<select>');
         this.aya_select = $('<select>');
 
-        var my = this;
+        var self = this;
         function populate_recitors() {
           //--console.log('populate recitors');
             for (var i=0; i < $.quran.config.recitors.length; i++) {
-                my.recitor_select
-                    .append('<option value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] +'</option>');
+                self.recitor_select
+                    .append('<option class="recitor" value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] +'</option>');
             }
         }
         function populate_suras() {
           //--console.log('populate suras');
             for (var i=1; i < $.quran.data.sura.length - 1; i++) {
-                 my.sura_select
-                    .append('<option value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>');
+                 self.sura_select
+                    .append('<option class="sura" value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>');
             }
         }
         function set_defaults() {
             if (!$.quran.get_state('recitor')) {
-                $.quran.set_state('recitor', my.recitor_select[0].options[my.recitor_select[0].selectedIndex].value);
+                $.quran.set_state('recitor', self.recitor_select[0].options[self.recitor_select[0].selectedIndex].value);
             }
             if (!$.quran.get_state('aya')) {
                 $.quran.set_state('aya', { id: 1, aya: 1, sura: 1 });
@@ -350,10 +351,10 @@ $.widget('quran.controller', {
         this.next_aya_button = $('<div class="icon-resultset-next">&#160;</div>');
         this.next_sura_button = $('<div class="icon-resultset-last">&#160;</div>');
 
-        this.prev_sura_button.click(function() { my.prev_sura.call(my); });
-        this.prev_aya_button.click(function() { my.prev_aya.call(my); });
-        this.next_aya_button.click(function() { my.next_aya.call(my); });
-        this.next_sura_button.click(function() { my.next_sura.call(my); });
+        this.prev_sura_button.click(function() { self.prev_sura.call(self); });
+        this.prev_aya_button.click(function() { self.prev_aya.call(self); });
+        this.next_aya_button.click(function() { self.next_aya.call(self); });
+        this.next_sura_button.click(function() { self.next_sura.call(self); });
 
         this.body.append(this.prev_sura_button);
         this.body.append(this.prev_aya_button);
@@ -369,8 +370,9 @@ $.widget('quran.controller', {
             for (var i=1; i <= $.quran.data.sura[aya_obj.sura][1]; i++) {
                 var index = $.quran.data.sura[aya_obj.sura][0] + i;
                 this.aya_select
-                    .append('<option value='+ index +'>'+ i + '</option>');
+                    .append('<option class="aya" value='+ index +'>'+ i + '</option>');
             }
+            quran.onaya();
             this.last_sura = aya_obj.sura;
         }
         var selectedIndex = 0;
@@ -439,9 +441,262 @@ $.widget('quran.controller', {
         $.quran.trigger('change-aya', { sura: sura });
     }
 });
+
 $(document).ready(function() {
     $.quran.add_widget('controller');
 });
+
+
+
+/********** PLAYER ************/
+
+
+$.widget('quran.player', {
+    _init: function() {
+        quran._player = this;
+      //--console.log('player');
+        this.body = $.quran._init_widget(this, {
+            name: 'Player',
+            bind: {
+                'application-state-restored': function() {
+                    var aya_obj = $.quran.get_state('aya');
+                    var recitor = $.quran.get_state('recitor');
+                    if (aya_obj && recitor) {
+                        this.set_track(aya_obj,recitor);
+                    }
+                },
+                'aya-changed': this.set_track,
+                'sura-changed': this.clear_cache,
+                'recitor-changed': function(recitor) {
+                    this.set_track(undefined, recitor);
+                }
+            }
+        });
+        var template = $(
+            '<div id="player-template" class="sm2player">' +
+                '<div class="ui">' +
+                    '<div class="left">' +
+                        '<a href="#" title="Pause/Play" onclick="quran.player.togglePause();return false" class="trigger pauseplay"><span></span></a>' +
+                    '</div>' +
+                    '<div class="mid">' +
+                        '<div class="progress"></div>' +
+                        '<div class="info"><span class="caption text">%{artist} - %{title} [%{album}], (%{year}) (%{time})</span></div>' +
+                        '<div class="default">jsAMP Technology Preview v0.99a.20071010 (Seriously alpha - use at own risk! :))</div>' +
+                        '<div class="seek">Seek to %{time1} of %{time2} (%{percent}%)</div>' +
+                        '<div class="divider">&nbsp;&nbsp;---&nbsp;&nbsp;</div>' +
+                        '<a href="#" title="" class="slider"></a>' +
+                    '</div>' +
+                    '<div class="right">' +
+                        '<div class="divider"></div>' +
+                        '<div class="time" title="Time">0:00</div>' +
+                        '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.playPreviousItem();return false"><span></span></a>' +
+                        '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.playNextItem();return false"><span></span></a>' +
+                        '<a href="#" title="Shuffle" class="trigger s1 shuffle" onclick="quran.player.toggleShuffle();return false"><span></span></a>' +
+                        '<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
+                        '<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
+                        '<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
+                        '<a href="#" title="Playlist" class="trigger dropdown" onclick="quran.player.togglePlaylist();return false"><span></span></a>' +
+                    '</div>' +
+                '</div>' +
+                '<div class="sm2playlist-box">' +
+                    '<div id="playlist-template" class="sm2playlist">' +
+                        '<div class="hd"><div class="c"></div></div>' +
+                        '<div class="bd">' +
+                            '<ul>' +
+                            '</ul>' +
+                        '</div>' +
+                        '<div class="ft"><div class="c"></div></div>' +
+                    '</div>' +
+                '</div>' +
+            '</div>'
+        );
+        this.body.append(template);
+        var self = this;
+        self.bind = function(ev, fn) {
+            $(self).bind(ev, fn);
+        };
+        self.one = function(ev, fn) {
+            $(self).one(ev, fn);
+        };
+        self.trigger = function(ev, data) {
+            $(self).trigger(ev, data);
+        };
+    },
+    clear_cache: function(sura_obj) {
+      //--console.log('clear cache');
+        this.stop();
+        function get_sura_prefix(sura) {
+            var prepend = '';
+            sura = sura.toString();
+
+            for (var i = sura.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            sura = prepend.concat(sura);
+
+            return sura;
+        }
+        var clear = $.grep(soundManager.soundIDs, function(id,n) {
+            var result = eval("id.match(/^"+ get_sura_prefix(sura_obj.previous) +"/)")? true : false;
+            return result;
+        });
+        $.each(clear, function(n,id) {
+            soundManager.destroySound(id);
+        });
+      //--console.log('cache cleared');
+    },
+    set_track: function(aya_obj,recitor) {
+      //--console.log('set track', aya_obj, recitor);
+        if (this.get_track()) {
+          //--console.log('if this.get_track()',this.get_track());
+            if (this.get_track().playState == 1) {
+              //--console.log('if this.get_track().playState == 1',this.get_track().playState);
+                this.stop();
+            }
+        } else {
+          //--console.log('no existing track');
+        }
+        var mp3_id, mp3_url, mp3_name;
+        if (aya_obj === undefined) { //recitor change
+            aya_obj = $.quran.get_state('aya');
+        }
+        if (recitor === undefined) { //aya change
+            recitor = $.quran.get_state('recitor');
+        }
+        function get_mp3_name(sura,aya) {
+            var prepend;
+                
+            sura = sura.toString();
+            aya = aya.toString();
+
+            prepend = '';
+            for (var i = sura.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            sura = prepend.concat(sura);
+
+            prepend = '';
+            for (var i = aya.length; i < 3; i++) {
+                prepend = prepend.concat('0');
+            }
+            aya = prepend.concat(aya);
+
+            return sura + aya + '.mp3';
+        }
+        function get_mp3_url(mp3_name) {
+            return $.quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
+        }
+        mp3_name = get_mp3_name(aya_obj.sura, aya_obj.aya);
+        mp3_url = get_mp3_url(mp3_name);
+        mp3_id = mp3_name + ':' + recitor;
+
+        var self = this;
+        if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
+            this._track = soundManager.createSound({
+                id: mp3_id,
+                url: mp3_url,
+                onfinish: function() {
+                    self.trigger('track-finished');
+                },
+                onload: function() {
+                    self.trigger('track-loaded');
+                },
+                onplay: function() {
+                    self.trigger('track-played');
+                },
+                onpause: function() {
+                    self.trigger('track-paused');
+                },
+                onresume: function() {
+                    self.trigger('track-resumed');
+                },
+                onstop: function() {
+                    self.trigger('track-stopped');
+                },
+                whileloading: function() {
+                    self.trigger('track-loading');
+                },
+                whileplaying: function() {
+                    self.trigger('track-playing');
+                }
+            });
+        } else {
+            this._track = soundManager.getSoundById(mp3_id);
+        }
+        self.trigger('track-changed');
+        //debug
+        window.player = this;
+        window.sound = this._track;
+    },
+    get_track: function() {
+        return this._track;
+    },
+    set_range_start: function(start) {
+    },
+    get_range_start: function() {
+        return this._range_start;
+    },
+    set_range_end: function(end) {
+    },
+    get_range_end: function() {
+        return this._range_end;
+    },
+    set_position_sec: function(time) {
+        this.get_track().setPosition(time*1000);
+    },
+    set_position_ms: function(position) {
+        this.get_track().setPosition(position);
+    },
+    get_position_sec: function() {
+        return this.get_track().position / 1000;
+    },
+    get_position_ms: function() {
+        return this.get_track().position;
+    },
+    get_duration_sec: function() {
+        return this.get_track().duration / 1000;
+    },
+    get_duration_ms: function() {
+        return this.get_track().duration;
+    },
+    set_volume: function(volume) {
+        volume = parseInt(volume);
+        this.get_track().setVolume(volume);
+        soundManager.defaultOptions.volume = volume;
+    },
+    get_volume: function() {
+        return soundManager.defaultOptions.volume;
+    },
+    set_mode: function(mode) {
+        this._mode = mode;
+    },
+    get_mode: function() {
+        return this._mode || 'single';
+    },
+    play: function() {
+      //--console.log('play');
+        this.get_track().play();
+    },
+    pause: function() {
+      //--console.log('pause');
+        this.get_track().pause();
+    },
+    resume: function() {
+      //--console.log('resume');
+        this.get_track().resume();
+    },
+    stop: function() {
+      //--console.log('stop');
+        soundManager.stopAll();
+    }
+});
+
+$(document).ready(function() {
+    $.quran.add_widget('player');
+});
+
+})(jQuery);
+/*
 $.widget('quran.player', {
     _init: function() {
       //--console.log('player');
@@ -463,32 +718,32 @@ $.widget('quran.player', {
             }
         });
 
-        var my = this;
-        my.bind = function(ev, fn) {
-            $(my).bind(ev, fn);
+        var self = this;
+        self.bind = function(ev, fn) {
+            $(self).bind(ev, fn);
         };
-        my.one = function(ev, fn) {
-            $(my).one(ev, fn);
+        self.one = function(ev, fn) {
+            $(self).one(ev, fn);
         };
-        my.trigger = function(ev, data) {
-            $(my).trigger(ev, data);
+        self.trigger = function(ev, data) {
+            $(self).trigger(ev, data);
         };
         soundManager.onload  = function() {
             function display_play_button() {
-                my.play_button.removeClass('pause-button');
-                my.play_button.addClass('play-button');
+                self.play_button.removeClass('pause-button');
+                self.play_button.addClass('play-button');
             }
             function display_pause_button() {
-                my.play_button.removeClass('play-button');
-                my.play_button.addClass('pause-button');
+                self.play_button.removeClass('play-button');
+                self.play_button.addClass('pause-button');
             }
             function turn_button_on() {
-                my.play_button.addClass('on');
+                self.play_button.addClass('on');
             }
             function turn_button_off() {
-                my.play_button.removeClass('on');
+                self.play_button.removeClass('on');
             }
-            my.play_button = $('<div class="play-button">')
+            self.play_button = $('<div class="play-button">')
                 .hover(
                     function() {
                         $(this).toggleClass('hover');
@@ -502,30 +757,30 @@ $.widget('quran.player', {
                         if ($(this).hasClass('play-button')) {
                             turn_button_off();
                             display_pause_button();
-                            my.play();
+                            self.play();
                         } else
                         if ($(this).hasClass('pause-button') && $(this).hasClass('on')) {
                             turn_button_off();
-                            my.resume();
+                            self.resume();
                         } else {
                             turn_button_on();
-                            my.pause();
+                            self.pause();
                         }
                     }
                 )
-                .appendTo(my.body)
+                .appendTo(self.body)
             ;
             function update_elapsed_time_with(ms) {
                 var sec = ms/1000;
                 var min = sec/60;
                 min = min.toString();
                 min = min.replace(/\./,":");
-                my.time_elapsed.html(min);
+                self.time_elapsed.html(min);
             }
             function update_duration() {
-                var ms = my.get_duration_ms();
-                var sec =  my.get_duration_sec();
-                my.time_duration.html(sec);
+                var ms = self.get_duration_ms();
+                var sec =  self.get_duration_sec();
+                self.time_duration.html(sec);
 
                 function reinit_position_slider(start,min,max,range_min,range_max) {
                     if (!range_min) {
@@ -534,9 +789,9 @@ $.widget('quran.player', {
                     if (!range_max) {
                         range_max = max;
                     }
-                    my.position_slider.slider('destroy');
+                    self.position_slider.slider('destroy');
                     var was_paused;
-                    my.position_slider
+                    self.position_slider
                         .slider({
                             handle: '.handle.position',
                             min: min,
@@ -555,36 +810,36 @@ $.widget('quran.player', {
                                 }
                             },
                             start: function(ev,ui) {
-                                if (my._handle_mousedown) {
-                                    if (!my.get_track().paused && (my.get_track().playState == 1)) {
-                                        my.pause();
+                                if (self._handle_mousedown) {
+                                    if (!self.get_track().paused && (self.get_track().playState == 1)) {
+                                        self.pause();
                                         was_paused = true;
                                     }
-                                    my._handle_mousedown = false;
+                                    self._handle_mousedown = false;
                                 }
                             },
                             stop: function(ev,ui) {
                             },
                             change: function(ev,ui) {
-                                console.log('change && was_paused?', was_paused);
-                                if (my._slider_mousedown) {
-                                    my.set_position_ms(ui.value);
-                                    my._slider_mousedown = false;
+                                //--console.log('change && was_paused?', was_paused);
+                                if (self._slider_mousedown) {
+                                    self.set_position_ms(ui.value);
+                                    self._slider_mousedown = false;
                                 }
                                 if (was_paused) {
-                                    if (!my._handle_mousedown) {
+                                    if (!self._handle_mousedown) {
                                         was_paused = false;
-                                        my.resume();
+                                        self.resume();
                                     }
                                 }
                             }
                         })
                     ;
-                    my.set_position_ms(start);
+                    self.set_position_ms(start);
                 }
                 function reinit_range_slider(min,max) {
-                    my.range_slider.slider('destroy');
-                    my.range_slider
+                    self.range_slider.slider('destroy');
+                    self.range_slider
                         .slider({
                             handle: '.handle.range',
                             handles: [{
@@ -600,9 +855,9 @@ $.widget('quran.player', {
                             min: min,
                             max: max,
                             change: function(ev,ui) {
-                                var range_start = my.range_slider.slider('value',0);
-                                var range_end   = my.range_slider.slider('value',1);
-                                var current_position = my.position_slider.slider('value');
+                                var range_start = self.range_slider.slider('value',0);
+                                var range_end   = self.range_slider.slider('value',1);
+                                var current_position = self.position_slider.slider('value');
                                 var start_position;
                                 if (current_position <= range_start) {
                                     start_position = range_start;
@@ -623,21 +878,21 @@ $.widget('quran.player', {
             }
             function update_position(to) {
                 function update(sec,ms) {
-                    my.time_elapsed.html(sec);
+                    self.time_elapsed.html(sec);
                     if (typeof ms == 'number') {
-                        my.position_slider.slider('moveTo', ms);
+                        self.position_slider.slider('moveTo', ms);
                     }
                 }
                 if (to == 'end') {
-                    update(my.get_duration_sec(), my.get_duration_ms());
+                    update(self.get_duration_sec(), self.get_duration_ms());
                 } else
                 if (to == 'start') {
                     update('--:--',0);
                 } else {
-                    if (!my._slider_mousedown) {
-                       update(my.get_position_sec(),my.get_position_ms());
+                    if (!self._slider_mousedown) {
+                       update(self.get_position_sec(),self.get_position_ms());
                     } else {
-                        update(my.get_position_sec());
+                        update(self.get_position_sec());
                     }
                 }
             }
@@ -650,51 +905,51 @@ $.widget('quran.player', {
 
 
 
-            my.bind('track-changed', function() {
+            self.bind('track-changed', function() {
                 update_position('start');
-                my.time_duration.html('--:--');
-                my.position_slider.slider('disable');
-                if (my.get_duration_sec()) {
+                self.time_duration.html('--:--');
+                self.position_slider.slider('disable');
+                if (self.get_duration_sec()) {
                     update_duration();
-                    my.position_slider.slider('enable');
+                    self.position_slider.slider('enable');
                 }
             });
-            my.bind('track-played', function() {
+            self.bind('track-played', function() {
                 display_pause_button();
             });
-            my.bind('track-paused', function() {
+            self.bind('track-paused', function() {
                 turn_button_on();
             });
-            my.bind('track-resumed', function() {
+            self.bind('track-resumed', function() {
                 turn_button_off();
             });
-            my.bind('track-stopped', function() {
+            self.bind('track-stopped', function() {
                 display_play_button();
             });
 
             var transition_from_finish = false;
-            my.bind('track-finished', function() {
+            self.bind('track-finished', function() {
                 update_position('end');
-                if (my.get_mode() === 'continuous') {
+                if (self.get_mode() === 'continuous') {
                     transition_from_finish = true;
                     $.quran.trigger('change-aya','next');
                 } else
-                if (my.get_mode() === 'single') {
+                if (self.get_mode() === 'single') {
                     display_play_button();
                 }
             });
-            my.bind('track-playing', function() {
+            self.bind('track-playing', function() {
                 update_position();
             });
-            my.bind('track-loading', function() {
+            self.bind('track-loading', function() {
             });
-            my.bind('track-loaded', function() {
+            self.bind('track-loaded', function() {
                 update_duration();
-                my.position_slider.slider('enable');
+                self.position_slider.slider('enable');
 
-                if ((my.get_mode() === 'continuous') && transition_from_finish) {
+                if ((self.get_mode() === 'continuous') && transition_from_finish) {
                     transition_from_finish = false;
-                    my.play();
+                    self.play();
                 }
             });
 
@@ -703,40 +958,40 @@ $.widget('quran.player', {
 
 
 
-            my.position_slider = $('<div class="position-slider">')
+            self.position_slider = $('<div class="position-slider">')
                 .mousedown(function() {
-                    my._slider_mousedown = true;
+                    self._slider_mousedown = true;
                 })
             ;
-            my.position_slider_handle = $('<div class="handle position">')
-                .appendTo(my.position_slider)
+            self.position_slider_handle = $('<div class="handle position">')
+                .appendTo(self.position_slider)
                 .mousedown(function() {
-                    my._handle_mousedown = true;
+                    self._handle_mousedown = true;
                 })
                 .mouseup(function() {
-                    my._handle_mousedown = false;
+                    self._handle_mousedown = false;
                 })
                 .mouseover(function() {
                     $(this).addClass('focus');
-                    my._handle_mouseover = true;
+                    self._handle_mouseover = true;
                 })
                 .mouseout(function() {
                     $(this).removeClass('focus');
-                    my._handle_mouseover = false;
+                    self._handle_mouseover = false;
                 })
             ;
-            my.position_slider
-                .appendTo(my.body)
+            self.position_slider
+                .appendTo(self.body)
             ;
-            my.range_slider = $('<div class="range-slider"><div class="handle range start"></div><div class="handle range end"></div></div>')
+            self.range_slider = $('<div class="range-slider"><div class="handle range start"></div><div class="handle range end"></div></div>')
                 .css({
-                    width: my.position_slider.width() - 5
+                    width: self.position_slider.width() - 5
                 })
-                .appendTo(my.body)
+                .appendTo(self.body)
             ;
-            my.time_elapsed = $('<div class="time-elapsed">--:--</div>');
-            my.time_duration = $('<div class="time-duration">--:--</div>');
-            my.volume_slider = $('<div class="volume-slider"><div class="handle"></div></div>')
+            self.time_elapsed = $('<div class="time-elapsed">--:--</div>');
+            self.time_duration = $('<div class="time-duration">--:--</div>');
+            self.volume_slider = $('<div class="volume-slider"><div class="handle"></div></div>')
                 .slider({
                     handle: '.handle',
                     axis: 'vertical',
@@ -744,43 +999,43 @@ $.widget('quran.player', {
                     max: 100,
                     change: function(e,ui) {
                         var value = Math.abs(ui.value-100);
-                        if (value !== my.get_volume()) {
-                          //--console.log('volume change', value, my.get_volume());
-                            my.set_volume(value);
+                        if (value !== self.get_volume()) {
+                          //--console.log('volume change', value, self.get_volume());
+                            self.set_volume(value);
                         }
                     }
                 })
                 .hide()
             ;
-            my.volume_button = $('<div class="volume-button icon-sound">')
+            self.volume_button = $('<div class="volume-button icon-sound">')
                 .click(
                     function() {
-                        my.volume_slider
+                        self.volume_slider
                             .css({
                                 position: 'fixed',
                                 left: $(this).offset().left,
                                 top: $(this).offset().top + 16
                             })
                         ;
-                        my.volume_slider.slider('moveTo',Math.abs(my.get_volume()-100));
-                        my.volume_slider.toggle()
+                        self.volume_slider.slider('moveTo',Math.abs(self.get_volume()-100));
+                        self.volume_slider.toggle()
                     }
                 )
             ;
-            my.more_options_button = $('<div title="More Options" class="more-options-button">')
+            self.more_options_button = $('<div title="More Options" class="more-options-button">')
                 .click(
                     function() {
-                        my.more_options_menu.css({
+                        self.more_options_menu.css({
                             position: 'fixed',
                             left: $(this).offset().left,
                             top: $(this).offset().top + 16
                         });
-                        my.more_options_menu.toggle();
+                        self.more_options_menu.toggle();
                     }
                 )
             ;
 
-            my.more_options_menu = $('<div class="more-options-menu">')
+            self.more_options_menu = $('<div class="more-options-menu">')
                 .hide()
             ;
 
@@ -790,7 +1045,7 @@ $.widget('quran.player', {
             function handle_mode(jq_obj, mode) {
                 jq_obj.toggleClass('on');
                 if (jq_obj.hasClass('on')) {
-                    my.set_mode(mode);
+                    self.set_mode(mode);
                     turn_others_off(jq_obj);
                 } else {
                     revert_to_default();
@@ -798,11 +1053,11 @@ $.widget('quran.player', {
             }
             function turn_others_off(jq_obj) {
                 var mode_buttons = [
-                    my.single_play_mode_button,
-                    my.interval_repeat_mode_button,
-                    my.aya_repeat_mode_button,
-                    my.sura_repeat_mode_button,
-                    my.continuous_play_mode_button
+                    self.single_play_mode_button,
+                    self.interval_repeat_mode_button,
+                    self.aya_repeat_mode_button,
+                    self.sura_repeat_mode_button,
+                    self.continuous_play_mode_button
                 ];
                 $.each(mode_buttons, function(i,obj) {
                     if (obj.hasClass('on') && (jq_obj.attr('class') !== obj.attr('class'))) {
@@ -811,35 +1066,35 @@ $.widget('quran.player', {
                 });
             }
             function revert_to_default() {
-                my.set_mode('single');
-                my.single_play_mode_button.addClass('on');
+                self.set_mode('single');
+                self.single_play_mode_button.addClass('on');
             }
-            my.single_play_mode_button = $('<div title="Single Play Mode" class="single-play-mode-button on">')
-                .appendTo(my.more_options_menu)
+            self.single_play_mode_button = $('<div title="Single Play Mode" class="single-play-mode-button on">')
+                .appendTo(self.more_options_menu)
                 .click(function() {
                     handle_mode($(this),'single');
                 })
             ;
-            my.continuous_play_mode_button = $('<div title="Continuous Play Mode" class="continuous-play-mode-button">')
-                .appendTo(my.more_options_menu)
+            self.continuous_play_mode_button = $('<div title="Continuous Play Mode" class="continuous-play-mode-button">')
+                .appendTo(self.more_options_menu)
                 .click(function() {
                     handle_mode($(this),'continuous');
                 })
             ;
-            my.interval_repeat_mode_button = $('<div title="Interval Repeat Mode" class="interval-repeat-mode-button">')
-                .appendTo(my.more_options_menu)
+            self.interval_repeat_mode_button = $('<div title="Interval Repeat Mode" class="interval-repeat-mode-button">')
+                .appendTo(self.more_options_menu)
                 .click(function() {
                     handle_mode($(this),'repeat-interval');
                 })
             ;
-            my.aya_repeat_mode_button = $('<div title="Aya Repeat Mode" class="aya-repeat-mode-button">')
-                .appendTo(my.more_options_menu)
+            self.aya_repeat_mode_button = $('<div title="Aya Repeat Mode" class="aya-repeat-mode-button">')
+                .appendTo(self.more_options_menu)
                 .click(function() {
                     handle_mode($(this),'repeat-aya');
                 })
             ;
-            my.sura_repeat_mode_button = $('<div title="Sura Repeat Mode" class="sura-repeat-mode-button">')
-                .appendTo(my.more_options_menu)
+            self.sura_repeat_mode_button = $('<div title="Sura Repeat Mode" class="sura-repeat-mode-button">')
+                .appendTo(self.more_options_menu)
                 .click(function() {
                     handle_mode($(this),'repeat-sura');
                 })
@@ -850,16 +1105,16 @@ $.widget('quran.player', {
 
 
 
-            //my.body.append(my.play_button);
-            //my.body.append(my.position_slider);
-            //my.body.append(my.range_slider);
-            my.body.append(my.time_elapsed);
-            my.body.append(my.time_duration);
-            my.body.append(my.volume_button);
-            my.body.append(my.volume_slider);
-            my.body.append(my.more_options_button);
-            my.body.append(my.more_options_menu);
-            my.body.css({
+            //self.body.append(self.play_button);
+            //self.body.append(self.position_slider);
+            //self.body.append(self.range_slider);
+            self.body.append(self.time_elapsed);
+            self.body.append(self.time_duration);
+            self.body.append(self.volume_button);
+            self.body.append(self.volume_slider);
+            self.body.append(self.more_options_button);
+            self.body.append(self.more_options_menu);
+            self.body.css({
                 height: '200px'
             });
         }
@@ -932,40 +1187,40 @@ $.widget('quran.player', {
         mp3_url = get_mp3_url(mp3_name);
         mp3_id = mp3_name + ':' + recitor;
 
-        var my = this;
+        var self = this;
         if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
             this._track = soundManager.createSound({
                 id: mp3_id,
                 url: mp3_url,
                 onfinish: function() {
-                    my.trigger('track-finished');
+                    self.trigger('track-finished');
                 },
                 onload: function() {
-                    my.trigger('track-loaded');
+                    self.trigger('track-loaded');
                 },
                 onplay: function() {
-                    my.trigger('track-played');
+                    self.trigger('track-played');
                 },
                 onpause: function() {
-                    my.trigger('track-paused');
+                    self.trigger('track-paused');
                 },
                 onresume: function() {
-                    my.trigger('track-resumed');
+                    self.trigger('track-resumed');
                 },
                 onstop: function() {
-                    my.trigger('track-stopped');
+                    self.trigger('track-stopped');
                 },
                 whileloading: function() {
-                    my.trigger('track-loading');
+                    self.trigger('track-loading');
                 },
                 whileplaying: function() {
-                    my.trigger('track-playing');
+                    self.trigger('track-playing');
                 }
             });
         } else {
             this._track = soundManager.getSoundById(mp3_id);
         }
-        my.trigger('track-changed');
+        self.trigger('track-changed');
         //debug
         window.player = this;
         window.sound = this._track;
@@ -1036,3 +1291,4 @@ $(document).ready(function() {
     $.quran.add_widget('player');
 });
 })(jQuery);
+*/
