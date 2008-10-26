@@ -16,18 +16,17 @@ body {
 */
 
 .sm2player {
- /*
- position:absolute;
- left:1.75em;
- top:5.5em;
+ position:fixed;
+ /*position:absolute;
+ left:0.25em;
+ top:0.5em;*/
  padding:1px;
- */
- z-index:3;
- height:30px;
+ z-index:9999999;
+ height:20px;
  font:normal x-small/19px arial,verdana,tahoma,"sans serif";
- *line-height:19px;
+ /**line-height:19px;*/
  color:#4f4f4f;
- zoom:1;
+ /*zoom:1;*/
 }
 
 .sm2player.altFont {
@@ -162,9 +161,43 @@ body {
  margin-top:4px;
  background:transparent url(../img/player/slider-light.png) 0px 0px no-repeat;
  _background-image:url(../img/player/slider-light.gif);
- z-index:1; /* swap between 1 and 2 to position on top */
- z-index:2;
+ /*z-index:1; swap between 1 and 2 to position on top */
+ z-index:3;
  opacity:0.95;
+ /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
+}
+.sm2player .mid .range-start {
+ position:absolute;
+ display:block;
+ width:6px;
+ height:12px;
+ left:0px;
+ top:0px;
+ margin-top:4px;
+ background:transparent url(../img/player/slider-0.png) 0px 0px no-repeat;
+ _background-image:url(../img/player/slider-0.gif);
+ z-index:2; /* swap between 1 and 2 to position on top */
+/* z-index:2;*/
+ opacity:0.50;
+ -moz-opacity:0.50;
+ filter:alpha(opacity=50);
+ /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
+}
+.sm2player .mid .range-end {
+ position:absolute;
+ display:block;
+ width:6px;
+ height:12px;
+ left:0px;
+ top:0px;
+ margin-top:4px;
+ background:transparent url(../img/player/slider-1.png) -6px 0px no-repeat;
+ _background-image:url(../img/player/slider-1.gif);
+/* z-index:1; swap between 1 and 2 to position on top */
+ z-index:4;
+ opacity:0.50;
+ -moz-opacity:0.50;
+ filter:alpha(opacity=50);
  /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
 }
 
@@ -177,11 +210,19 @@ body {
 */
 }
 
+.sm2player .mid .range-start.active {
+ opacity:0.62;
+ -moz-opacity:0.62;
+ filter:alpha(opacity=62);
+}
 .sm2player .mid .slider.active {
-/*
- -moz-opacity:0.85;
- filter:alpha(opacity=85);
-*/
+ -moz-opacity:0.5;
+ filter:alpha(opacity=50);
+}
+.sm2player .mid .range-end.active {
+ opacity:0.62;
+ -moz-opacity:0.62;
+ filter:alpha(opacity=62);
 }
 
 .sm2player .mid .text,
@@ -530,16 +571,17 @@ body {
 #soundmanager-debug {
  position:absolute;
  position:fixed;
- right:20px;
- bottom:20px;
+ right:2px;
+ bottom:18px;
  display:none;
- font-size:xx-small;
  height:20em;
  overflow:auto;
  /* background:transparent url(../img/player/whiteout.png); */
  padding:1em;
  background:#000;
  color:#fff;
- filter:alpha(opacity=90);
- opacity:0.9;
+}
+#soundmanager-debug div {
+ font-size: 9px;
+ font-family: lime, vixus, neoxis, monospace, sans-serif;
 }

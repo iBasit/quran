@@ -1,0 +1,408 @@
+/*
+ * Event
+ * Model
+ *
+ * changed: generic, return aya object with id, sura, and aya
+ * aya-changed: returns aya
+ * sura-changed: returns sura
+ * recitor-changed: returns
+ * tafseer-changed
+ * translation-changed
+ * font-changed
+ * etc
+ *
+ * opposite format indicates the imperative, i.e. "please change the aya", e.g.
+ * change
+ * change-sura
+ * change-recitor
+ *
+ * ...most of the event model is unimplemented yet
+ *
+ * other events are triggerred and bound on an as-needed basis for properly sequencing methods
+ * without calling each other directly, i.e. in instances where loose coupling is better (for
+ * example, when two separate scripts existing in two separate files need to talk to each
+ * other)
+ *
+ * e.g.the player playlist must be created after the ayas have been built, but the
+ * ayas are built only changed is triggerred, therefore at the end of the method thats builds
+ * the ayas we fire a new event so that the player playlist can bind to it and sequence 
+ * correctly...
+ *
+ * e.g. aya-changed is bound to set_sura which triggers 'sura-set' which binds to a function
+ * that builds a new playlist
+ *
+ */
+/*************** app ************/
+
+
+(function($) {
+    quran.trigger = function(ev,data) {
+        $(quran).trigger(ev,data);
+    };
+    quran.one = function(ev,data) {
+        $(quran).one(ev,data);
+    };
+    quran.bind = function(ev,fn) {
+        $(quran).bind(ev,fn);
+    }; 
+    quran._state = {};
+    quran.set_state = function(key,data) {
+        quran._state[key] = data;
+    };
+    quran.get_state = function(key) {
+        return quran._state[key];
+    };
+    quran.save_application_state = function() {
+      //--console.log('Save app state');
+        var keys = new Array();
+        for (var key in quran._state) {
+            if (typeof quran._state[key] == 'object') {
+                for (var key2 in quran._state[key]) {
+                    if ((typeof quran._state[key][key2] == 'number') || (typeof quran._state[key][key2] == 'string')) {
+                        keys.push(key + '_' + key2);
+                        $.cookie(key + '_' + key2, quran._state[key][key2], { expires: 365 });
+                    }
+                }
+            } else if ((typeof quran._state[key] == 'number') || (typeof quran._state[key] == 'string')) {
+                keys.push(key);
+                $.cookie(key, quran._state[key], { expires: 365 });
+            }
+        }
+        $.cookie('keys',keys);
+    };
+    quran.restore_application_state = function() {
+      //--console.log('Restore app state');
+        if ($.cookie('keys')) {
+            var keys = $.cookie('keys').split(',');
+            var objects = {};
+            $.each(keys, function(n,key) {
+                if (key.match(/_/)) {
+                    var key1 = key.split('_')[0];
+                    var key2 = key.split('_')[1];
+                    eval('objects.'+ key1 +' = objects.'+ key1 +' || {};');
+                    eval('$.extend(objects.'+ key1 +',{ '+ key2 +':'+ $.cookie(key) +' });');
+                    //eval('console.log(objects.'+ key1 +');');
+                } else {
+                    quran.set_state(key, $.cookie(key));
+                }
+            });
+            for (var key in objects) {
+                quran.set_state(key, objects[key]);
+            }
+        }
+        quran.trigger('application-state-restored');
+    };
+    $(window).load(function() {
+        quran.restore_application_state();
+    });
+    $(window).unload(function() {
+        quran.save_application_state();
+    });
+    var widgets_selector = '#widgets';
+    quran._init_widget = function(widget,options) {
+        var callbacks = options.bind;
+        $.each(callbacks, function(ev_name, callback) {
+            quran.bind(ev_name, function(ev,data) {
+                callback.call(widget,data);
+            });
+        });
+    
+        var name = options.name || 'give me a name!';
+        var node = $('<div class="widget" id="'+ widget.widgetBaseClass +'">');
+        var head = $('<div class="head">');
+        var name_label = $('<div class="name-label">'+ name +'</div>');
+        var sort_handle = $('<div class="sort-handle">');
+        var drag_handle = $('<div class="drag-handle">');
+        var body = $('<div class="body">');
+        $(document).ready(function() {
+            head
+                .append(name_label)
+                .append(sort_handle)
+                .append(drag_handle)
+            ;
+            node
+                .append(head)
+                .append(body)
+                .resizable()
+            ;
+            $(widgets_selector)
+                .append(node)
+            ;
+        });
+        return body;
+    };
+    quran.add_widget = function(widget_name) {
+        $(document).ready(function() {
+            $(widgets_selector)[widget_name]();
+        });
+    };
+    quran.remove_widget = function(id) {
+    };
+    function get_obj_with_sura_keyword(keyword) {
+        var obj = quran.get_state('aya');
+        var sura,id;
+        if (obj) {
+            if (keyword == 'next') {
+                sura = obj.sura + 1;
+            } else
+            if (keyword == 'prev') {
+                sura = obj.sura - 1;
+            }
+            if ((sura >= 1) &&  (sura <= 114)) {
+                id = quran.data.sura[sura][0] + 1;
+                return {
+                    id: id,
+                    sura: sura,
+                    aya: 1
+                };
+            } else
+            if (sura == 0) {
+                return {
+                    id: 6236,
+                    sura: 114,
+                    aya: 1
+                };
+            } else
+            if (sura == 115) {
+                return {
+                    id: 1,
+                    sura: 1,
+                    aya: 1
+                };
+            }
+            return obj;
+        }
+        return {
+            id: 1,
+            sura: 1,
+            aya: 1
+        };
+    }
+    function get_obj_with_aya_keyword(keyword,continue_past_sura) {
+        continue_past_sura = (continue_past_sura === undefined)?  true : continue_past_sura;
+        var obj = quran.get_state('aya');
+        if (obj) {
+            if (keyword == 'next') {
+                if ((obj.id + 1) <= quran.data.sura[obj.sura + 1][0]) {
+                    return {
+                        id: obj.id + 1,
+                        sura: obj.sura,
+                        aya: obj.aya + 1
+                    };
+                } else
+                if ((obj.sura < 114) && continue_past_sura) {
+                    return {
+                        id: obj.id + 1,
+                        sura: obj.sura + 1,
+                        aya: 1
+                    };
+                }
+            } else
+            if (keyword == 'prev') {
+                if ((obj.id - 1) > quran.data.sura[obj.sura][0]) {
+                    return {
+                        id: obj.id - 1,
+                        sura: obj.sura,
+                        aya: obj.aya - 1
+                    };
+                } else
+                if ((obj.sura > 1) && continue_past_sura) {
+                    return {
+                        id: obj.id - 1,
+                        sura: obj.sura - 1,
+                        aya: quran.data.sura[obj.sura - 1][1]
+                    };
+                }
+            }
+            return obj;
+        }
+        return {
+            id: 1,
+            sura: 1,
+            aya: 1
+        };
+    }
+    function get_obj_with_id(id) {
+        var sura, aya;
+        id = parseInt(id);
+        for (var i=1; i<(quran.data.sura.length-1); i++) {
+            if (quran.data.sura[i+1][0] >= id) {
+                sura = i;
+                aya = id - quran.data.sura[i][0];
+                break;
+            }
+        }
+        if (id && sura && aya) {
+            return {
+                id: id,
+                sura: sura,
+                aya: aya
+            };
+        } else {
+            return {
+                id: 1,
+                sura: 1,
+                aya: 1
+            };
+        }
+    }
+    function get_obj_with_sura_and_aya(sura,aya) {
+        var id;
+        sura = parseInt(sura);
+        aya  = parseInt(aya);
+        if (quran.data.sura[sura] && (aya <= quran.data.sura[sura][1])) {
+            id = quran.data.sura[sura][0] + aya;
+        }
+        if (id && sura && aya) {
+            return {
+                id: id,
+                sura: sura,
+                aya: aya
+            };
+        } else {
+            return {
+                id: 1,
+                sura: 1,
+                aya: 1
+            };
+        }
+    }
+    function get_obj_with_sura(sura) {
+        var id, aya;
+        sura = parseInt(sura);
+        if (quran.data.sura[sura] && (sura >= 1) && (sura <= 114)) {
+            id = quran.data.sura[sura][0] + 1;
+            aya = 1;
+        }
+        if (id && sura && aya) {
+            return {
+                id: id,
+                sura: sura,
+                aya: aya
+            };
+        } else {
+            return {
+                id: 1,
+                sura: 1,
+                aya: 1
+            };
+        }
+    }
+    function get_obj_with_aya(aya) {
+        var obj = quran.get_state('aya');
+        if (obj) {
+            var diff = aya - obj.aya;
+            if ((aya >= 1) && (aya <= quran.data.sura[obj.sura][1])) {
+                return {
+                    id: obj.id + diff,
+                    aya: aya,
+                    sura: obj.sura
+                };
+            }
+            return obj;
+        }
+        return {
+            id: 1,
+            sura: 1,
+            aya: 1
+        };
+    }
+    function change(ev, keyword_or_obj) {
+        var keyword, obj;
+        var before, after;
+        
+        before = quran.get_state('aya');
+    
+        if (typeof keyword_or_obj == 'string') {
+            keyword = keyword_or_obj;
+        } else 
+        if (typeof keyword_or_obj == 'object') {
+            obj = keyword_or_obj;
+        }
+        if (keyword) { // next, prev
+            if ((keyword == 'next') || (keyword == 'prev')) {
+                quran.set_state('aya',get_obj_with_aya_keyword(keyword));
+            }
+        }
+        if (obj) {
+            if (obj.id) {
+                quran.set_state('aya', get_obj_with_id(obj.id));
+            } else
+            if (obj.sura && obj.aya) {
+                quran.set_state('aya', get_obj_with_sura_and_aya(obj.sura,obj.aya));
+            } else
+            if (obj.sura) {
+                quran.set_state('aya', get_obj_with_sura(obj.sura));
+            }
+        }
+    
+        after = quran.get_state('aya');
+    
+        if (!before || (before.id != after.id)) {
+            quran.trigger('changed', after);
+        }
+        if (!before || (before.sura != after.sura)) {
+            quran.trigger('sura-changed', after.sura);
+        }
+        if (!before || (before.aya != after.aya)) {
+            quran.trigger('aya-changed', after.aya);
+        }
+    }
+    function change_sura(ev, sura) {
+        var before, after;
+
+        before = quran.get_state('aya');
+
+        if ((sura == 'next') || (sura == 'prev')) {
+            quran.set_state('aya',get_obj_with_sura_keyword(sura));
+        } else
+        if (typeof sura == 'number') {
+            quran.set_state('aya', get_obj_with_sura(sura));
+        }
+
+        after = quran.get_state('aya');
+
+        if (!before || (before.sura != after.sura)) {
+            quran.trigger('sura-changed', after.sura);
+        }
+    }
+    function change_aya(ev, aya) {
+        //console.log('change aya', ev, aya);
+        var before, after;
+
+        before = quran.get_state('aya');
+
+        if ((aya == 'next') || (aya == 'prev')) {
+            quran.set_state('aya',get_obj_with_aya_keyword(aya,false));
+        } else
+        if (typeof aya == 'number') {
+            quran.set_state('aya',get_obj_with_aya(aya));
+        }
+
+        after = quran.get_state('aya');
+
+        if (!before || (before.aya != after.aya)) {
+            quran.trigger('aya-changed', after.aya);
+        }
+    }
+    function change_recitor(ev, recitor) {
+        var recitor_before, recitor_after;
+    
+        recitor_before = quran.get_state('recitor');
+    
+        quran.set_state('recitor', recitor);
+    
+        recitor_after = quran.get_state('recitor');
+    
+        if (!recitor_before || (recitor_before != recitor_after)) {
+            quran.trigger('recitor-changed', recitor_after);
+        }
+    }
+    quran.bind('change', change);
+    quran.bind('change-sura', change_sura);
+    quran.bind('change-aya', change_aya);
+    quran.bind('change-recitor', change_recitor);
+})(jQuery);
+
+
+

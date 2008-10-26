@@ -6,7 +6,8 @@
 @import "widgets/tabs.css";
 
 #widgets {
-    width: 33%;
+    width: 50%;
+    min-width: 500px;
     height: 66%;
     float: right;
     margin-top: 10px;

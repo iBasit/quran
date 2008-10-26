@@ -8,11 +8,10 @@
  *
  */
 (function($) {
-
+    quran.data = {};
     // Quran Metadata (ver 1.0) 
     // Source: Tanzil.info 
-    $.data = {};
-    jQuery.extend($.data, {
+    $.extend(quran.data, {
         _notice: 'Copyright (C) 2008 tanzil.info, Licenced Under GPL',
         //------------------ Sura Data ---------------------
         sura: [
@@ -476,4 +475,4 @@
             [96, 19, 'obligatory'],
         ]
     });
-})(jQuery.quran);
+})(jQuery);

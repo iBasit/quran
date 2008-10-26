@@ -8,19 +8,9 @@
  *
  */
 (function($) {
+    quran.config = {};
 
-    // setup namespace
-    $.quran = new function(){};
-
-    $.extend($.quran, {
-        _version : '2.0',
-        _notice  : 'Project Quran.com, Copyleft 2008 GPL',
-        _mode    : 'development'
-    });
-
-    $.quran.config = new Object();
-
-    $.extend($.quran.config, {
+    $.extend(quran.config, {
         mp3_mirrors: [
             'http://dev.globalquran.com/audio/www.everyayah.com/data/'
         ],

@@ -1,716 +1,416 @@
+/****** modules ***********/
 (function($) {
-$.quran.trigger = function(ev,data) {
-    $($.quran).trigger(ev,data);
-};
-$.quran.bind = function(ev,fn) {
-    $($.quran).bind(ev,fn);
-}; 
-$.quran._state = {};
-$.quran.set_state = function(key,data) {
-    $.quran._state[key] = data;
-};
-$.quran.get_state = function(key) {
-    return $.quran._state[key];
-};
-$.quran.save_application_state = function() {
-  //--console.log('Save app state');
-    var keys = new Array();
-    for (var key in $.quran._state) {
-        if (typeof $.quran._state[key] == 'object') {
-            for (var key2 in $.quran._state[key]) {
-                if ((typeof $.quran._state[key][key2] == 'number') || (typeof $.quran._state[key][key2] == 'string')) {
-                    keys.push(key + '_' + key2);
-                    $.cookie(key + '_' + key2, $.quran._state[key][key2], { expires: 365 });
+    $.widget('ui.quranController', {
+        _init: function() {
+            quran._controller = this;
+          //--console.log('controller');
+            this.body = quran._init_widget(this, {
+                name: 'Controller',
+                bind: {
+                    'aya-changed': this.set_aya,
+                    'sura-changed': this.set_sura,
+                    'recitor-changed': this.set_recitor,
+                    'application-state-restored': function() {
+                        var obj = quran.get_state('aya');
+                        if (obj) {
+                            this.set_sura(obj.sura);
+                            this.set_aya(obj.aya);
+                        }
+                        var recitor = quran.get_state('recitor');
+                        if (recitor) {
+                            this.set_recitor(recitor);
+                        }
+                    }
                 }
-            }
-        } else if ((typeof $.quran._state[key] == 'number') || (typeof $.quran._state[key] == 'string')) {
-            keys.push(key);
-            $.cookie(key, $.quran._state[key], { expires: 365 });
-        }
-    }
-    $.cookie('keys',keys);
-};
-$.quran.restore_application_state = function() {
-  //--console.log('Restore app state');
-    if ($.cookie('keys')) {
-        var keys = $.cookie('keys').split(',');
-        var objects = {};
-        $.each(keys, function(n,key) {
-            if (key.match(/_/)) {
-                var key1 = key.split('_')[0];
-                var key2 = key.split('_')[1];
-                eval('objects.'+ key1 +' = objects.'+ key1 +' || {};');
-                eval('$.extend(objects.'+ key1 +',{ '+ key2 +':'+ $.cookie(key) +' });');
-                //eval('console.log(objects.'+ key1 +');');
-            } else {
-                $.quran.set_state(key, $.cookie(key));
-            }
-        });
-        for (var key in objects) {
-            $.quran.set_state(key, objects[key]);
-        }
-    }
-    $.quran.trigger('application-state-restored');
-};
-$(window).load(function() {
-    $.quran.restore_application_state();
-});
-$(window).unload(function() {
-    $.quran.save_application_state();
-});
-var widgets_selector = '#widgets';
-$.quran._init_widget = function(widget,options) {
-    var callbacks = options.bind;
-    $.each(callbacks, function(ev_name, callback) {
-        $.quran.bind(ev_name, function(ev,data) {
-            callback.call(widget,data);
-        });
-    });
-
-    var name = options.name || 'give me a name!';
-    var node = $('<div class="widget" id="'+ widget.widgetBaseClass +'">');
-    var head = $('<div class="head">');
-    var name_label = $('<div class="name-label">'+ name +'</div>');
-    var sort_handle = $('<div class="sort-handle">');
-    var drag_handle = $('<div class="drag-handle">');
-    var body = $('<div class="body">');
-    $(document).ready(function() {
-        head
-            .append(name_label)
-            .append(sort_handle)
-            .append(drag_handle)
-        ;
-        node
-            .append(head)
-            .append(body)
-            .resizable()
-        ;
-        $(widgets_selector)
-            .append(node)
-        ;
-    });
-    return body;
-};
-$.quran.add_widget = function(widget_name) {
-    $(document).ready(function() {
-        $(widgets_selector)[widget_name]();
-    });
-};
-$.quran.remove_widget = function(id) {
-};
-function get_aya_obj_with_keyword(keyword) {
-    var aya_obj = $.quran.get_state('aya');
-    if (aya_obj) {
-        if (keyword == 'next') {
-            if ((aya_obj.id + 1) <= $.quran.data.sura[aya_obj.sura + 1][0]) {
-                return {
-                    id: aya_obj.id + 1,
-                    sura: aya_obj.sura,
-                    aya: aya_obj.aya + 1
-                };
-            } else
-            if (aya_obj.sura < 114) {
-                return {
-                    id: aya_obj.id + 1,
-                    sura: aya_obj.sura + 1,
-                    aya: 1
-                };
-            }
-        } else
-        if (keyword == 'prev') {
-            if ((aya_obj.id - 1) > $.quran.data.sura[aya_obj.sura][0]) {
-                return {
-                    id: aya_obj.id - 1,
-                    sura: aya_obj.sura,
-                    aya: aya_obj.aya - 1
-                };
-            } else {
-                if (aya_obj.sura > 1) {
-                    return {
-                        id: aya_obj.id - 1,
-                        sura: aya_obj.sura - 1,
-                        aya: $.quran.data.sura[aya_obj.sura - 1][1]
-                    };
-                } else {
-                    return {
-                        id: 6236,
-                        sura: 114,
-                        aya: 6
-                    };
-                }
-            }
-        }
-    }
-    return {
-        id: 1,
-        sura: 1,
-        aya: 1
-    };
-}
-function get_aya_obj_with_id(id) {
-    var sura, aya;
-    id = parseInt(id);
-    for (var i=1; i<($.quran.data.sura.length-1); i++) {
-        if ($.quran.data.sura[i+1][0] >= id) {
-            sura = i;
-            aya = id - $.quran.data.sura[i][0];
-            break;
-        }
-    }
-    if (id && sura && aya) {
-        return {
-            id: id,
-            sura: sura,
-            aya: aya
-        };
-    } else {
-        return {
-            id: 1,
-            sura: 1,
-            aya: 1
-        };
-    }
-}
-function get_aya_obj_with_sura_and_aya(sura,aya) {
-    var id;
-    sura = parseInt(sura);
-    aya  = parseInt(aya);
-    if ($.quran.data.sura[sura] && (aya <= $.quran.data.sura[sura][1])) {
-        id = $.quran.data.sura[sura][0] + aya;
-    }
-    if (id && sura && aya) {
-        return {
-            id: id,
-            sura: sura,
-            aya: aya
-        };
-    } else {
-        return {
-            id: 1,
-            sura: 1,
-            aya: 1
-        };
-    }
-}
-function get_aya_obj_with_sura(sura) {
-    var id, aya;
-    sura = parseInt(sura);
-    if ($.quran.data.sura[sura] && (sura >= 1) && (sura <= 114)) {
-        id = $.quran.data.sura[sura][0] + 1;
-        aya = 1;
-    }
-    if (id && sura && aya) {
-        return {
-            id: id,
-            sura: sura,
-            aya: aya
-        };
-    } else {
-        return {
-            id: 1,
-            sura: 1,
-            aya: 1
-        };
-    }
-}
-function change_aya(ev, keyword_or_obj) {
-    var keyword, obj;
-    var aya_before, aya_after;
+            });
     
-    aya_before = $.quran.get_state('aya');
-
-    if (typeof keyword_or_obj == 'string') {
-        keyword = keyword_or_obj;
-    } else 
-    if (typeof keyword_or_obj == 'object') {
-        obj = keyword_or_obj;
-    }
-    if (keyword) { // next, prev
-        if ((keyword == 'next') || (keyword == 'prev')) {
-            $.quran.set_state('aya',get_aya_obj_with_keyword(keyword));
-        }
-    }
-    if (obj) {
-        if (obj.id) {
-            $.quran.set_state('aya',get_aya_obj_with_id(obj.id));
-        } else
-        if (obj.sura && obj.aya) {
-            $.quran.set_state('aya',get_aya_obj_with_sura_and_aya(obj.sura,obj.aya));
-        } else
-        if (obj.sura) {
-            $.quran.set_state('aya',get_aya_obj_with_sura(obj.sura));
-        }
-    }
-
-    aya_after = $.quran.get_state('aya');
-
-    if (!aya_before || (aya_before.sura != aya_after.sura)) {
-        $.quran.trigger('sura-changed', { previous: aya_before.sura, current: aya_after.sura });
-    }
-    if (!aya_before || (aya_before.id != aya_after.id)) {
-        $.quran.trigger('aya-changed', aya_after);
-    }
-}
-function change_recitor(ev, recitor) {
-    var recitor_before, recitor_after;
-
-    recitor_before = $.quran.get_state('recitor');
-
-    $.quran.set_state('recitor', recitor);
-
-    recitor_after = $.quran.get_state('recitor');
-
-    if (!recitor_before || (recitor_before != recitor_after)) {
-        $.quran.trigger('recitor-changed', recitor_after);
-    }
-}
-$.quran.bind('change-aya', change_aya);
-$.quran.bind('change-recitor', change_recitor);
-})(jQuery);
-(function($) {
-$.widget('quran.controller', {
-    _init: function() {
-        quran._controller = this;
-      //--console.log('controller');
-        this.body = $.quran._init_widget(this, {
-            name: 'Controller',
-            bind: {
-                'aya-changed': this.set_aya,
-                'recitor-changed': this.set_recitor,
-                'application-state-restored': function() {
-                    //console.log('state restore',arguments);
-                    var aya_obj = $.quran.get_state('aya');
-                    if (aya_obj) {
-                        this.set_aya(aya_obj);
-                    }
-                    var recitor = $.quran.get_state('recitor');
-                    if (recitor) {
-                        this.set_recitor(recitor);
-                    }
+            this.body.css({
+                height: '60px'
+            });
+    
+            this.recitor_select = $('<select>');
+            this.sura_select = $('<select>');
+            this.aya_select = $('<select>');
+    
+            var self = this;
+            function populate_recitors() {
+              //--console.log('populate recitors');
+                for (var i=0; i < quran.config.recitors.length; i++) {
+                    self.recitor_select
+                        .append('<option class="recitor" value='+ quran.config.recitors[i][1] +'>'+ quran.config.recitors[i][0] +'</option>');
                 }
             }
-        });
-
-        this.body.css({
-            height: '60px'
-        });
-
-        this.recitor_select = $('<select>');
-        this.sura_select = $('<select>');
-        this.aya_select = $('<select>');
-
-        var self = this;
-        function populate_recitors() {
-          //--console.log('populate recitors');
-            for (var i=0; i < $.quran.config.recitors.length; i++) {
-                self.recitor_select
-                    .append('<option class="recitor" value='+ $.quran.config.recitors[i][1] +'>'+ $.quran.config.recitors[i][0] +'</option>');
+            function populate_suras() {
+              //--console.log('populate suras');
+                for (var i=1; i < quran.data.sura.length - 1; i++) {
+                     self.sura_select
+                        .append('<option class="sura" value='+ i +'>'+ quran.data.sura[i][5] + '</option>');
+                }
             }
-        }
-        function populate_suras() {
-          //--console.log('populate suras');
-            for (var i=1; i < $.quran.data.sura.length - 1; i++) {
-                 self.sura_select
-                    .append('<option class="sura" value='+ i +'>'+ $.quran.data.sura[i][5] + '</option>');
+            function set_defaults() {
+                if (!quran.get_state('recitor')) {
+                    quran.set_state('recitor', self.recitor_select[0].options[self.recitor_select[0].selectedIndex].value);
+                }
+                if (!quran.get_state('aya')) {
+                    quran.set_state('aya', { id: 1, aya: 1, sura: 1 });
+                }
             }
-        }
-        function set_defaults() {
-            if (!$.quran.get_state('recitor')) {
-                $.quran.set_state('recitor', self.recitor_select[0].options[self.recitor_select[0].selectedIndex].value);
-            }
-            if (!$.quran.get_state('aya')) {
-                $.quran.set_state('aya', { id: 1, aya: 1, sura: 1 });
-            }
-        }
-
-        populate_recitors();
-        populate_suras();
-        set_defaults();
-
-        this.recitor_select.change(function() {
-          //--console.log('recitor select change setting state');
-            $.quran.trigger('change-recitor', $(this)[0].options[$(this)[0].selectedIndex].value);
-        });
-        this.sura_select.change(function() {
-          //--console.log('sura select change setting state');
-            $.quran.trigger('change-aya', { sura: $(this)[0].options[$(this)[0].selectedIndex].value });
-        });
-        this.aya_select.change(function() {
-          //--console.log('aya select change setting state');
-            $.quran.trigger('change-aya', { id: $(this)[0].options[$(this)[0].selectedIndex].value });
-        });
-
-        this.body.append(this.recitor_select);
-        this.body.append(this.sura_select);
-        this.body.append(this.aya_select);
-
-        this.body.append($('<div>'));
-
-        this.prev_sura_button = $('<div class="icon-resultset-first">&#160;</div>');
-        this.prev_aya_button = $('<div class="icon-resultset-previous">&#160;</div>');
-        this.next_aya_button = $('<div class="icon-resultset-next">&#160;</div>');
-        this.next_sura_button = $('<div class="icon-resultset-last">&#160;</div>');
-
-        this.prev_sura_button.click(function() { self.prev_sura.call(self); });
-        this.prev_aya_button.click(function() { self.prev_aya.call(self); });
-        this.next_aya_button.click(function() { self.next_aya.call(self); });
-        this.next_sura_button.click(function() { self.next_sura.call(self); });
-
-        this.body.append(this.prev_sura_button);
-        this.body.append(this.prev_aya_button);
-        this.body.append(this.next_aya_button);
-        this.body.append(this.next_sura_button);
-    },
-    set_aya: function(aya_obj) {
-      //--console.log('set_aya',aya_obj);
-        if (!this.last_sura || (this.last_sura != aya_obj.sura)) {
-            //console.log('!= sura');
-            this.set_sura(aya_obj.sura);
-            this.aya_select.html('');
-            for (var i=1; i <= $.quran.data.sura[aya_obj.sura][1]; i++) {
-                var index = $.quran.data.sura[aya_obj.sura][0] + i;
-                this.aya_select
-                    .append('<option class="aya" value='+ index +'>'+ i + '</option>');
-            }
-            quran.onaya();
-            this.last_sura = aya_obj.sura;
-        }
-        var selectedIndex = 0;
-        for (var i = 0; i < this.aya_select[0].options.length; i++) {
-            var option = this.aya_select[0].options[i];
-            if (option.value == aya_obj.id) {
-                selectedIndex = i;
-                break;
-            }
-        }
-        this.aya_select[0].selectedIndex = selectedIndex;
-    },
-    get_aya: function() {
-        return parseInt(this.aya_select[0].options[this.aya_select[0].selectedIndex].value);
-    },
-    set_sura: function(sura) {
-        //console.log('set sura',sura);
-        var selectedIndex = 0;
-        for (var i = 0; i < this.sura_select[0].options.length; i++) {
-            var option = this.sura_select[0].options[i];
-            if (option.value == sura) {
-                selectedIndex = i;
-                break;
-            }
-        }
-        this.sura_select[0].selectedIndex = selectedIndex;
-    },
-    get_sura: function() {
-        return parseInt(this.sura_select[0].options[this.sura_select[0].selectedIndex].value);
-    },
-    set_recitor: function(recitor) {
-        if (recitor != this.get_recitor()) { 
-          //--console.log('set recitor',recitor);
+    
+            populate_recitors();
+            populate_suras();
+            set_defaults();
+    
+            this.recitor_select.change(function() {
+              //--console.log('recitor select change setting state');
+                quran.trigger('change-recitor', $(this)[0].options[$(this)[0].selectedIndex].value);
+            });
+            this.sura_select.change(function() {
+              //--console.log('sura select change setting state');
+                quran.trigger('change', { sura: $(this)[0].options[$(this)[0].selectedIndex].value });
+            });
+            this.aya_select.change(function() {
+              //--console.log('aya select change setting state');
+                quran.trigger('change', { id: $(this)[0].options[$(this)[0].selectedIndex].value });
+            });
+    
+            this.body.append(this.recitor_select);
+            this.body.append(this.sura_select);
+            this.body.append(this.aya_select);
+    
+            this.body.append($('<div>'));
+    
+            this.prev_sura_button = $('<div class="icon-resultset-first">&#160;</div>');
+            this.prev_aya_button = $('<div class="icon-resultset-previous">&#160;</div>');
+            this.next_aya_button = $('<div class="icon-resultset-next">&#160;</div>');
+            this.next_sura_button = $('<div class="icon-resultset-last">&#160;</div>');
+    
+            this.prev_sura_button.click(function() { self.prev_sura.call(self); });
+            this.prev_aya_button.click(function() { self.prev_aya.call(self); });
+            this.next_aya_button.click(function() { self.next_aya.call(self); });
+            this.next_sura_button.click(function() { self.next_sura.call(self); });
+    
+            this.body.append(this.prev_sura_button);
+            this.body.append(this.prev_aya_button);
+            this.body.append(this.next_aya_button);
+            this.body.append(this.next_sura_button);
+        },
+        set_aya: function(aya) {
+            this.aya_select[0].selectedIndex = aya - 1;
+            quran.trigger('aya-set');
+        },
+        get_aya: function() {
+            return parseInt(this.aya_select[0].options[this.aya_select[0].selectedIndex].value);
+        },
+        set_sura: function(sura) {
+            //console.log('set sura',sura);
             var selectedIndex = 0;
-            for (var i = 0; i < this.recitor_select[0].options.length; i++) {
-                var option = this.recitor_select[0].options[i];
-                if (option.value == recitor) {
+            for (var i = 0; i < this.sura_select[0].options.length; i++) {
+                var option = this.sura_select[0].options[i];
+                if (option.value == sura) {
                     selectedIndex = i;
                     break;
                 }
             }
-            this.recitor_select[0].selectedIndex = selectedIndex;
-        }
-    },
-    get_recitor: function() {
-        return this.recitor_select[0].options[this.recitor_select[0].selectedIndex].value;
-    },
-    prev_aya: function() {
-        $.quran.trigger('change-aya','prev');
-    },
-    prev_sura: function() {
-        var sura = this.get_sura() - 1;
-        if ((sura <= 0) || (sura > 114)) {
-            sura = 114;
-        }
-        $.quran.trigger('change-aya', { sura: sura });
-    },
-    next_aya: function() {
-        $.quran.trigger('change-aya','next');
-    },
-    next_sura: function() {
-        var sura = this.get_sura() + 1;
-        if ((sura <= 0) || (sura > 114)) {
-            sura = 1;
-        }
-        $.quran.trigger('change-aya', { sura: sura });
-    }
-});
+            this.sura_select[0].selectedIndex = selectedIndex;
 
-$(document).ready(function() {
-    $.quran.add_widget('controller');
-});
-
-
-
-/********** PLAYER ************/
-
-
-$.widget('quran.player', {
-    _init: function() {
-        quran._player = this;
-      //--console.log('player');
-        this.body = $.quran._init_widget(this, {
-            name: 'Player',
-            bind: {
-                'application-state-restored': function() {
-                    var aya_obj = $.quran.get_state('aya');
-                    var recitor = $.quran.get_state('recitor');
-                    if (aya_obj && recitor) {
-                        this.set_track(aya_obj,recitor);
+            this.aya_select.html('');
+            for (var i=1; i <= quran.data.sura[sura][1]; i++) {
+                var index = quran.data.sura[sura][0] + i;
+                this.aya_select
+                    .append('<option class="aya" value='+ index +'>'+ i + '</option>');
+            }
+            this.last_sura = sura;
+            quran.trigger('sura-set');
+        },
+        get_sura: function() {
+            return parseInt(this.sura_select[0].options[this.sura_select[0].selectedIndex].value);
+        },
+        set_recitor: function(recitor) {
+            if (recitor != this.get_recitor()) { 
+                var selectedIndex = 0;
+                for (var i = 0; i < this.recitor_select[0].options.length; i++) {
+                    var option = this.recitor_select[0].options[i];
+                    if (option.value == recitor) {
+                        selectedIndex = i;
+                        break;
                     }
-                },
-                'aya-changed': this.set_track,
-                'sura-changed': this.clear_cache,
-                'recitor-changed': function(recitor) {
-                    this.set_track(undefined, recitor);
                 }
+                this.recitor_select[0].selectedIndex = selectedIndex;
             }
-        });
-        var template = $(
-            '<div id="player-template" class="sm2player">' +
-                '<div class="ui">' +
-                    '<div class="left">' +
-                        '<a href="#" title="Pause/Play" onclick="quran.player.togglePause();return false" class="trigger pauseplay"><span></span></a>' +
-                    '</div>' +
-                    '<div class="mid">' +
-                        '<div class="progress"></div>' +
-                        '<div class="info"><span class="caption text">%{artist} - %{title} [%{album}], (%{year}) (%{time})</span></div>' +
-                        '<div class="default">jsAMP Technology Preview v0.99a.20071010 (Seriously alpha - use at own risk! :))</div>' +
-                        '<div class="seek">Seek to %{time1} of %{time2} (%{percent}%)</div>' +
-                        '<div class="divider">&nbsp;&nbsp;---&nbsp;&nbsp;</div>' +
-                        '<a href="#" title="" class="slider"></a>' +
-                    '</div>' +
-                    '<div class="right">' +
-                        '<div class="divider"></div>' +
-                        '<div class="time" title="Time">0:00</div>' +
-                        '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.playPreviousItem();return false"><span></span></a>' +
-                        '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.playNextItem();return false"><span></span></a>' +
-                        '<a href="#" title="Shuffle" class="trigger s1 shuffle" onclick="quran.player.toggleShuffle();return false"><span></span></a>' +
-                        '<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
-                        '<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
-                        '<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
-                        '<a href="#" title="Playlist" class="trigger dropdown" onclick="quran.player.togglePlaylist();return false"><span></span></a>' +
-                    '</div>' +
-                '</div>' +
-                '<div class="sm2playlist-box">' +
-                    '<div id="playlist-template" class="sm2playlist">' +
-                        '<div class="hd"><div class="c"></div></div>' +
-                        '<div class="bd">' +
-                            '<ul>' +
-                            '</ul>' +
-                        '</div>' +
-                        '<div class="ft"><div class="c"></div></div>' +
-                    '</div>' +
-                '</div>' +
-            '</div>'
-        );
-        this.body.append(template);
-        var self = this;
-        self.bind = function(ev, fn) {
-            $(self).bind(ev, fn);
-        };
-        self.one = function(ev, fn) {
-            $(self).one(ev, fn);
-        };
-        self.trigger = function(ev, data) {
-            $(self).trigger(ev, data);
-        };
-    },
-    clear_cache: function(sura_obj) {
-      //--console.log('clear cache');
-        this.stop();
-        function get_sura_prefix(sura) {
-            var prepend = '';
-            sura = sura.toString();
-
-            for (var i = sura.length; i < 3; i++) {
-                prepend = prepend.concat('0');
+        },
+        get_recitor: function() {
+            return this.recitor_select[0].options[this.recitor_select[0].selectedIndex].value;
+        },
+        prev_aya: function() {
+            quran.trigger('change','prev');
+        },
+        prev_sura: function() {
+            var sura = this.get_sura() - 1;
+            if ((sura <= 0) || (sura > 114)) {
+                sura = 114;
             }
-            sura = prepend.concat(sura);
-
-            return sura;
-        }
-        var clear = $.grep(soundManager.soundIDs, function(id,n) {
-            var result = eval("id.match(/^"+ get_sura_prefix(sura_obj.previous) +"/)")? true : false;
-            return result;
-        });
-        $.each(clear, function(n,id) {
-            soundManager.destroySound(id);
-        });
-      //--console.log('cache cleared');
-    },
-    set_track: function(aya_obj,recitor) {
-      //--console.log('set track', aya_obj, recitor);
-        if (this.get_track()) {
-          //--console.log('if this.get_track()',this.get_track());
-            if (this.get_track().playState == 1) {
-              //--console.log('if this.get_track().playState == 1',this.get_track().playState);
-                this.stop();
+            quran.trigger('change', { sura: sura });
+        },
+        next_aya: function() {
+            quran.trigger('change','next');
+        },
+        next_sura: function() {
+            var sura = this.get_sura() + 1;
+            if ((sura <= 0) || (sura > 114)) {
+                sura = 1;
             }
-        } else {
-          //--console.log('no existing track');
+            quran.trigger('change', { sura: sura });
         }
-        var mp3_id, mp3_url, mp3_name;
-        if (aya_obj === undefined) { //recitor change
-            aya_obj = $.quran.get_state('aya');
-        }
-        if (recitor === undefined) { //aya change
-            recitor = $.quran.get_state('recitor');
-        }
-        function get_mp3_name(sura,aya) {
-            var prepend;
-                
-            sura = sura.toString();
-            aya = aya.toString();
-
-            prepend = '';
-            for (var i = sura.length; i < 3; i++) {
-                prepend = prepend.concat('0');
-            }
-            sura = prepend.concat(sura);
-
-            prepend = '';
-            for (var i = aya.length; i < 3; i++) {
-                prepend = prepend.concat('0');
-            }
-            aya = prepend.concat(aya);
-
-            return sura + aya + '.mp3';
-        }
-        function get_mp3_url(mp3_name) {
-            return $.quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
-        }
-        mp3_name = get_mp3_name(aya_obj.sura, aya_obj.aya);
-        mp3_url = get_mp3_url(mp3_name);
-        mp3_id = mp3_name + ':' + recitor;
-
-        var self = this;
-        if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
-            this._track = soundManager.createSound({
-                id: mp3_id,
-                url: mp3_url,
-                onfinish: function() {
-                    self.trigger('track-finished');
-                },
-                onload: function() {
-                    self.trigger('track-loaded');
-                },
-                onplay: function() {
-                    self.trigger('track-played');
-                },
-                onpause: function() {
-                    self.trigger('track-paused');
-                },
-                onresume: function() {
-                    self.trigger('track-resumed');
-                },
-                onstop: function() {
-                    self.trigger('track-stopped');
-                },
-                whileloading: function() {
-                    self.trigger('track-loading');
-                },
-                whileplaying: function() {
-                    self.trigger('track-playing');
+    });
+    
+    $(document).ready(function() {
+        quran.add_widget('quranController');
+    });
+    
+    
+    
+    /********** PLAYER ************/
+    
+    
+    $.widget('ui.quranPlayer', {
+        _init: function() {
+            quran._player = this;
+          //--console.log('player');
+            this.body = quran._init_widget(this, {
+                name: 'Player',
+                bind: {
+                    'application-state-restored': function() {
+                        var obj = quran.get_state('aya');
+                        var recitor = quran.get_state('recitor');
+                        if (obj && recitor) {
+                            this.set_track(obj,recitor);
+                        }
+                    },
+                    'changed': this.set_track,
+                    'recitor-changed': function(recitor) {
+                        this.set_track(undefined, recitor);
+                    }
                 }
             });
-        } else {
-            this._track = soundManager.getSoundById(mp3_id);
+            var template = $(
+                '<div id="player-template" class="sm2player">' +
+                    '<div class="ui">' +
+                        '<div class="left">' +
+                            '<a href="#" title="Pause/Play" onclick="quran.player.togglePause();return false" class="trigger pauseplay"><span></span></a>' +
+                        '</div>' +
+                        '<div class="mid">' +
+                            '<div class="progress"></div>' +
+                            '<div class="info"><span class="caption text">%{artist} - %{title} [%{album}], (%{year}) (%{time})</span></div>' +
+                            '<div class="default">player</div>' +
+                            '<div class="seek">%{action} %{time1} of %{time2} (%{percent}%)</div>' +
+                            '<div class="divider">&nbsp;&nbsp;---&nbsp;&nbsp;</div>' +
+                            '<a href="#" title="" class="range-start"></a>' +
+                            '<a href="#" title="" class="slider"></a>' +
+                            '<a href="#" title="" class="range-end"></a>' +
+                        '</div>' +
+                        '<div class="right">' +
+                            '<div class="divider"></div>' +
+                            '<div class="time" title="Time">0:00</div>' +
+                            '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.playPreviousItem();return false"><span></span></a>' +
+                            '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.playNextItem();return false"><span></span></a>' +
+//                            '<a href="#" title="Shuffle" class="trigger s1 shuffle" onclick="quran.player.toggleShuffle();return false"><span></span></a>' +
+                            '<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
+                            '<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
+                            '<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
+                            '<a href="#" title="Playlist" class="trigger dropdown" onclick="quran.player.togglePlaylist();return false"><span></span></a>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="sm2playlist-box">' +
+                        '<div id="playlist-template" class="sm2playlist">' +
+                            '<div class="hd"><div class="c"></div></div>' +
+                            '<div class="bd">' +
+                                '<ul>' +
+                                '</ul>' +
+                            '</div>' +
+                            '<div class="ft"><div class="c"></div></div>' +
+                        '</div>' +
+                    '</div>' +
+                '</div>'
+            );
+            this.body.append(template);
+            var self = this;
+            self.bind = function(ev, fn) {
+                $(self).bind(ev, fn);
+            };
+            self.one = function(ev, fn) {
+                $(self).one(ev, fn);
+            };
+            self.trigger = function(ev, data) {
+                $(self).trigger(ev, data);
+            };
+        },
+        set_track: function(obj,recitor) {
+          /*
+          //--console.log('set track', obj, recitor);
+            if (this.get_track()) {
+              //--console.log('if this.get_track()',this.get_track());
+                if (this.get_track().playState == 1) {
+                  //--console.log('if this.get_track().playState == 1',this.get_track().playState);
+                    this.stop();
+                }
+            } else {
+              //--console.log('no existing track');
+            }
+            var mp3_id, mp3_url, mp3_name;
+            if (obj === undefined) { //recitor change
+                obj = quran.get_state('aya');
+            }
+            if (recitor === undefined) { //aya change
+                recitor = quran.get_state('recitor');
+            }
+            function get_mp3_name(sura,aya) {
+                var prepend;
+                    
+                sura = sura.toString();
+                aya = aya.toString();
+    
+                prepend = '';
+                for (var i = sura.length; i < 3; i++) {
+                    prepend = prepend.concat('0');
+                }
+                sura = prepend.concat(sura);
+    
+                prepend = '';
+                for (var i = aya.length; i < 3; i++) {
+                    prepend = prepend.concat('0');
+                }
+                aya = prepend.concat(aya);
+    
+                return sura + aya + '.mp3';
+            }
+            function get_mp3_url(mp3_name) {
+                return quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
+            }
+            mp3_name = get_mp3_name(obj.sura, obj.aya);
+            mp3_url = get_mp3_url(mp3_name);
+            mp3_id = mp3_name + ':' + recitor;
+    
+            var self = this;
+            if (($.inArray(mp3_id, soundManager.soundIDs) == -1)) {
+                this._track = soundManager.createSound({
+                    id: mp3_id,
+                    url: mp3_url,
+                    onfinish: function() {
+                        self.trigger('track-finished');
+                    },
+                    onload: function() {
+                        self.trigger('track-loaded');
+                    },
+                    onplay: function() {
+                        self.trigger('track-played');
+                    },
+                    onpause: function() {
+                        self.trigger('track-paused');
+                    },
+                    onresume: function() {
+                        self.trigger('track-resumed');
+                    },
+                    onstop: function() {
+                        self.trigger('track-stopped');
+                    },
+                    whileloading: function() {
+                        self.trigger('track-loading');
+                    },
+                    whileplaying: function() {
+                        self.trigger('track-playing');
+                    }
+                });
+            } else {
+                this._track = soundManager.getSoundById(mp3_id);
+            }
+            self.trigger('track-changed');
+            */
+            //debug
+            window.player = this;
+            window.sound = this._track;
+        },
+        get_track: function() {
+            return this._track;
+        },
+        set_range_start: function(start) {
+        },
+        get_range_start: function() {
+            return this._range_start;
+        },
+        set_range_end: function(end) {
+        },
+        get_range_end: function() {
+            return this._range_end;
+        },
+        set_position_sec: function(time) {
+            this.get_track().setPosition(time*1000);
+        },
+        set_position_ms: function(position) {
+            this.get_track().setPosition(position);
+        },
+        get_position_sec: function() {
+            return this.get_track().position / 1000;
+        },
+        get_position_ms: function() {
+            return this.get_track().position;
+        },
+        get_duration_sec: function() {
+            return this.get_track().duration / 1000;
+        },
+        get_duration_ms: function() {
+            return this.get_track().duration;
+        },
+        set_volume: function(volume) {
+            volume = parseInt(volume);
+            this.get_track().setVolume(volume);
+            soundManager.defaultOptions.volume = volume;
+        },
+        get_volume: function() {
+            return soundManager.defaultOptions.volume;
+        },
+        set_mode: function(mode) {
+            this._mode = mode;
+        },
+        get_mode: function() {
+            return this._mode || 'single';
+        },
+        play: function() {
+          //--console.log('play');
+            this.get_track().play();
+        },
+        pause: function() {
+          //--console.log('pause');
+            this.get_track().pause();
+        },
+        resume: function() {
+          //--console.log('resume');
+            this.get_track().resume();
+        },
+        stop: function() {
+          //--console.log('stop');
+            soundManager.stopAll();
         }
-        self.trigger('track-changed');
-        //debug
-        window.player = this;
-        window.sound = this._track;
-    },
-    get_track: function() {
-        return this._track;
-    },
-    set_range_start: function(start) {
-    },
-    get_range_start: function() {
-        return this._range_start;
-    },
-    set_range_end: function(end) {
-    },
-    get_range_end: function() {
-        return this._range_end;
-    },
-    set_position_sec: function(time) {
-        this.get_track().setPosition(time*1000);
-    },
-    set_position_ms: function(position) {
-        this.get_track().setPosition(position);
-    },
-    get_position_sec: function() {
-        return this.get_track().position / 1000;
-    },
-    get_position_ms: function() {
-        return this.get_track().position;
-    },
-    get_duration_sec: function() {
-        return this.get_track().duration / 1000;
-    },
-    get_duration_ms: function() {
-        return this.get_track().duration;
-    },
-    set_volume: function(volume) {
-        volume = parseInt(volume);
-        this.get_track().setVolume(volume);
-        soundManager.defaultOptions.volume = volume;
-    },
-    get_volume: function() {
-        return soundManager.defaultOptions.volume;
-    },
-    set_mode: function(mode) {
-        this._mode = mode;
-    },
-    get_mode: function() {
-        return this._mode || 'single';
-    },
-    play: function() {
-      //--console.log('play');
-        this.get_track().play();
-    },
-    pause: function() {
-      //--console.log('pause');
-        this.get_track().pause();
-    },
-    resume: function() {
-      //--console.log('resume');
-        this.get_track().resume();
-    },
-    stop: function() {
-      //--console.log('stop');
-        soundManager.stopAll();
-    }
-});
-
-$(document).ready(function() {
-    $.quran.add_widget('player');
-});
-
+    });
+ 
+    $(document).ready(function() {
+        quran.add_widget('quranPlayer');
+    });
 })(jQuery);
 /*
 $.widget('quran.player', {
     _init: function() {
       //--console.log('player');
-        this.body = $.quran._init_widget(this, {
+        this.body = quran._init_widget(this, {
             name: 'Player',
             bind: {
                 'application-state-restored': function() {
-                    var aya_obj = $.quran.get_state('aya');
-                    var recitor = $.quran.get_state('recitor');
-                    if (aya_obj && recitor) {
-                        this.set_track(aya_obj,recitor);
+                    var obj = quran.get_state('aya');
+                    var recitor = quran.get_state('recitor');
+                    if (obj && recitor) {
+                        this.set_track(obj,recitor);
                     }
                 },
-                'aya-changed': this.set_track,
+                'changed': this.set_track,
                 'sura-changed': this.clear_cache,
                 'recitor-changed': function(recitor) {
                     this.set_track(undefined, recitor);
@@ -932,7 +632,7 @@ $.widget('quran.player', {
                 update_position('end');
                 if (self.get_mode() === 'continuous') {
                     transition_from_finish = true;
-                    $.quran.trigger('change-aya','next');
+                    quran.trigger('change','next');
                 } else
                 if (self.get_mode() === 'single') {
                     display_play_button();
@@ -1142,8 +842,8 @@ $.widget('quran.player', {
         });
       //--console.log('cache cleared');
     },
-    set_track: function(aya_obj,recitor) {
-      //--console.log('set track', aya_obj, recitor);
+    set_track: function(obj,recitor) {
+      //--console.log('set track', obj, recitor);
         if (this.get_track()) {
           //--console.log('if this.get_track()',this.get_track());
             if (this.get_track().playState == 1) {
@@ -1154,11 +854,11 @@ $.widget('quran.player', {
           //--console.log('no existing track');
         }
         var mp3_id, mp3_url, mp3_name;
-        if (aya_obj === undefined) { //recitor change
-            aya_obj = $.quran.get_state('aya');
+        if (obj === undefined) { //recitor change
+            obj = quran.get_state('aya');
         }
         if (recitor === undefined) { //aya change
-            recitor = $.quran.get_state('recitor');
+            recitor = quran.get_state('recitor');
         }
         function get_mp3_name(sura,aya) {
             var prepend;
@@ -1181,9 +881,9 @@ $.widget('quran.player', {
             return sura + aya + '.mp3';
         }
         function get_mp3_url(mp3_name) {
-            return $.quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
+            return quran.config.mp3_mirrors[0] + recitor + '/' + mp3_name;
         }
-        mp3_name = get_mp3_name(aya_obj.sura, aya_obj.aya);
+        mp3_name = get_mp3_name(obj.sura, obj.aya);
         mp3_url = get_mp3_url(mp3_name);
         mp3_id = mp3_name + ':' + recitor;
 
@@ -1288,7 +988,7 @@ $.widget('quran.player', {
     }
 });
 $(document).ready(function() {
-    $.quran.add_widget('player');
+    quran.add_widget('player');
 });
 })(jQuery);
 */
