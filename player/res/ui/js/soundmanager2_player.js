@@ -2240,7 +2240,7 @@
   var aya = 1;
   q.bind('sura-set',
   function() {
-    q.d.bug('q.bind("sura-set")',aya);
+    q.d.bug('q.bind("sura-set")');
     //console.log('sura set');
     if (init_stuff) {
       //console.log('sura set init stuff');
@@ -2251,7 +2251,7 @@
         playlist.createPlaylist();
         playlist.createTweens(); // make tweens for playlist
         playlist.loadFromHash();
-        playlist.selectAya(aya);
+        //playlist.selectAya(aya);
       } catch (e) {
         q.d.bug(e);
       }
