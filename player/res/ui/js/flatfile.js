@@ -7,8 +7,8 @@
             this.body = quran._init_widget(this, {
                 name: 'Controller',
                 bind: {
-                    'aya-changed': this.set_aya,
-                    'sura-changed': this.set_sura,
+                    'aya-changed'  : this.set_aya,
+                    'sura-changed' : this.set_sura,
                     'recitor-changed': this.set_recitor,
                     'application-state-restored': function() {
                         var obj = quran.get_state('aya');

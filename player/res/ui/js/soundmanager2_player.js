@@ -2023,6 +2023,12 @@
     }
     this.onresume = function() {
       try {
+        if (self.oSMPlayer.x >= self.oSMPlayer.xRangeEnd) {
+          q.d.bug('move to start');
+          self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
+          self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+          self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+        }
       } catch(e) {
         q.d.bug(e);
       }
@@ -2055,12 +2061,14 @@
         if (this.position > self.duration) return false; // can happen when resuming from an unloaded state?
         var newPos = Math.floor(this.position / self.duration * self.oSMPlayer.xMax);
   
+        if (Math.abs(this.position - self.oSMPlayer.lastTime) >= 1000) {
+          self.oSMPlayer.updateTime(this.position);
+        }
   
         if (newPos != self.oSMPlayer.x) { // newPos > self.oSMPlayer.x
           if ((newPos >= self.oSMPlayer.xRangeStart) && (newPos <= self.oSMPlayer.xRangeEnd)) {
             if (!self.oSMPlayer.busy) {
               self.oSMPlayer.moveSliderTo(newPos);
-              return false;
             }
           } else
           if ((!self.oSMPlayer.rangeBusy) && (!self.oSMPlayer.busy)) {
@@ -2068,7 +2076,6 @@
               self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
               self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
               self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
-              return false;
             } else
             if (newPos >= self.oSMPlayer.xRangeEnd) {
               if (self.oPlaylist.doRepeat) {
@@ -2077,18 +2084,14 @@
                 self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
               } else {
                 self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
-                self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+                self.onUserSetSlideValue(self.oSMPlayer.xRangeEnd); 
                 self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
                 self.togglePause(); // (because onfinish never fires)
               }
-              return false;
             }
           }
         }
   
-        if (Math.abs(this.position - self.oSMPlayer.lastTime) > 667) {
-          self.oSMPlayer.updateTime(this.position);
-        }
       } catch(e) {
         q.d.bug(e);
       }
