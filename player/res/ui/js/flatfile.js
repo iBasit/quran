@@ -211,9 +211,9 @@
                         '<div class="right">' +
                             '<div class="divider"></div>' +
                             '<div class="time" title="Time">0:00</div>' +
-                            '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.playPreviousItem();return false"><span></span></a>' +
-                            '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.playNextItem();return false"><span></span></a>' +
-//                            '<a href="#" title="Shuffle" class="trigger s1 shuffle" onclick="quran.player.toggleShuffle();return false"><span></span></a>' +
+                            '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.previous();return false"><span></span></a>' +
+                            '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.next();return false"><span></span></a>' +
+                            '<a href="#" title="Auto-Play/Continuous" class="trigger s1 autoplay" onclick="quran.player.toggleAutoPlay();return false"><span></span></a>' +
                             '<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
                             '<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
                             '<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +

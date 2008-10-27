@@ -14,6 +14,11 @@ body {
  Even the new (at time of writing, 12/2006) IE 7 has issues and other quirks. Too bad.
 
 */
+.sm2player * {
+    font-size: 10px;
+    font-family: Verdana, Tahoma, Arial, sans-serif;
+    color: black;
+}
 
 .sm2player {
  position:fixed;
@@ -356,7 +361,7 @@ body {
  filter:none;
 }
 
-.sm2player .right .trigger.shuffle span {
+.sm2player .right .trigger.autoplay span {
  background:transparent url(../img/player/shuffle-1-light.png) 2px 5px no-repeat; 
  opacity:0.5;
  filter:alpha(opacity=50);
@@ -365,11 +370,11 @@ body {
  _margin:5px 0px 0px 2px;
 }
 
-.sm2player .right .trigger.shuffle:hover span {
+.sm2player .right .trigger.autoplay:hover span {
  background-image:url(../img/player/shuffle.png);
 }
 
-.sm2player .right .trigger.shuffle.active span {
+.sm2player .right .trigger.autoplay.active span {
  opacity:1;
  filter:none;
 }
@@ -413,7 +418,7 @@ body {
  background-image:url(../img/player/loop.png);
 }
 
-.sm2player .right .trigger.shuffle:hover>span {
+.sm2player .right .trigger.autoplay:hover>span {
  background-image:url(../img/player/shuffle-1.png);
 }
 

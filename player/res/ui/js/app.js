@@ -34,7 +34,111 @@
  */
 /*************** app ************/
 
+(function(q) {
+(function($) {
+  q.d = new function() {
+    var self = this;
+    this._direction = 1;
+    this._chg_color = 'blue';
+    if (!this._dec_blue) {
+        this._dec_blue = 100;
+    }
+    if (!this._dec_green) {
+        this._dec_green = 100;
+    }
+    if (!this._dec_red) {
+        this._dec_red = 100;
+    }
+    function do_color() {
+        if (self._dec_blue < 100) {
+            self._dec_blue = 100;
+            self._chg_color = 'green';
+        }
+        if (self._dec_blue > 255) {
+            self._dec_blue = 255;
+            self._chg_color = 'green';
+        }
+        if (self._dec_green < 100) {
+            self._dec_green = 100;
+            self._chg_color = 'red';
+        }
+        if (self._dec_green > 255) {
+            self._dec_green = 255;
+            self._chg_color = 'red';
+        } 
+        if (self._dec_red < 100) {
+            self._direction = 1;
+            self._dec_red = 100;
+            self._chg_color = 'blue';
+        }
+        if (self._dec_red > 255) {
+            self._dec_red = 255;
+            self._chg_color = 'blue';
+            self._direction = -1;
+        }
+        eval("self._dec_"+ self._chg_color + " += self._direction * 16;");
+    }
+    function resize_debugger() {
+    
+        $('#soundmanager-debug')
+            .width($(window).width()-30)
+            .height($(window).height()*0.382)
+            .resizable({
+                handles: 'n,w,nw',
+                containment: 'document.body',
+                ghost: true
+            })
+        ;
+    };
+    $(window).error(function(e,ev) {
+        self.bug('WINDOW ERROR: '+ e +' '+ ev);
+    });
+    $(window).resize(resize_debugger);
+    $(document).ready(resize_debugger);
+    this.bug = function() {
+        do_color();
+        var msg = [];
+        var special = false;
+        var now = new Date();
+        var time = now.getHours() + ":" + now.getMinutes() + ":" + now.getSeconds();
+        for (var i=0; i<arguments.length; i++) {
+            var m;
+            if (arguments[i] === null) {
+              m = 'null';
+              special = true;
+            } else
+            if (arguments[i] === undefined) {
+              m = 'undefined';
+              special = true;
+            } else
+            if (arguments[i] === true) {
+              m = 'true';
+              special = true;
+            } else
+            if (arguments[i] === false) {
+              m = 'false';
+              special = true;
+            } else
+            if (typeof arguments[i] == 'object') {
+              if (arguments[i].name && arguments[i].lineNumber && arguments[i].message) {
+                m = arguments[i].lineNumber +": "+ arguments[i].name +": "+ arguments[i].message;
+                special = true;
+              } else {
+                m = arguments[i];
+              }
+            } else {
+              m = arguments[i];
+            }
+            msg.push(m);
+        }
+        msg = msg.join(' ');
+        soundManager._writeDebug(time + ": <span style='"+ (special? "text-decoration: underline;" : "" ) +"font-family: lime, vixus, neoxis, monospace, sans-serif; font-size: 10px; color: rgb("+ self._dec_red +","+ self._dec_green +","+ self._dec_blue +");'>" + msg + "</span>");
+    }
+  }
+})(jQuery);
+})(quran);
 
+(function(q) {
 (function($) {
     quran.trigger = function(ev,data) {
         $(quran).trigger(ev,data);
@@ -403,6 +507,4 @@
     quran.bind('change-aya', change_aya);
     quran.bind('change-recitor', change_recitor);
 })(jQuery);
-
-
-
+})(quran);
