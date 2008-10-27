@@ -5,6 +5,71 @@
  */
 (function(q) {
 (function($) {
+  function get_sound_id(i) {
+    var id = "spsound"+i;
+    if (!soundManager.getSoundById(id)) {
+      createSound(id,i);
+    }
+    return id;
+  }
+  function createSound(id,i) {
+    try {
+      if (typeof id == 'number') {
+        i = id;
+        id = "spsound"+i;//hack
+        if (!(i >= 0)) {
+          return false;
+        }
+      }
+      var self = quran.player.oPlaylist;
+      var oParent = quran.player;
+      soundManager.createSound({
+        'id': id,
+        'url': self.items[i].url,
+        'stream': true,
+        'autoPlay': false,
+        'onload': function() {
+          oParent.onload.call(this);
+        },
+        'onid3': oParent.onid3,
+        'onplay': oParent.onplay,
+        'onpause': oParent.onpause,
+        'onstop': oParent.onstop,
+        'onresume': oParent.onresume,
+        'whileloading': function() {
+          //self.whileloading.call(this);
+          oParent.whileloading.call(this);
+        },
+        'whileplaying': oParent.whileplaying,
+        'onbeforefinishtime': 3000,
+        'onbeforefinish': function() {
+          self.onbeforefinish.call(this);
+          oParent.onbeforefinish.call(this);
+        },
+        'onjustbeforefinishtime': 500,
+        'onjustbeforefinish': function() {
+          self.onjustbeforefinish.call(this);
+          oParent.onjustbeforefinish.call(this);
+        },
+        'onfinish': function() {
+          self.onfinish.call(this);
+          oParent.onfinish.call(this);
+        },
+        'onbeforefinishcomplete': function() {
+          self.onbeforefinishcomplete.call(this);
+          oParent.onbeforefinishcomplete.call(this);
+        },
+        'multiShot': false
+      });
+    } catch(e) {
+      q.d.bug(e);
+    }
+  }
+/**************************************
+ *                                    *
+ *             SMUtils()              *
+ *                                    *
+ **************************************/
   function SMUtils() {
     var self = this;
     this.isSafari = navigator.userAgent.match(/safari/);
@@ -127,7 +192,11 @@
   };
 
   var smUtils = new SMUtils();
-
+/**************************************
+ *                                    *
+ *      SMPlayer < SoundPlayer        *
+ *                                    *
+ **************************************/
   function SMPlayer(oSoundPlayer) {
     var self = this;
     this.oParent = oSoundPlayer;
@@ -196,14 +265,16 @@
     }
 
     this.out = function() {
-      q.d.bug('out');
-      this.className = self._className;
-      event.cancelBubble = true;
-      return false;
+      try {
+        this.className = self._className;
+        event.cancelBubble = true;
+        return false;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.barDown = function(e) {
-      //q.d.bug('barDown');
       var e = e ? e: event;
       self.didDrag = false;
 
@@ -217,30 +288,30 @@
     }
 
     this.barMove = function(e) {
-      //q.d.bug('barMove');
-      var e = e ? e: event;
-      if (!self.didDrag) {
-        if (Math.abs(e.clientX - self.coords.x) < 3 && Math.abs(e.clientY - self.coords.y) < 3) {
-          // drag threshold
-          return false;
-        } else {
-          self.didDrag = true;
+      try {
+        var e = e ? e: event;
+        if (!self.didDrag) {
+          if (Math.abs(e.clientX - self.coords.x) < 3 && Math.abs(e.clientY - self.coords.y) < 3) {
+            // drag threshold
+            return false;
+          } else {
+            self.didDrag = true;
+          }
         }
+        if ($.browser.safari) {
+          //hack
+          self.oMain.style.left = (e.clientX - self.coords.offX - 722) + 'px';
+          self.oMain.style.top = (e.clientY - self.coords.offY - 7) + 'px';
+        } else {
+          //hack
+          self.oMain.style.left = (e.clientX - self.coords.offX) + 'px';
+          self.oMain.style.top = (e.clientY - self.coords.offY) + 'px';
+        }
+        e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+        return false;
+      } catch(e) {
+        q.d.bug(e);
       }
-      if ($.browser.safari) {
-        //q.d.bug(self.oMain.style.left, self.oMain.style.top, ' : ', self.coords.offX, self.coords.offY, ' : ', $(window).width(), $(window).height(), ' : ', $(self.oMain).offset().left, $(self.oMain).offset().top);
-        //hack
-        q.d.bug('browser ',$.browser.version);
-        self.oMain.style.left = (e.clientX - self.coords.offX - 722) + 'px';
-        self.oMain.style.top = (e.clientY - self.coords.offY - 7) + 'px';
-      } else {
-        //q.d.bug(self.oMain.style.left, self.oMain.style.top, ' : ', self.coords.offX, self.coords.offY, ' : ', $(window).width(), $(window).height(), ' : ', $(self.oMain).offset().left, $(self.oMain).offset().top);
-        //hack
-        self.oMain.style.left = (e.clientX - self.coords.offX) + 'px';
-        self.oMain.style.top = (e.clientY - self.coords.offY) + 'px';
-      }
-      e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-      return false;
     }
 
     this.barUp = function(e) {
@@ -292,12 +363,15 @@
     }
 
     this.setVolume = function(nVol) {
-      if (!self.oParent.currentSound || self.volume == nVol) return false;
-      soundManager.defaultOptions.volume = nVol;
-      q.d.bug('soundManager.setVolume(' + nVol + ')');
-      self.volume = nVol;
-      if (!self.muted) soundManager.setVolume(self.oParent.currentSound, nVol);
-      u.setOpacity(self.oVolume, nVol);
+      try {
+        if (!self.oParent.currentSound || self.volume == nVol) return false;
+        soundManager.defaultOptions.volume = nVol;
+        self.volume = nVol;
+        if (!self.muted) soundManager.setVolume(self.oParent.currentSound, nVol);
+        u.setOpacity(self.oVolume, nVol);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.setRangeBackground = function() {
@@ -313,22 +387,24 @@
     }
 
     this.rangeStartDown = function(e) {
-      q.d.bug('rangeStartDown',e);
-      if (!self.oParent.currentSound) return false;
-      self.didDrag = false;
-      var e = e ? e: event;
-      self.offX = e.clientX - (u.getOffX(self.oRangeStart) - u.getOffX(self.oBar));
-      self.rangeBusy = true;
-      self.refreshSeek('rangeStart');
-      self.setSeekVisibility(1);
-      u.addClass(self.oRangeStart, 'active');
-      u.addEventHandler(document, 'mousemove', self.rangeStartMove);
-      u.addEventHandler(document, 'mouseup', self.rangeStartUp);
-      e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-      return false;
+      try {
+        if (!self.oParent.currentSound) return false;
+        self.didDrag = false;
+        var e = e ? e: event;
+        self.offX = e.clientX - (u.getOffX(self.oRangeStart) - u.getOffX(self.oBar));
+        self.rangeBusy = true;
+        self.refreshSeek('rangeStart');
+        self.setSeekVisibility(1);
+        u.addClass(self.oRangeStart, 'active');
+        u.addEventHandler(document, 'mousemove', self.rangeStartMove);
+        u.addEventHandler(document, 'mouseup', self.rangeStartUp);
+        e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+        return false;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
     this.rangeStartMove = function(e) {
-      //q.d.bug('rangeStartMove');
       var e = e ? e: event;
       var x = e.clientX - self.offX;
       if (x > self.xMaxLoaded) {
@@ -358,49 +434,54 @@
       self.setRangeBackground();
     }
     this.rangeStartUp = function(e) {
-      q.d.bug('rangeStartUp');
-      u.removeEventHandler(document, 'mousemove', self.rangeStartMove);
-      u.removeEventHandler(document, 'mouseup', self.rangeStartUp);
-      u.removeClass(self.oRangeStart, 'active');
-      self.rangeBusy = false;
-      var x;
-      if (!self.oParent.options.allowScrub || self.oParent.paused) {
-        if (self.x >= self.xRangeEnd) {
-          x = self.xRangeEnd;
-        } else
-        if (self.x <= self.xRangeStart) {
-          x = self.xRangeStart;
-        } else {
-          x = self.x;
-        }
-        if (x != self.x) {
-          self.moveSliderTo(x);
-          if (self.oParent.options.allowScrub) {
-            self.doScrub();
+      try {
+        u.removeEventHandler(document, 'mousemove', self.rangeStartMove);
+        u.removeEventHandler(document, 'mouseup', self.rangeStartUp);
+        u.removeClass(self.oRangeStart, 'active');
+        self.rangeBusy = false;
+        var x;
+        if (!self.oParent.options.allowScrub || self.oParent.paused) {
+          if (self.x >= self.xRangeEnd) {
+            x = self.xRangeEnd;
+          } else
+          if (self.x <= self.xRangeStart) {
+            x = self.xRangeStart;
+          } else {
+            x = self.x;
           }
-          self.oParent.onUserSetSlideValue(x); // notify parent of update
+          if (x != self.x) {
+            self.moveSliderTo(x);
+            if (self.oParent.options.allowScrub) {
+              self.doScrub();
+            }
+            self.oParent.onUserSetSlideValue(x); // notify parent of update
+          }
         }
+        self.setSeekVisibility();
+        return false;
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.setSeekVisibility();
-      return false;
     }
     this.sliderDown = function(e) {
-      q.d.bug('sliderDown');
-      if (!self.oParent.currentSound) return false;
-      self.didDrag = false;
-      var e = e ? e: event;
-      self.offX = e.clientX - (u.getOffX(self.oSlider) - u.getOffX(self.oBar));
-      self.busy = true;
-      self.refreshSeek();
-      self.setSeekVisibility(1);
-      u.addClass(self.oSlider, 'active');
-      u.addEventHandler(document, 'mousemove', self.sliderMove);
-      u.addEventHandler(document, 'mouseup', self.sliderUp);
-      e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-      return false;
+      try {
+        if (!self.oParent.currentSound) return false;
+        self.didDrag = false;
+        var e = e ? e: event;
+        self.offX = e.clientX - (u.getOffX(self.oSlider) - u.getOffX(self.oBar));
+        self.busy = true;
+        self.refreshSeek();
+        self.setSeekVisibility(1);
+        u.addClass(self.oSlider, 'active');
+        u.addEventHandler(document, 'mousemove', self.sliderMove);
+        u.addEventHandler(document, 'mouseup', self.sliderUp);
+        e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+        return false;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
     this.sliderMove = function(e) {
-      //q.d.bug('sliderMove');
       var e = e ? e: event;
       var x = e.clientX - self.offX;
       if (x > self.xMaxLoaded) {
@@ -427,35 +508,40 @@
       self.oSlider.style.marginLeft = (Math.floor(x) + 1) + 'px'; // 1 offset
     }
     this.sliderUp = function(e) {
-      q.d.bug('sliderUp');
-      u.removeEventHandler(document, 'mousemove', self.sliderMove);
-      u.removeEventHandler(document, 'mouseup', self.sliderUp);
-      u.removeClass(self.oSlider, 'active');
-      self.busy = false;
-
-      if (!self.oParent.options.allowScrub || self.oParent.paused) {
-        self.oParent.onUserSetSlideValue(self.x); // notify parent of update
+      try {
+        u.removeEventHandler(document, 'mousemove', self.sliderMove);
+        u.removeEventHandler(document, 'mouseup', self.sliderUp);
+        u.removeClass(self.oSlider, 'active');
+        self.busy = false;
+  
+        if (!self.oParent.options.allowScrub || self.oParent.paused) {
+          self.oParent.onUserSetSlideValue(self.x); // notify parent of update
+        }
+        self.setSeekVisibility();
+        return false;
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.setSeekVisibility();
-      return false;
     }
     this.rangeEndDown = function(e) {
-      q.d.bug('rangeEndDown',e);
-      if (!self.oParent.currentSound) return false;
-      self.didDrag = false;
-      var e = e ? e: event;
-      self.offX = e.clientX - (u.getOffX(self.oRangeEnd) - u.getOffX(self.oBar));
-      self.rangeBusy = true;
-      self.refreshSeek('rangeEnd');
-      self.setSeekVisibility(1);
-      u.addClass(self.oRangeEnd, 'active');
-      u.addEventHandler(document, 'mousemove', self.rangeEndMove);
-      u.addEventHandler(document, 'mouseup', self.rangeEndUp);
-      e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-      return false;
+      try {
+        if (!self.oParent.currentSound) return false;
+        self.didDrag = false;
+        var e = e ? e: event;
+        self.offX = e.clientX - (u.getOffX(self.oRangeEnd) - u.getOffX(self.oBar));
+        self.rangeBusy = true;
+        self.refreshSeek('rangeEnd');
+        self.setSeekVisibility(1);
+        u.addClass(self.oRangeEnd, 'active');
+        u.addEventHandler(document, 'mousemove', self.rangeEndMove);
+        u.addEventHandler(document, 'mouseup', self.rangeEndUp);
+        e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+        return false;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
     this.rangeEndMove = function(e) {
-      //q.d.bug('rangeEndMove');
       var e = e ? e: event;
       var x = e.clientX - self.offX;
       if (x > self.xMaxLoaded) {
@@ -485,40 +571,46 @@
       self.setRangeBackground();
     }
     this.rangeEndUp = function(e) {
-      q.d.bug('rangeEndUp');
-      u.removeEventHandler(document, 'mousemove', self.rangeEndMove);
-      u.removeEventHandler(document, 'mouseup', self.rangeEndUp);
-      u.removeClass(self.oRangeEnd, 'active');
-      self.rangeBusy = false;
-      var x;
-      if (!self.oParent.options.allowScrub || self.oParent.paused) {
-        if (self.x >= self.xRangeEnd) {
-          x = self.xRangeEnd;
-        } else
-        if (self.x <= self.xRangeStart) {
-          x = self.xRangeStart;
-        } else {
-          x = self.x;
-        }
-        if (x != self.x) {
-          self.moveSliderTo(x);
-          if (self.oParent.options.allowScrub) {
-            self.doScrub();
+      try {
+        u.removeEventHandler(document, 'mousemove', self.rangeEndMove);
+        u.removeEventHandler(document, 'mouseup', self.rangeEndUp);
+        u.removeClass(self.oRangeEnd, 'active');
+        self.rangeBusy = false;
+        var x;
+        if (!self.oParent.options.allowScrub || self.oParent.paused) {
+          if (self.x >= self.xRangeEnd) {
+            x = self.xRangeEnd;
+          } else
+          if (self.x <= self.xRangeStart) {
+            x = self.xRangeStart;
+          } else {
+            x = self.x;
           }
-          self.oParent.onUserSetSlideValue(x); // notify parent of update
+          if (x != self.x) {
+            self.moveSliderTo(x);
+            if (self.oParent.options.allowScrub) {
+              self.doScrub();
+            }
+            self.oParent.onUserSetSlideValue(x); // notify parent of update
+          }
         }
+        self.setSeekVisibility();
+        return false;
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.setSeekVisibility();
-      return false;
     }
 
     this.slide = function(x0, x1) {
-      q.d.bug('slide');
-      self.tween = animator.createTween(x0, x1);
-      self.busy = true;
-      self.slideLastExec = new Date();
-      animator.addMethod(self.animate, self.animateComplete);
-      animator.start();
+      try {
+        self.tween = animator.createTween(x0, x1);
+        self.busy = true;
+        self.slideLastExec = new Date();
+        animator.addMethod(self.animate, self.animateComplete);
+        animator.start();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.refreshSeek = function(handleName) {
@@ -548,7 +640,6 @@
         'time2': (!oSound.loaded ? '~': '') + self.getTime(oSound.durationEstimate, true),
         'percent': Math.floor(sliderMSec / oSound.durationEstimate * 100)
       }
-      // q.d.bug(attrs.time1+' / '+attrs.time2+' / '+attrs.percent);
       for (var attr in attrs) {
         data = attrs[attr];
         if (self.isEmpty(data)) data = '!null!';
@@ -648,7 +739,6 @@
       // update "current playing" time
       self.lastTime = nMSec;
       self.oTime.innerHTML = (self.getTime(nMSec, true) || '0:00');
-      //q.d.bug('update time',self.lastTime,self.getTime(nMSec, true) || '0:00', self.oTime.innerHTML);
     }
 
     this.setTitle = function(sTitle) {
@@ -715,37 +805,47 @@
     }
 
     this.setLoadingProgress = function(nPercentage) {
-      // q.d.bug('setLoadingProgress(): '+nPercentage);
-      self.percentLoaded = nPercentage;
-      self.xMaxLoaded = self.percentLoaded * self.xMax;
-      self.oProgress.style.width = parseInt(nPercentage * self.barWidth) + 'px';
+      try {
+        self.percentLoaded = nPercentage;
+        self.xMaxLoaded = self.percentLoaded * self.xMax;
+        self.oProgress.style.width = parseInt(nPercentage * self.barWidth) + 'px';
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
 
     this.setLoading = function(bLoading) {
-      if (self.isLoading == bLoading) return false;
-      self.isLoading = bLoading;
-      var f = bLoading ? u.addClass: u.removeClass;
-      f(self.oProgress, 'loading');
-      self.setLoadingAnimation(bLoading);
+      try {
+        if (self.isLoading == bLoading) return false;
+        self.isLoading = bLoading;
+        var f = bLoading ? u.addClass: u.removeClass;
+        f(self.oProgress, 'loading');
+        self.setLoadingAnimation(bLoading);
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
 
     this.setLoadingAnimation = function(bLoading) {
-      q.d.bug('setLoadingAnimation(): ' + bLoading);
-      if (bLoading) {
-        self.loadingTween = self.loadingTweens[0];
-        animator.addMethod(self.loadingAnimate);
-        animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
-        animator.start();
-      } else {
-        self.loadingTween = self.loadingTweens[1];
-        if (self.loadingAnimateFrame > 0) {
-          // reverse animation while active
-          // self.loadingTween.reverse();
-          self.loadingAnimateFrame = (self.loadingTween.length - self.loadingAnimateFrame);
+      try {
+        if (bLoading) {
+          self.loadingTween = self.loadingTweens[0];
+          animator.addMethod(self.loadingAnimate);
+          animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
+          animator.start();
         } else {
           self.loadingTween = self.loadingTweens[1];
-          animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
+          if (self.loadingAnimateFrame > 0) {
+            // reverse animation while active
+            // self.loadingTween.reverse();
+            self.loadingAnimateFrame = (self.loadingTween.length - self.loadingAnimateFrame);
+          } else {
+            self.loadingTween = self.loadingTweens[1];
+            animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
+          }
         }
+      } catch (e) {
+        q.d.bug(e);
       }
     }
 
@@ -755,9 +855,6 @@
       self.loadingLastExec = d;
       self.loadingX--;
       self.oProgress.style.backgroundPosition = self.loadingX + 'px ' + self.loadingY + 'px';
-      /*
-       * !!!!!!!
-       */
       return self.isLoading;
     }
 
@@ -777,10 +874,13 @@
     }
 
     this.loadingAnimateSlideComplete = function() {
-      q.d.bug('loadingAnimateSlideComplete()');
-      self.loadingAnimateFrame = 0;
-      // self.loadingDirection = !self.loadingDirection;
-      self.loadingX = 0;
+      try {
+        self.loadingAnimateFrame = 0;
+        // self.loadingDirection = !self.loadingDirection;
+        self.loadingX = 0;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.isLoading = false;
@@ -789,65 +889,66 @@
     this.loadingY = 0;
 
     this.setPlayState = function(bPlayState) {
-      q.d.bug('SMPlayer.setPlayState(' + bPlayState + ')');
-      self.playState = bPlayState;
-      self.oLeft.getElementsByTagName('span')[0].className = (self.playState ? 'playing': '');
+      try {
+        self.playState = bPlayState;
+        self.oLeft.getElementsByTagName('span')[0].className = (self.playState ? 'playing': '');
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.togglePause = function() {
-      q.d.bug('togglePause(foo)');
-      //console.log('toggle pause', self.oParent.currentSound);
-      if (self.oParent.currentSound) {
-        soundManager.togglePause(self.oParent.currentSound);
-      } else {
-        self.oParent.oPlaylist.playAya(self.oParent.oPlaylist.getAya());
-
-        //console.log('play aya',self.oParent.oPlaylist.getAya());
-        //console.log(self.oParent.oPlaylist.playNextItem());
-      }
-      var isPaused;
-      if (self.oParent.currentSound) {
-        q.d.bug('isPaused');
-        isPaused = soundManager.getSoundById(self.oParent.currentSound).paused;
-        self.oParent.paused = isPaused;
-        self.setPlayState(!isPaused);
+      try {
+        if (self.oParent.currentSound) {
+          soundManager.togglePause(self.oParent.currentSound);
+        } else {
+          self.oParent.oPlaylist.playAya(self.oParent.oPlaylist.getAya());
+        }
+        var isPaused;
+        if (self.oParent.currentSound) {
+          isPaused = soundManager.getSoundById(self.oParent.currentSound).paused;
+          self.oParent.paused = isPaused;
+          self.setPlayState(!isPaused);
+        }
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
     this.toggleShuffle = function() {
-      q.d.bug('SMPlayer.toggleShuffle()');
-      self.oParent.oPlaylist.toggleShuffle();
-      self.setShuffle(self.oParent.oPlaylist.doShuffle);
+      try {
+        self.oParent.oPlaylist.toggleShuffle();
+        self.setShuffle(self.oParent.oPlaylist.doShuffle);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.toggleRepeat = function() {
-      q.d.bug('SMPlayer.toggleRepeat()');
-      self.oParent.oPlaylist.toggleRepeat();
-      self.setRepeat(self.oParent.oPlaylist.doRepeat);
+      try {
+        self.oParent.oPlaylist.toggleRepeat();
+        self.setRepeat(self.oParent.oPlaylist.doRepeat);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.toggleMute = function() {
-      q.d.bug('SMPlayer.toggleMute()');
-      self.muted = !self.muted;
-      // var nVol = self.muted?0:self.volume;
-      // if (self.oParent.currentSound) soundManager.setVolume(self.oParent.currentSound,nVol);
-      // soundManager.defaultOptions.volume = nVol; // update global volume
-      if (self.muted) {
-        soundManager.mute();
-      } else {
-        soundManager.unmute();
+      try {
+        self.muted = !self.muted;
+        if (self.muted) {
+          soundManager.mute();
+        } else {
+          soundManager.unmute();
+        }
+        self.setMute(self.muted);
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.setMute(self.muted);
     }
 
     this.togglePlaylist = function() {
       // show UI changes here in main player?
-      q.d.bug('SMPlayer.togglePlaylist()');
-    }
-
-    this.setShuffle = function(bShuffle) {
-      var f = (bShuffle ? u.addClass: u.removeClass);
-      f(self.oShuffle, 'active');
     }
 
     this.setRepeat = function(bRepeat) {
@@ -905,23 +1006,23 @@
     }
 
     this.resetScroll = function() {
-      q.d.bug('resetScroll()');
       self.scrollOffset = 0;
       self.scrollTo(self.scrollOffset);
       self.refreshDocumentTitle(0);
     }
 
     this.setScroll = function(bScroll) {
-      q.d.bug('setScroll(' + bScroll + ')');
-      if (bScroll && !self.isScrolling) {
-        q.d.bug('starting scroll');
-        self.isScrolling = true;
-        animator.addMethod(self.doScroll, self.resetScroll);
-        animator.start();
-      }
-      if (!bScroll && self.isScrolling) {
-        q.d.bug('stopping scroll');
-        self.isScrolling = false;
+      try {
+        if (bScroll && !self.isScrolling) {
+          self.isScrolling = true;
+          animator.addMethod(self.doScroll, self.resetScroll);
+          animator.start();
+        }
+        if (!bScroll && self.isScrolling) {
+          self.isScrolling = false;
+        }
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
@@ -947,14 +1048,17 @@
     }
 
     this.reset = function() {
-      q.d.bug('SMPlayer.reset()');
-      /*if (self.x != 0) */self.moveSliderTo(0);
-      self.moveRangeStartTo(self.xMin);
-      self.moveRangeEndTo(self.xMax);
-      self.setLoadingProgress(0);
-      self.gotTimeEstimate = 0;
-      self.updateTime(0);
-      self.resetScroll();
+      try {
+        self.moveSliderTo(0);
+        self.moveRangeStartTo(self.xMin);
+        self.moveRangeEndTo(self.xMax);
+        self.setLoadingProgress(0);
+        self.gotTimeEstimate = 0;
+        self.updateTime(0);
+        self.resetScroll();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.destructor = function() {
@@ -987,7 +1091,11 @@
     self.refreshScroll();
 
   }
-
+/**************************************
+ *                                    *
+ *              Animator              *
+ *                                    *
+ **************************************/
   function Animator() {
     var self = this;
     this.timer = null;
@@ -1087,10 +1195,15 @@
   }
 
   var animator = new Animator();
-
+/**************************************
+ *                                    *
+ *      SPPlaylist < SoundPlayer      *
+ *                                    *
+ **************************************/
   function SPPlaylist(oSoundPlayer, oPlaylist) {
     var self = this;
     var oParent = oSoundPlayer;
+    var seamlessDelay = 0; // offset for justBeforeFinish
     this.o = oPlaylist || null; // containing element
     this.links = [];
     this.items = [];
@@ -1105,130 +1218,208 @@
     this.doRepeat = false;
     this._ignoreCurrentSound = false;
 
-    var seamlessDelay = 0; // offset for justBeforeFinish
     this.resetArrays = function() {
-      self.links = [];
-      self.items = [];
-      self.playlistItems = []; // pointer
-      self.playlistItemsUnsorted = [];
-      self.playlistItemsShuffled = [];
-      self.history = [];
-    }
-
-    this.resetIndex = function() {
-      self.selectItem( - 1);
-      self.lastIndex = null;
+      try {
+        self.links = [];
+        self.items = [];
+        self.playlistItems = []; // pointer
+        self.playlistItemsUnsorted = [];
+        self.playlistItemsShuffled = [];
+        self.history = [];
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.resetMisc = function() {
-      if (oParent.playState) {
-        soundManager.stop(oParent.currentSound);
-        soundManager.unload(oParent.currentSound);
+      try {
+        oParent.reset();
+        if (oParent.currentSound) {
+          soundManager.stop(oParent.currentSound);
+          soundManager.unload(oParent.currentSound);
+        }
+        oParent.lastSound = null;
+        oParent.currentSound = null
+        oParent.setPlayState(false);
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.onfinish();
-      oParent.reset();
-      self.selectAya(1);
-      //oParent.setTitle('');
     }
 
     this.resetTemplate = function() {
-      $('#playlist-template').html('<div class="hd"><div class="c"></div></div>' + '<div class="bd">' + '<ul>' + '</ul>' + '</div>' + '<div class="ft"><div class="c"></div></div>');
+      try {
+        $('#playlist-template').html('<div class="hd"><div class="c"></div></div>' + '<div class="bd">' + '<ul>' + '</ul>' + '</div>' + '<div class="ft"><div class="c"></div></div>');
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.findURL = function(sURL) {
-      for (var i = self.items.length; i--;) {
-        if (self.items[i].url == sURL) return true;
+      try {
+        for (var i = self.items.length; i--;) {
+          if (self.items[i].url == sURL) return true;
+        }
+        return false;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return false;
     }
 
     this.addItem = function(oOptions) {
-      // oOptions = {url:string,name:string}
-      var sURL = oOptions.url || null;
-      var sName = oOptions.name || null;
-      if (!sURL || self.findURL(sURL)) return false;
-      self.items[self.items.length] = {
-        url: sURL,
-        name: (sName || sURL.substr(sURL.lastIndexOf('/') + 1))
+      try {
+        var sURL = oOptions.url || null;
+        var sName = oOptions.name || null;
+        if (!sURL || self.findURL(sURL)) return false;
+        self.items[self.items.length] = {
+          url: sURL,
+          name: (sName || sURL.substr(sURL.lastIndexOf('/') + 1))
+        }
+      } catch(e) {
+        q.d.bug(e);
       }
-      q.d.bug('SPPlaylist().addItem(' + self.items[self.items.length - 1].url + ')');
     }
 
     this.getItem = function(sURL) {
-      for (var i = self.items.length; i--;) {
-        if (self.items[i].url == sURL) return self.items[i];
+      try {
+        for (var i = self.items.length; i--;) {
+          if (self.items[i].url == sURL) return self.items[i];
+        }
+        return null;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return null;
     }
 
     this.getCurrentItem = function() {
-      return self.playlistItems[self.index];
+      try {
+        return self.playlistItems[self.index];
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.getRandomItem = function() {
-      return parseInt(Math.random() * self.items.length);
+      try {
+        return parseInt(Math.random() * self.items.length);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.calcNextItem = function() {
-      /*
-       *
-       * HERE
-       *
-       */
-      var nextItem = self.index + 1;
-      if (nextItem >= self.items.length) nextItem = -1;
-      return nextItem;
+      try {
+        var nextItem = self.index + 1;
+        if (nextItem >= self.items.length) nextItem = -1;
+        return nextItem;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.getNextItem = function() {
-      /*
-       *
-       * HERE
-       *
-       */
-      self.index++;
-      if (self.index >= self.items.length) {
-        self.index = -1; // reset
-        return false;
+      try {
+        self.index++;
+        if (self.index >= self.items.length) {
+          self.index = -1; // reset
+          return false;
+        }
+        return true;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return true;
     }
 
     this.calcPreviousItem = function() {
-      /*
-       *
-       * HERE
-       *
-       */
-      var prevItem = self.index - 1;
-      if (prevItem < 0) prevItem = self.items.length - 1;
-      return prevItem;
+      try {
+        var prevItem = self.index - 1;
+        if (prevItem < 0) prevItem = self.items.length - 1;
+        return prevItem;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.getPreviousItem = function() {
-      // self.index--;
-      if (--self.index < 0) {
-        self.index = self.items.length - 1;
-        return false;
+      try {
+        if (--self.index < 0) {
+          self.index = self.items.length - 1;
+          return false;
+        }
+        return true;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return true;
     }
+    /*
+    this.onload = function() {
+      try {
+        var time = this.loaded? this.duration : this.durationEstimate;
+        oParent.oSMPlayer.updateTime(time);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    */
+    this.resetSliders = function() {
+        oParent.oSMPlayer.moveRangeStartTo(oParent.oSMPlayer.xMin);
+        oParent.oSMPlayer.moveSliderTo(oParent.oSMPlayer.xMin);
+        oParent.oSMPlayer.moveRangeEndTo(oParent.oSMPlayer.xMax);
+    }
+    this.preloadCurrent = function() {
+      try {
+        var sound = soundManager.getSoundById(oParent.currentSound);
+        if (sound && !sound.loaded) {
+          sound.load();
+          oParent.oSMPlayer.updateTime(0);
+        } else
+        if (sound) {
+          oParent.oSMPlayer.updateTime(sound.duration);
+        }
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.preloadNext = function() {
+      q.d.bug('preloadNext');
+      try {
+        if ((self.index + 1) == self.items.length) {
+          return false;
+        }
+        var id = get_sound_id(self.index + 1);
+        var sound = soundManager.getSoundById(id);
+        if (sound && !sound.loaded) {
+          sound.load();
+        }
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.stopLast = function() {
+      try {
+        if (oParent.lastSound && soundManager.getSoundById(oParent.lastSound)) {
+          soundManager.stop(oParent.lastSound);
+        }
+        oParent.setPlayState(0);
+        self.preloadCurrent();
 
+        self.resetSliders();
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
     this.playNextItem = function() {
+      try {
+        q.d.bug('playNextItem');
+        quran.trigger('change','next');
+        setTimeout(self.stopLast, 5);
       // call getNextItem, decide what to do based on repeat/random state etc.
-      q.d.bug('SPPlaylist.playNextItem()');
-
+      /*
       if (self.getNextItem() || self.doRepeat) {
         if (self.doRepeat && self.index == -1) {
           // did loop
           q.d.bug('did loop - restarting playlist');
           self.index = 0;
         }
-        /*
-         *
-         * these two calls constitute a playlist change however they don't change the title in the player
-         *
-         */
         q.trigger('change-aya',self.getAya());
         //self.play(self.index);
         //self.setHighlight(self.index);
@@ -1244,11 +1435,17 @@
         // self.setHighlight(self.index);
       }
       return [self.index,self.getAya()];
+      */
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.playPreviousItem = function() {
-      // call getPreviousItem, decide what to do
-      q.d.bug('SPPlaylist.playPreviousItem()');
+      try {
+        quran.trigger('change','prev');
+        setTimeout(self.stopLast, 5);
+      /*
       if (self.getPreviousItem() || self.doRepeat) {
         // self.play(self.playlistItems[self.index].index);
         //self.play(self.index);
@@ -1264,51 +1461,86 @@
         }
         //self.setHighlight(self.index);
       }
+      */
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.setHighlight = function(i) {
-      if (self.playlistItems[i]) self.playlistItems[i].setHighlight();
-      // self.index = i;
-      if (self.lastIndex != null && self.lastIndex != i) self.removeHighlight(self.lastIndex);
-      self.lastIndex = i;
+      try {
+        if (self.playlistItems[i]) self.playlistItems[i].setHighlight();
+        if (self.lastIndex != null && self.lastIndex != i) {
+          self.removeHighlight(self.lastIndex);
+        }
+        self.lastIndex = i;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.removeHighlight = function(i) {
-      if (self.playlistItems[i]) self.playlistItems[i].removeHighlight();
+      try {
+        if (self.playlistItems[i]) self.playlistItems[i].removeHighlight();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.selectItem = function(i) {
-      self.index = i;
-      self.setHighlight(i);
-      oParent.refreshDetails();
+      try {
+        oParent.lastSound = oParent.currentSound;
+        oParent.currentSound = get_sound_id(i);
+        self.index = i;
+        self.setHighlight(i);
+        oParent.refreshDetails();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.selectAya = function(a) {
+      try {
         self.selectItem(a-1);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.playItem = function(i) {
-      self.selectItem(i);
-      self.play(i);
+      try {
+        self.selectItem(i);
+        self.play(i);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.playAya = function(a) {
-      self.playItem(a-1);
-      //oParent.refreshDetails();
+      try {
+        self.playItem(a-1);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.getAya = function() {
+      try {
         var aya = self.index + 1;
         if (!aya) {
             aya = q.get_state('aya').aya;
-            //console.log('bang aya',q.get_state('aya'),aya);
         }
         return aya;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
-    this.onItemBeforeFinish = function() {
+    this.onbeforefinish = function() {
+      q.d.bug('onbefore playlist');
+      try {
+        self.preloadNext();
       //q.d.bug('onItemBeforeFinish clear TIMEOUT PLZ');
-      q.d.bug('onItemBeforeFinish()');
       // prevent this sound's onfinish() from triggering next load, etc.
       /*
       if (oParent.oSMPlayer.xRangeStart != oParent.oSMPlayer.xMin) {
@@ -1340,115 +1572,101 @@
       // start preloading next track
       //var nextItem = self.calcNextItem();
       //self.load(self.playlistItems[nextItem].index);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
-    this.onItemJustBeforeFinish = function() {
+    this.onjustbeforefinish = function() {
+      q.d.bug('onjustbefore playlist');
+      try {
       //--console.log('just bfore finish');
       // compensate for JS/Flash lag to attempt seamless audio. (woah.)
       // soundManager.getSoundById(oParent.currentSound)._ignoreOnFinish = true; // prevent this sound's onfinish() from triggering next load, etc.
-      q.d.bug('onItemJustBeforeFinish');
       //soundManager.getSoundById(this.sID)._ignoreOnFinish = true; // prevent this sound's onfinish() from triggering next load, etc.
       //if (this.sID == oParent.currentSound) { // just in case this method fires too late (next song already playing..)
        // q.d.bug('onItemJustBeforeFinish if');
         //self._ignoreCurrentSound = true; // prevent current track from stopping
         //self.playNextItem();
       //}
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
-    this.onItemBeforeFinishComplete = function() {
-      // TODO: Make getting SID reference cleaner (scope to playlist item)
-      // soundManager.stop(oParent.lastSound);
-      // soundManager.unload(oParent.lastSound);
-      q.d.bug('onItemBeforeFinishComplete',oParent.paused);
-    }
-
-    this.onItemFinish = function() {
-      q.d.bug('SPPlaylist.onItemFinish()');
-      //oParent.endRecursiveTimeUpdate();
-
-      //--console.log('on finish');
+    this.onfinish = function() {
+      q.d.bug('onfinish playlist');
+      try {
+        if (self.doRepeat) {
+          self.playNextItem();
+        }
+      /*
       if (this._ignoreOnFinish) {
-        // special case for seamless playback - don't trigger next track, already done
-        q.d.bug('sound ' + this.sID + ' ended with ._ignoreOnFinish=true');
+        q.d.bug('if (this._ignoreOnFinish)');
         this._ignoreOnFinish = false; // reset for next use
         return false;
       }
       //oParent.setPlayState(false); // stop
       if (!self.getNextItem()) {
-        self.onfinish();
+        oParent.lastSound = oParent.currentSound;
+        oParent.currentSound = null;
+        //oParent.x = 0; // haaack 
+        //self.removeHighlight(self.index); // reset highlight
+        //self.index = -1; // haaack
+        if (self.doRepeat) {
+          q.d.bug('if (self.doRepeat)');
+          //self.playNextItem();
+          self.selectAya(1)
+          self.play();
+        } else {
+            try {
+              oParent.oSMPlayer.moveSliderTo(oParent.oSMPlayer.xMax);
+              oParent.setPlayState(false);
+            } catch(e) {
+              q.d.bug(e);
+            }
+        }
       } else {
-        // self.play(self.playlistItems[self.index].index); // not needed?
-      /*
-       *
-       * BINGO
-       *
-       */
+        q.d.bug('} else {');
         q.trigger('change-aya',self.getAya());
-        //self.play(self.index); // not needed?
-        //self.setHighlight(self.index);
+      }
+      */
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
-    this.onfinish = function() {
-      // end of playlist
-      q.d.bug('SPPlaylist.onfinish()');
-      oParent.onfinish();
-      // hacks: reset scroll and index
-      oParent.x = 0; // haaack 
-      oParent.lastSound = oParent.currentSound;
-      oParent.currentSound = null;
-      self.removeHighlight(self.index); // reset highlight
-      self.index = -1; // haaack
-      //    self.reset();
-      // if repeat mode, start playing next song
-      if (self.doRepeat) self.playNextItem();
-
+    this.onbeforefinishcomplete = function() {
+      q.d.bug('onbeforefinishcomplete playlist');
+      try {
+      // TODO: Make getting SID reference cleaner (scope to playlist item)
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
+
     this.show = function() {
-      self.setDisplay(true);
+      try {
+        self.setDisplay(true);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.hide = function() {
-      self.setDisplay();
-    }
-
-    this.toggleShuffle = function() {
-      q.d.bug('SPPlaylist.toggleShuffle()');
-      self.doShuffle = !self.doShuffle;
-      q.d.bug('shuffle: ' + self.doShuffle);
-      if (self.doShuffle) {
-        // undo current highlight
-        self.removeHighlight(self.index);
-        self.shufflePlaylist();
-        self.playlistItems = self.playlistItemsShuffled;
-        self.index = 0; // self.playlistItems[0].index;
-        self.setHighlight(0);
-        self.play(0);
-      } else {
-        self.index = self.playlistItems[self.index].origIndex; // restore to last unsorted position
-        self.lastIndex = self.playlistItems[self.lastIndex].origIndex; // map new lastIndex
-        self.playlistItems = self.playlistItemsUnsorted;
+      try {
+        self.setDisplay();
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
     this.toggleRepeat = function() {
-      q.d.bug('SPPlaylist.toggleRepeat()');
-      self.doRepeat = !self.doRepeat;
-      q.d.bug('repeat: ' + self.doRepeat);
-    }
-
-    this.shufflePlaylist = function() {
-      q.d.bug('SPPlaylist.shufflePlaylist()');
-      var p = self.playlistItemsShuffled,
-      j = null,
-      tmp = null,
-      newIndex = null;
-      for (var i = p.length; i--;) {
-        j = parseInt(Math.random() * p.length);
-        tmp = p[j];
-        p[j] = p[i];
-        p[i] = tmp;
+      try {
+        self.doRepeat = !self.doRepeat;
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
@@ -1461,349 +1679,316 @@
 
     this.frame = 0;
 
-    this.setOpacity = function(nOpacity) {
-      // q.d.bug('spPlaylist.setOpacity('+nOpacity+')');
-      // u.setOpacity(self.o,nOpacity);
-    }
-
     this.createTweens = function() {
-      // calculate tweens
-      var base = (smUtils.isOldIE ? 16 : 0); // IE<7 needs vertical offset for playlist.
-      self.displayTweens = [animator.createTween(base, self.o.offsetHeight), animator.createTween(self.o.offsetHeight, base)];
-      self.widthTweens = [animator.createTween(self.o.offsetWidth, 1), animator.createTween(1, self.o.offsetWidth)];
+      try {
+        var base = (smUtils.isOldIE ? 16 : 0); // IE<7 needs vertical offset for playlist.
+        self.displayTweens = [animator.createTween(base, self.o.offsetHeight), animator.createTween(self.o.offsetHeight, base)];
+        self.widthTweens = [animator.createTween(self.o.offsetWidth, 1), animator.createTween(1, self.o.offsetWidth)];
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.setCoords = function(nHeight, nOpacity, nWidth) {
-      self.o.style.marginTop = -nHeight + 'px';
-      if (!smUtils.isIE) smUtils.setOpacity(self.o, nOpacity);
-      // self.o.style.width = nWidth+'px';
-      // self.o.style.marginLeft = (parseInt((self.widthTweens[0][0]-nWidth)/2)+1)+'px';
+      try {
+        self.o.style.marginTop = -nHeight + 'px';
+        if (!smUtils.isIE) smUtils.setOpacity(self.o, nOpacity);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.animate = function() {
-      self.frame = Math.max(++self.frame, animator.determineFrame(self.displayLastExec, 35));
-      // self.frame++;
-      self.setCoords(self.displayTween[self.frame], self.opacityTween[self.frame], self.widthTween[self.frame]);
-      // self.playlistItems[self.frame].doAnimate(1);
-      if (self.frame >= self.displayTween.length - 1) {
-        // self.active = false;
-        self.frame = 0;
-        return false;
+      try {
+        self.frame = Math.max(++self.frame, animator.determineFrame(self.displayLastExec, 35));
+        self.setCoords(self.displayTween[self.frame], self.opacityTween[self.frame], self.widthTween[self.frame]);
+        if (self.frame >= self.displayTween.length - 1) {
+          self.frame = 0;
+          return false;
+        }
+        return true;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return true;
     }
 
     this.displayLastExec = new Date();
 
     this.setDisplay = function(bDisplay) {
-      q.d.bug('setDisplay()');
-      self.displayTween = self.displayTweens[self.isVisible ? 1 : 0];
-      self.opacityTween = self.opacityTweens[self.isVisible ? 1 : 0];
-      self.widthTween = self.widthTweens[self.isVisible ? 1 : 0];
-      if (self.frame > 0) self.frame = self.displayTweens[0].length - self.frame;
-      self.displayLastExec = new Date();
-      animator.addMethod(self.animate, self.animateComplete);
-      animator.start();
+      try {
+        self.displayTween = self.displayTweens[self.isVisible ? 1 : 0];
+        self.opacityTween = self.opacityTweens[self.isVisible ? 1 : 0];
+        self.widthTween = self.widthTweens[self.isVisible ? 1 : 0];
+        if (self.frame > 0) self.frame = self.displayTweens[0].length - self.frame;
+        self.displayLastExec = new Date();
+        animator.addMethod(self.animate, self.animateComplete);
+        animator.start();
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
 
     this.animateComplete = function() {
-      // q.d.bug('spPlaylist.animateComplete()');
+      try {
+      // q.d.bug('subPlaylist.animateComplete()');
       // if (self.isVisible) self.o.style.display = 'none';
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
 
     this.toggleDisplay = function() {
-      self.isVisible = !self.isVisible;
-      if (!self.isVisible) self.o.style.display = 'block';
-      self.setDisplay(self.isVisible);
+      try {
+        self.isVisible = !self.isVisible;
+        if (!self.isVisible) self.o.style.display = 'block';
+        self.setDisplay(self.isVisible);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     /*
        * CLEAR PLAYLIST
        */
     this.clearPlaylist = function() {
-      //console.log('clear playlist');
-      var sID;
-      for (var i = 0,
-      j = self.items.length; i < j; i++) {
-        sID = 'spsound' + i;
-        soundManager.destroySound(sID);
+      try {
+        var sID;
+        for (var i = 0, j = self.items.length; i < j; i++) {
+          sID = 'spsound' + i;
+          soundManager.destroySound(sID);
+        }
+        self.resetArrays();
+        self.resetMisc();
+        self.resetTemplate();
+      } catch(e) {
+        q.d.bug(e);
       }
-      self.resetArrays();
-      self.resetIndex();
-      self.resetTemplate();
-      self.resetMisc();
     }
 
     this.createPlaylist = function() {
-      //console.log('create Playlist');
-      for (var i = 0,
-      j = self.items.length; i < j; i++) {
-        self.playlistItems[i] = new SPPlaylistItem(self.links[i], self, i);
+      try {
+        for (var i = 0, j = self.items.length; i < j; i++) {
+          self.playlistItems[i] = new SPPlaylistItem(self.links[i], self, i);
+        }
+        self.playlistItemsUnsorted = smUtils.copy(self.playlistItems);
+        self.playlistItemsShuffled = smUtils.copy(self.playlistItems);
+      } catch(e) {
+        q.d.bug(e);
       }
-      // assign copies
-      self.playlistItemsUnsorted = smUtils.copy(self.playlistItems);
-      self.playlistItemsShuffled = smUtils.copy(self.playlistItems);
     }
 
     this.searchForSoundLinks = function(oContainer) {
-      q.d.bug('SPPlaylist.searchForSoundLinks()');
-      var o = oContainer || document.body;
-      if (!o) return false;
-      self.links = [];
-      function get_url(index) {
-        function get_data(index) {
-          var sura, aya;
-          id = parseInt(index);
-          for (var i = 1; i < (q.data.sura.length - 1); i++) {
-            if (q.data.sura[i + 1][0] >= id) {
-              sura = i;
-              aya = id - q.data.sura[i][0];
-              break;
+      try {
+        var o = oContainer || document.body;
+        if (!o) return false;
+        self.links = [];
+        function get_url(index) {
+          function get_data(index) {
+            var sura, aya;
+            id = parseInt(index);
+            for (var i = 1; i < (q.data.sura.length - 1); i++) {
+              if (q.data.sura[i + 1][0] >= id) {
+                sura = i;
+                aya = id - q.data.sura[i][0];
+                break;
+              }
+            }
+            if (id && sura && aya) {
+              return {
+                id: id,
+                sura: sura,
+                aya: aya
+              };
+            } else {
+              return {
+                id: 1,
+                sura: 1,
+                aya: 1
+              };
             }
           }
-          if (id && sura && aya) {
-            return {
-              id: id,
-              sura: sura,
-              aya: aya
-            };
-          } else {
-            return {
-              id: 1,
-              sura: 1,
-              aya: 1
-            };
+          function get_name(sura, aya) {
+            var prepend;
+  
+            sura = sura.toString();
+            aya = aya.toString();
+  
+            prepend = '';
+            for (var i = sura.length; i < 3; i++) {
+              prepend = prepend.concat('0');
+            }
+            sura = prepend.concat(sura);
+  
+            prepend = '';
+            for (var i = aya.length; i < 3; i++) {
+              prepend = prepend.concat('0');
+            }
+            aya = prepend.concat(aya);
+  
+            return sura + aya + '.mp3';
           }
-        }
-        function get_name(sura, aya) {
-          var prepend;
-
-          sura = sura.toString();
-          aya = aya.toString();
-
-          prepend = '';
-          for (var i = sura.length; i < 3; i++) {
-            prepend = prepend.concat('0');
+          function get_mirror() {
+            return q.config.mp3_mirrors[0];
           }
-          sura = prepend.concat(sura);
-
-          prepend = '';
-          for (var i = aya.length; i < 3; i++) {
-            prepend = prepend.concat('0');
+          function get_recitor() {
+            return q.get_state('recitor');
           }
-          aya = prepend.concat(aya);
-
-          return sura + aya + '.mp3';
+          var data = get_data(index);
+          var name = get_name(data.sura, data.aya);
+          var mirror = get_mirror();
+          var recitor = get_recitor();
+          var url = mirror + recitor + '/' + name;
+          return url;
         }
-        function get_mirror() {
-          return q.config.mp3_mirrors[0];
-        }
-        function get_recitor() {
-          return q.get_state('recitor');
-        }
-        var data = get_data(index);
-        var name = get_name(data.sura, data.aya);
-        var mirror = get_mirror();
-        var recitor = get_recitor();
-        var url = mirror + recitor + '/' + name;
-        return url;
-      }
-      var ayas = smUtils.getElementsByClassName('aya', 'option');
-      $.each(ayas,
-      function(i, item) {
-        self.links[self.links.length] = item;
-        self.addItem({
-          url: get_url(item.value)
+        var ayas = smUtils.getElementsByClassName('aya', 'option');
+        $.each(ayas,
+        function(i, item) {
+          self.links[self.links.length] = item;
+          self.addItem({
+            url: get_url(item.value)
+          });
         });
-      });
-
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
+
     this.load = function(i) {
-      //console.log('load');
-      q.d.bug('SPPlaylist.load(' + i + ')');
-      // start preloading a sound
-      var sID = 'spsound' + i;
-      var s = soundManager.getSoundById(sID, true);
-      if (s) {
-        // reload (preload) existing sound
-        q.d.bug('reloading existing sound');
-        var thisOptions = {
-          'autoPlay': false,
-          'url': s.url,
-          // reload original URL (assuming currently "unloaded" state)
-          'stream': true
+      try {
+        var sID = 'spsound' + i;
+        var s = soundManager.getSoundById(sID, true);
+        if (s) {
+          // reload (preload) existing sound
+          q.d.bug('reloading existing sound');
+          var thisOptions = {
+            'autoPlay': false,
+            'url': s.url,
+            // reload original URL (assuming currently "unloaded" state)
+            'stream': true
+          }
+          s.load(thisOptions);
+        } else {
+          q.d.bug('preloading new sound');
+          createSound(i);
         }
-        s.load(thisOptions);
-      } else {
-        q.d.bug('preloading new sound');
-        soundManager.createSound({
-          'id': sID,
-          'url': self.items[i].url,
-          // 'onload': self.onload,
-          'onload': oParent.onload,
-          'stream': true,
-          'autoLoad': true,
-          'autoPlay': false,
-          'onid3': oParent.onid3,
-          'onplay': oParent.onplay,
-          'onpause': oParent.onpause,
-          'onstop': oParent.onstop,
-          'onresume': oParent.onresume,
-          'whileloading': oParent.whileloading,
-          'whileplaying': oParent.whileplaying,
-          'onbeforefinish': oParent.onbeforefinish,//self.onItemBeforeFinish,
-          'onbeforefinishcomplete': oParent.onbeforefinishcomplete,//self.onItemBeforeFinishComplete,
-          'onbeforefinishtime': oParent.onbeforefinishtime,//2000,
-          'onjustbeforefinish': oParent.onjustbeforefinish,//self.onItemJustBeforeFinish,
-          'onjustbeforefinishtime': oParent.onjustbeforefinishtime, //seamlessDelay,
-          // 0 = do not call
-          //'onfinish': self.onItemFinish,
-          'onfinish': oParent.onfinish,
-          'multiShot': false
-        });
-        // s = soundManager.getSoundById(sID);
-        // q.d.bug('<b>preloaded sound load state: '+s.loaded+'</b>');
-        // soundManager.getSoundById(sID).disableEvents(); // prevent UI calls etc., just preload
-        // self.setMetaData(soundManager.getSoundById(sID));
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
     this.play = function(i) {
-      //console.log('play');
-      // scoped to playlistItem instance
-      if (!self.items[i]) return false;
-      q.d.bug('SPPlaylist.play()');
-      // var sID = 'spsound'+self.index;
-      // if (i==-1) i=0; // safeguard
-      if (self.doShuffle) i = self.playlistItems[i].index; // if shuffle enabled, map to proper sound
-      var sID = 'spsound' + i;
-      var exists = false;
-      //console.log('here?');
-      if (oParent.currentSound) {
-        //console.log('broken?');
-        if (!self._ignoreCurrentSound) {
-          q.d.bug('stopping current sound');
-          try {
+      try {
+        if (i === undefined) {
+          i = self.getAya()-1;
+          createSound(i);
+        }
+        
+        if (!self.items[i]) { 
+          return false;
+        }
+        if (self.doShuffle) {
+          i = self.playlistItems[i].index;
+        }
+        var sID = 'spsound' + i;
+        var exists = false;
+        if (oParent.currentSound) {
+          if (!self._ignoreCurrentSound) {
             soundManager.stop(oParent.currentSound);
             soundManager.unload(oParent.currentSound);
-          } catch(e) {
-            //console.log('might be broken', oParent.currentSound, e);
+          } else {
+            self._ignoreCurrentSound = false;
           }
+        }
+        if (!soundManager.getSoundById(sID, true)) {
+          createSound(i);
         } else {
-          q.d.bug('allowing current sound to finish');
-          self._ignoreCurrentSound = false;
+          exists = true;
         }
-      }
-      //console.log('or here?');
-      if (!soundManager.getSoundById(sID, true)) {
-        //console.log('broken?');
-        q.d.bug('creating sound ' + sID);
-        soundManager.createSound({
-          'id': sID,
-          'url': self.items[i].url,
-          // 'onload': self.onload,
-          'onload': oParent.onload,
-          'stream': true,
-          'autoPlay': false,
-          'onid3': oParent.onid3,
-          'onplay': oParent.onplay,
-          'onpause': oParent.onpause,
-          'onstop': oParent.onstop,
-          'onresume': oParent.onresume,
-          'whileloading': oParent.whileloading,
-          'whileplaying': oParent.whileplaying,
-          'onbeforefinish': oParent.onbeforefinish,//self.onItemBeforeFinish,
-          'onbeforefinishcomplete': oParent.onbeforefinishcomplete,//self.onItemBeforeFinishComplete,
-          'onbeforefinishtime': oParent.onbeforefinishtime,//2000,
-          'onjustbeforefinish': oParent.onjustbeforefinish,//self.onItemJustBeforeFinish,
-          'onjustbeforefinishtime': oParent.onjustbeforefinishtime, //seamlessDelay,
-          //'onfinish': self.onItemFinish,
-          'onfinish': oParent.onfinish,
-          'multiShot': false
-        });
-      } else {
-        // sound already exists - preload or replay use cases
-        exists = true;
-        q.d.bug('sound id ' + sID + ' already exists (preload/reuse case)');
-      }
-
-      q.d.bug('Refreshing sound details');
-      oParent.refreshDetails(sID);
-      oParent.lastSound = oParent.currentSound;
-      oParent.currentSound = sID;
-      oParent.reset(); // ensure slider starts at 0
-      oParent.setLoading(true);
-      soundManager.play(sID);
-      oParent.setPlayState(true);
-
-      // apply URL hash
-      if (oParent.options.allowBookmarking) window.location.hash = 'track=' + encodeURI(self.items[i].url.substr(self.items[i].url.lastIndexOf('/') + 1));
-
-      if (exists) {
-        var s = soundManager.getSoundById(sID);
-        oParent.setMetaData(s);
-        if (s.loaded) {
-          // already loaded before playing started - calculate time estimates, re-call onload() now
-          oParent.onload.apply(s);
+  
+        oParent.refreshDetails(sID);
+        oParent.lastSound = oParent.currentSound;
+        oParent.currentSound = sID;
+        oParent.reset();
+        oParent.setLoading(true);
+        soundManager.play(sID);
+        oParent.setPlayState(true);
+  
+        // apply URL hash
+        if (oParent.options.allowBookmarking) window.location.hash = 'track=' + encodeURI(self.items[i].url.substr(self.items[i].url.lastIndexOf('/') + 1));
+  
+        if (exists) {
+          var s = soundManager.getSoundById(sID);
+          oParent.setMetaData(s);
+          if (s.loaded) {
+            // already loaded before playing started - calculate time estimates, re-call onload() now
+            oParent.onload.apply(s);
+          }
         }
+      } catch(e) {
+        q.d.bug(e);
       }
-
     }
 
     this.init = function() {
-      self.o = smUtils.$('playlist-template');
-      // set width to parent
-      self.o.style.width = (parseInt(oParent.oSMPlayer.oMain.offsetWidth) - 2) + 'px';
-      // smUtils.getElementsByClassName('sm2playlist-box','div',self.o)[0].style.width = '100px';
+      try {
+        self.o = smUtils.$('playlist-template');
+        self.o.style.width = (parseInt(oParent.oSMPlayer.oMain.offsetWidth) - 2) + 'px';
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
 
     this.loadFromHash = function() {
-      // given a hash, match an MP3 URL and play it.
-      if (!oParent.options.allowBookmarking) return false;
-      var hash = oParent.options.hashPrefix;
-      var hashOffset = hash.length + 1;
-      var i = (window.location.hash.indexOf(hash));
-      if (i == -1) return false;
-      var url = decodeURI(window.location.hash.substr(hashOffset));
-      q.d.bug('loadFromHasn(): searching for ' + url);
-      var index = self.findItemByURL(encodeURI(url));
-      if (index == -1) {
-        q.d.bug('trying alternate search..');
-        index = self.findItemByURL(escape(url));
-      }
-      if (index != -1) {
-        q.d.bug('loadFromHash(): found index ' + index + ' (' + url + ')');
-        self.selectItem(index);
-        self.play(index);
-        smUtils.addEventHandler(window, 'beforeunload', self.removeHash);
-      } else {
-        q.d.bug('loadFromHash(): no match found');
+      try {
+        if (!oParent.options.allowBookmarking) return false;
+        var hash = oParent.options.hashPrefix;
+        var hashOffset = hash.length + 1;
+        var i = (window.location.hash.indexOf(hash));
+        if (i == -1) return false;
+        var url = decodeURI(window.location.hash.substr(hashOffset));
+        var index = self.findItemByURL(encodeURI(url));
+        if (index == -1) {
+          index = self.findItemByURL(escape(url));
+        }
+        if (index != -1) {
+          self.selectItem(index);
+          self.play(index);
+          smUtils.addEventHandler(window, 'beforeunload', self.removeHash);
+        }
+      } catch(e) {
+        q.d.bug(e);
       }
     }
 
     this.removeHash = function() {
-      // experimental - probably won't work in any good browsers (eg. Firefox)
       try {
         window.location.hash = ''; // prevent reload from maintaining current state
       } catch(e) {
-        // oh well
+        q.d.bug(e);
       }
     }
 
     this.findItemByURL = function(sURL) {
-      for (var i = self.items.length; i--;) {
-        if (self.items[i].url.indexOf(sURL) != -1) {
-          return i;
+      try {
+        for (var i = self.items.length; i--;) {
+          if (self.items[i].url.indexOf(sURL) != -1) {
+            return i;
+          }
         }
+        return - 1;
+      } catch(e) {
+        q.d.bug(e);
       }
-      return - 1;
     }
-
+    
     this.init();
-
   }
-
+/**************************************
+ *                                    *
+ *     SPPlaylistItem < SPPlaylist    *
+ *                                    *
+ **************************************/
   function SPPlaylistItem(oLink, oPlaylist, nIndex) {
     var self = this;
     var oParent = oPlaylist;
@@ -1829,10 +2014,14 @@
     }
 
     this.onclick = function() {
-      if (oParent.doShuffle) q.player.toggleShuffle(); // disable shuffle, if on (should be oParent.oParent too, ideally)
-      oParent.selectItem(self.index);
-      oParent.play(self.index);
-      return false;
+      try {
+        if (oParent.doShuffle) q.player.toggleShuffle(); // disable shuffle, if on (should be oParent.oParent too, ideally)
+        oParent.selectItem(self.index);
+        oParent.play(self.index);
+        return false;
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.init = function() {
@@ -1845,7 +2034,11 @@
     this.init();
 
   }
-
+/**************************************
+ *                                    *
+ *            SoundPlayer()           *
+ *                                    *
+ **************************************/
   function SoundPlayer() {
     var self = this;
     this.urls = []; // will get from somewhere..
@@ -1867,180 +2060,175 @@
       hashPrefix: 'track=' // eg. #track=foo%20bar.mp3
     }
     var u = smUtils; // alias
+
     this.reset = function() {
-      // this.sliderPosition = 0;
-      //console.log('player reset');
-      self.oSMPlayer.reset();
+      try {
+        // this.sliderPosition = 0;
+        //console.log('player reset');
+        self.oSMPlayer.reset();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.whileloading = function() {
-      if (this.sID != self.currentSound) return false;
-      // "this" scoped to soundManager SMSound object instance
-      // this.sID, this.bytesLoaded, this.bytesTotal
-      // q.d.bug('whileLoading: '+parseInt(this.bytesLoaded/this.bytesTotal*100)+' %');
-      self.oSMPlayer.setLoadingProgress(Math.max(0, this.bytesLoaded / this.bytesTotal));
-      self.oSMPlayer.getTimeEstimate(this);
+      try {
+        if (this.sID != self.currentSound) return false;
+        // "this" scoped to soundManager SMSound object instance
+        // this.sID, this.bytesLoaded, this.bytesTotal
+        // q.d.bug('whileLoading: '+parseInt(this.bytesLoaded/this.bytesTotal*100)+' %');
+        self.oSMPlayer.setLoadingProgress(Math.max(0, this.bytesLoaded / this.bytesTotal));
+        self.oSMPlayer.getTimeEstimate(this);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.onload = function() {
-      if (this.sID != self.currentSound) return false;
-      // force slider calculation (position) update?
-      // q.d.bug('<b>time, estimate: '+this.duration+', '+this.durationEstimate+'</b>');
-      q.d.bug('q.player.onload()');
-      //console.log('player onload');
-      self.oSMPlayer.setLoadingProgress(1); // ensure complete
-      //console.log(this.id3);
-      self.setMetaData(this);
-      self.oSMPlayer.setLoading(false);
-
-    }
-
-    this.onid3 = function() {
-      if (this.sID != self.currentSound) return false;
-      q.d.bug('SoundPlayer.onid3()');
-      //console.log('player onid3');
-      // update with received ID3 data
-      self.setMetaData(this);
-    }
-
-
-    this.onstop = function() {
-      q.d.bug('onstop');
-      //self.endRecursiveTimeUpdate();
-    }
-    this.onpause = function() {
-      q.d.bug('onpause');
-      //self.endRecursiveTimeUpdate(true);
-    }
-    this.onresume = function() {
-      q.d.bug('onresume');
-      //soundManager.setPosition(self.currentSound, 3000);
-      //self.recursiveTimeUpdate(true);
-    }
-
-    this.onplay = function() {
-      // started playing?
-      q.d.bug('onplay');
-      setTimeout(function() {
-        if (self.oSMPlayer.xRangeStart != self.oSMPlayer.xMin) {
-            q.d.bug('arrrrrrrrrrrrrrrrrrrrgh');
-
-          self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-          if (self.options.allowScrub) {
-            self.oSMPlayer.doScrub();
-          }
-          self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
-          self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
-
-          if (self.oPlaylist.doRepeat) {
-            //self.togglePause();
-          }
-
-          //if (!self.oPlaylist.doRepeat) {
-            //self.togglePause();
-            //return false;
-          //} else {
-            //return true;
-          //}
-        }
-    }, 1);
-      //self.recursiveTimeUpdate();
-      //console.log('player onplay');
-    }
-
-    this.whileplaying = function() {
-      if (this.sID != self.currentSound) return false;
-      // this.sID, this.position, this.duration
-      // with short MP3s when loading for >1st time, this.duration can be null??
-      self.duration = (!this.loaded ? this.durationEstimate: this.duration); // use estimated duration until completely loaded
-      if (this.position > self.duration) return false; // can happen when resuming from an unloaded state?
-      var newPos = Math.floor(this.position / self.duration * self.oSMPlayer.xMax);
-
-
-      /*
-       *
-       * RANGE INTERCEPTION
-       *
-
-       */
       try {
-        if (newPos > self.oSMPlayer.xRangeEnd) {
-          if (!self.oSMPlayer.rangeBusy) {
-            self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
-            if (self.options.allowScrub) {
-              //self.oSMPlayer.doScrub();
-            }
-            self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
-            self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
-            if (!self.oPlaylist.doRepeat) {
-              self.togglePause();
-              return false;
-            } else {
-              return true;
-            }
-            return false;
-          }
-        }
-      } catch (e) {
-        q.d.bug(e);
-      }
-      if (newPos != self.oSMPlayer.x) { // newPos > self.oSMPlayer.x
-        if (!self.oSMPlayer.busy) {
-          if (newPos <= self.oSMPlayer.xRangeEnd) {
-            if (newPos >= self.oSMPlayer.xRangeStart) {
-              self.oSMPlayer.moveSliderTo(newPos);
-            }
-          }
-          //self.oSMPlayer.update();
-        }
-      }
-      if (Math.abs(this.position - self.oSMPlayer.lastTime) > 500) {
-        self.oSMPlayer.updateTime(this.position);
-        //q.d.bug('time issue',this.position, self.oSMPlayer.lastTime, duration, newPos);
-      }
-    }
-    this.onbeforefinishtime = 100;
-    this.onbeforefinish = function() {
-        q.d.bug('onbeforefinish');
-    }
-    this.onbeforefinishcomplete = function() {
-        q.d.bug('onbeforefinishcomplete');
-    }
-    this.onjustbeforefinishtime = 10;
-    this.onjustbeforefinish = function() {
-        q.d.bug('onjustbeforefinish');
-    }
-    this.onfinish = function() {
-      try {
-        q.d.bug('onfinish');
-        self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
-        //self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-        if (self.oPlaylist.doRepeat) {
-          self.togglePause();
-        } else {
-          self.paused = true;
-          self.setPlayState(false);
-        }
-
+        if (this.sID != self.currentSound) return false;
+        // force slider calculation (position) update?
+        self.oSMPlayer.setLoadingProgress(1); // ensure complete
+        self.setMetaData(this);
+        self.oSMPlayer.setLoading(false);
+        self.oSMPlayer.updateTime(this.duration);
 
       } catch(e) {
         q.d.bug(e);
       }
     }
+
+    this.onid3 = function() {
+      try {
+        if (this.sID != self.currentSound) return false;
+        // update with received ID3 data
+        self.setMetaData(this);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+
+
+    this.onstop = function() {
+      try {
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onpause = function() {
+      try {
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onresume = function() {
+      try {
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+
+    this.onplay = function() {
+      try {
+        setTimeout(function() {
+          if (self.oSMPlayer.xRangeStart != self.oSMPlayer.xMin) {
+            self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
+            if (self.options.allowScrub) {
+              self.oSMPlayer.doScrub();
+            }
+            self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+            self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
+          }
+        }, 1);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+
+    this.whileplaying = function() {
+      try {
+
+        if (this.sID != self.currentSound) return false;
+        // this.sID, this.position, this.duration
+        // with short MP3s when loading for >1st time, this.duration can be null??
+        self.duration = (!this.loaded ? this.durationEstimate: this.duration); // use estimated duration until completely loaded
+        if (this.position > self.duration) return false; // can happen when resuming from an unloaded state?
+        var newPos = Math.floor(this.position / self.duration * self.oSMPlayer.xMax);
+  
+  
+        if (newPos != self.oSMPlayer.x) { // newPos > self.oSMPlayer.x
+          if ((newPos >= self.oSMPlayer.xRangeStart) && (newPos <= self.oSMPlayer.xRangeEnd)) {
+            if (!self.oSMPlayer.busy) {
+              self.oSMPlayer.moveSliderTo(newPos);
+              return false;
+            }
+          } else
+          if ((!self.oSMPlayer.rangeBusy) && (!self.oSMPlayer.busy)) {
+            if (newPos <= self.oSMPlayer.xRangeStart) {
+              self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
+              self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+              self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+              return false;
+            } else
+            if (newPos >= self.oSMPlayer.xRangeEnd) {
+              self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
+              self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+              self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
+              self.togglePause();
+              return false;
+            }
+          }
+        }
+  
+        if (Math.abs(this.position - self.oSMPlayer.lastTime) > 1000) {
+          self.oSMPlayer.updateTime(this.position);
+        }
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onbeforefinish = function() {
+      q.d.bug('onbefore player');
+      try {
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onjustbeforefinish = function() {
+      q.d.bug('onjustbefore player');
+      try {
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onfinish = function() {
+      q.d.bug('onfinish player');
+      try {
+        self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
+    this.onbeforefinishcomplete = function() {
+      q.d.bug('onbeforefinishcomplete player');
+      try {
+        self.setPlayState(0);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
     this.onUserSetSlideValue = function(nX) {
-      // called from slider control
-      var x = parseInt(nX);
-      // q.d.bug('onUserSetSlideValue('+x+')');
-      // play sound at this position
-      var s = soundManager.sounds[self.currentSound];
-      if (!s) return false;
-      var nMsecOffset = Math.floor(x / self.oSMPlayer.xMax * s.durationEstimate);
-      soundManager.setPosition(self.currentSound, nMsecOffset);
-      /*
-       *
-       * POSITION SETTING
-       *
-       */
+      try {
+        // called from slider control
+        var x = parseInt(nX);
+        // play sound at this position
+        var s = soundManager.sounds[self.currentSound];
+        if (!s) return false;
+        var nMsecOffset = Math.floor(x / self.oSMPlayer.xMax * s.durationEstimate);
+        soundManager.setPosition(self.currentSound, nMsecOffset);
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.setTitle = function(sTitle) {
@@ -2064,12 +2252,6 @@
     }
 
     this.refreshDetails = function(sID) {
-      var id = (sID || self.currentSound);
-      if (!id) return false;
-      var s = soundManager.getSoundById(id);
-      if (!s) return false;
-      q.d.bug('refreshDetails(): got sound: ' + s);
-      // in absence of ID3, use user-provided data (URL or link text?)
       self.setTitle(self.oPlaylist.getCurrentItem().userTitle);
     }
 
@@ -2078,7 +2260,11 @@
     }
 
     this.togglePause = function() {
-      self.oSMPlayer.togglePause();
+      try {
+        self.oSMPlayer.togglePause();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.toggleShuffle = function() {
@@ -2090,14 +2276,16 @@
     }
 
     this.toggleMute = function() {
-      // q.d.bug('q.player.toggleMute()');
       self.oSMPlayer.toggleMute();
     }
 
     this.togglePlaylist = function() {
-      q.d.bug('q.player.togglePlaylist()');
-      self.oPlaylist.toggleDisplay();
-      self.oSMPlayer.togglePlaylist();
+      try {
+        self.oPlaylist.toggleDisplay();
+        self.oSMPlayer.togglePlaylist();
+      } catch(e) {
+        q.d.bug(e);
+      }
     }
 
     this.init = function() {
@@ -2107,7 +2295,11 @@
   }
 
   q.player = new SoundPlayer();
-  
+/**************************************
+ *                                    *
+ *             Other Stuff            *
+ *                                    *
+ **************************************/
   var sura_set, init_stuff;
 
   function initStuff() {
@@ -2128,26 +2320,39 @@
 
   }
 
+  var aya = 1;
   q.bind('sura-set',
   function() {
+    q.d.bug('q.bind("sura-set")',aya);
     //console.log('sura set');
     if (init_stuff) {
       //console.log('sura set init stuff');
       var playlist = q.player.oPlaylist;
+      try {
       playlist.clearPlaylist();
       playlist.searchForSoundLinks();
       playlist.createPlaylist();
       playlist.createTweens(); // make tweens for playlist
       playlist.loadFromHash();
+      playlist.selectAya(aya);
+      playlist.preloadCurrent();
+      } catch (e) {
+        q.d.bug(e);
+      }
     }
     sura_set = true;
   });
 
   q.bind('aya-changed',
   function(ev,aya) {
-    //console.log('aya-changed');
-    var playlist = q.player.oPlaylist;
-    playlist.playAya(aya);
+    q.d.bug('q.bind("aya-changed")',aya);
+    q.player.oPlaylist.selectAya(aya)
+  });
+
+  q.bind('application-state-restored',
+  function() {
+    aya = q.get_state('aya').aya;
+    q.d.bug('q.bind("application-state-restored")',aya);
   });
 
   soundManager.url = 'res/ui/swf/';
