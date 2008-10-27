@@ -362,11 +362,11 @@ body {
 }
 
 .sm2player .right .trigger.autoplay span {
- background:transparent url(../img/player/shuffle-1-light.png) 2px 5px no-repeat; 
+ background:transparent url(../img/player/autoplay-1-light.png) 2px 5px no-repeat; 
  opacity:0.5;
  filter:alpha(opacity=50);
  _background-image:none;
- _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=crop src='image/shuffle-1-light.png');
+ _filter:progid:DXImageTransform.Microsoft.AlphaImageLoader(enabled=true,sizingMethod=crop src='image/autoplay-1-light.png');
  _margin:5px 0px 0px 2px;
 }
 
@@ -419,7 +419,7 @@ body {
 }
 
 .sm2player .right .trigger.autoplay:hover>span {
- background-image:url(../img/player/shuffle-1.png);
+ background-image:url(../img/player/autoplay-1.png);
 }
 
 .sm2player .right .trigger.mute:hover>span {

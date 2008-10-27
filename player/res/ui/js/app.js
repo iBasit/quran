@@ -132,7 +132,7 @@
             msg.push(m);
         }
         msg = msg.join(' ');
-        soundManager._writeDebug(time + ": <span style='"+ (special? "text-decoration: underline;" : "" ) +"font-family: lime, vixus, neoxis, monospace, sans-serif; font-size: 10px; color: rgb("+ self._dec_red +","+ self._dec_green +","+ self._dec_blue +");'>" + msg + "</span>");
+        soundManager._writeDebug("<a style='font-family: lime, vixus, neoxis, monospace, sans-serif; font-size: 10px; color: gray; text-decoration: none;' href='#' onclick='$(\"#soundmanager-debug\").html(\"\");'>"+ time +"</a>: <span style='"+ (special? "text-decoration: underline;" : "" ) +"font-family: lime, vixus, neoxis, monospace, sans-serif; font-size: 10px; color: rgb("+ self._dec_red +","+ self._dec_green +","+ self._dec_blue +");'>" + msg + "</span>");
     }
   }
 })(jQuery);

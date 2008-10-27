@@ -3,6 +3,7 @@
  * Modifications/enhancements:
  * Nour Sharabash for Quran.com
  */
+(function(sm) {
 (function(q) {
 (function($) {
   function get_sound_id(i) {
@@ -41,12 +42,12 @@
           oParent.whileloading.call(this);
         },
         'whileplaying': oParent.whileplaying,
-        'onbeforefinishtime': 2000,
+        'onbeforefinishtime': 4000,
         'onbeforefinish': function() {
           self.onbeforefinish.call(this);
           oParent.onbeforefinish.call(this);
         },
-        'onjustbeforefinishtime': 200,
+        'onjustbeforefinishtime': 2000,
         'onjustbeforefinish': function() {
           self.onjustbeforefinish.call(this);
           oParent.onjustbeforefinish.call(this);
@@ -1409,9 +1410,20 @@
       }
     }
 
+    this.first = function() {
+      try {
+        q.trigger('change-aya',1);
+      } catch(e) {
+        q.d.bug(e);
+      }
+    }
     this.next = function() {
       try {
-        quran.trigger('change-aya','next');
+        if (self.doAutoPlay && (self.getAya() == self.items.length)) {
+          q.trigger('change','next');
+        } else {
+          quran.trigger('change-aya','next');
+        }
       } catch(e) {
         q.d.bug(e);
       }
@@ -1419,7 +1431,11 @@
 
     this.previous = function() {
       try {
-        quran.trigger('change-aya','prev');
+        if (self.doAutoPlay && (self.getAya() == 1)) {
+          q.trigger('change','prev');
+        } else {
+          quran.trigger('change-aya','prev');
+        }
       } catch(e) {
         q.d.bug(e);
       }
@@ -1986,7 +2002,10 @@
 
     this.onload = function() {
       try {
-        if (this.sID != self.currentSound) return false;
+        //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
+        if (this.sID != self.currentSound) {
+          return false;
+        }
         // force slider calculation (position) update?
         self.oSMPlayer.setLoadingProgress(1); // ensure complete
         self.setMetaData(this);
@@ -2000,7 +2019,10 @@
 
     this.onid3 = function() {
       try {
-        if (this.sID != self.currentSound) return false;
+        //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
+        if (this.sID != self.currentSound) {
+          return false;
+        }
         // update with received ID3 data
         self.setMetaData(this);
       } catch(e) {
@@ -2011,18 +2033,21 @@
 
     this.onstop = function() {
       try {
+        //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
       } catch(e) {
         q.d.bug(e);
       }
     }
     this.onpause = function() {
       try {
+        //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
       } catch(e) {
         q.d.bug(e);
       }
     }
     this.onresume = function() {
       try {
+        q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
         if (self.oSMPlayer.x >= self.oSMPlayer.xRangeEnd) {
           q.d.bug('move to start');
           self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
@@ -2036,16 +2061,12 @@
 
     this.onplay = function() {
       try {
-        setTimeout(function() {
-          if (self.oSMPlayer.xRangeStart != self.oSMPlayer.xMin) {
-            self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-            if (self.options.allowScrub) {
-              self.oSMPlayer.doScrub();
-            }
-            self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
-            self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
-          }
-        }, 1);
+        //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
+        if (self.oSMPlayer.xRangeStart != self.oSMPlayer.xMin) {
+          self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
+          self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
+          self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
+        }
       } catch(e) {
         q.d.bug(e);
       }
@@ -2097,39 +2118,55 @@
       }
     }
     this.onbeforefinish = function() {
-      q.d.bug('onbefore player');
+      //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
       try {
       } catch(e) {
         q.d.bug(e);
       }
     }
     this.onjustbeforefinish = function() {
-      q.d.bug('onjustbefore player');
+      //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
       try {
       } catch(e) {
         q.d.bug(e);
       }
     }
     this.onfinish = function() {
-      q.d.bug('onfinish player');
       try {
         if (self.oPlaylist.doRepeat) {
-          self.togglePause();
+          if (!self.oPlaylist.doAutoPlay) {
+            q.d.bug('togglePause from onfinish');
+            self.togglePause();
+          }
           self.onUserSetSlideValue(self.oSMPlayer.xRangeStart); 
           self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
           self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
         } else {
           self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
           self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
-          self.setPlayState(0);
+
         }
       } catch(e) {
         q.d.bug(e);
       }
     }
     this.onbeforefinishcomplete = function() {
-      q.d.bug('onbeforefinishcomplete player');
+      //q.d.bug(soundManager.getSoundById(self.currentSound).playState,soundManager.getSoundById(self.currentSound).readyState);
       try {
+        if (sm.getSoundById(self.currentSound).playState == 0) {
+          q.d.bug('setting playstate to zero');
+          self.setPlayState(0);
+          if (self.oPlaylist.doRepeat && self.oPlaylist.doAutoPlay && (self.oPlaylist.getAya() == self.oPlaylist.items.length)) {
+            q.d.bug('reached end of playlist, both repeat and autoplay are on so we will be looping the sura now!');
+            self.oPlaylist.first();
+          } else
+          if (self.oPlaylist.doAutoPlay && (self.oPlaylist.getAya() == self.oPlaylist.items.length)) {
+            q.d.bug('reached end of playlist, autoplay is on but not repeat so we will be moving to the NEXT sura now!');
+            self.oPlaylist.next();
+            //q.trigger('change-aya',1);
+            //q.trigger('change','next');
+          }
+        }
       } catch(e) {
         q.d.bug(e);
       }
@@ -2278,10 +2315,8 @@
   soundManager.defaultOptions.stream = true;
 
   soundManager.onload = function() {
-    // called after window.onload() + SoundManager is loaded
-    q.d.bug('<b><a href="http://www.schillmania.com/projects/soundmanager2/">www.schillmania.com/projects/soundmanager2/</a></b>');
-    q.d.bug('<b>-- jsAMP v0.99a.20080331 --</b>', 1);
     initStuff();
   }
 })(jQuery);
 })(quran);
+})(soundManager);
