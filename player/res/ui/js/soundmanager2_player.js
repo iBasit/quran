@@ -1096,6 +1096,56 @@
     // start scrolling, if needed
     self.refreshScroll();
 
+    this.init = function() {
+      function foo_bar(bar_width) {
+        if (!bar_width) {
+          return false;
+        }
+        $(self.oBar).width(bar_width);
+        self._xMax = self.xMax;
+        self.barWidth = self.oBar.offsetWidth;
+        self.xMax = self.barWidth - self.oSlider.offsetWidth;
+        var growth = self.xMax / self._xMax;
+        var loaded = Math.ceil(self.xMaxLoaded * growth);
+        self.xMaxLoaded = (loaded > self.xMax)? self.xMax : loaded;
+        q.d.bug(self._xMax, self.xMaxLoaded, self.barWidth, self.xMax);
+        return {
+          growth: growth,
+          x: self.x * growth,
+          start: self.xRangeStart * growth,
+          end: self.xRangeEnd * growth
+        }
+      }
+      //q.d.bug('init',self.barWidth,self.xMax);
+      $('#player-template').resizable({
+        handles: 'e,w',
+        helper: 'proxy',
+        transparent: true,
+        start: function(ev,ui) {
+          //q.d.bug('resize start');
+        },
+        resize: function(ev,ui) {
+          //q.d.bug('resize');
+        },
+        stop: function(ev,ui) {
+          //q.d.bug('resize stop');
+          var bar_width = ui.size.width-160;
+          //q.d.bug('proposed oBar width',bar_width);
+          //console.dir(ui);
+          var new_bar = foo_bar(bar_width);
+          q.d.bug(new_bar.growth,new_bar.x,new_bar.start,new_bar.end,new_bar.loaded);
+          self.moveSliderTo(new_bar.x);
+          self.moveRangeStartTo(new_bar.start);
+          self.moveRangeEndTo(new_bar.end);
+
+          //q.d.bug('resize',self.barWidth,self.xMax);
+        }
+      });
+    }
+
+    this.init();
+
+
   }
 /**************************************
  *                                    *

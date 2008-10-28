@@ -27,7 +27,7 @@ body {
  top:0.5em;*/
  padding:1px;
  z-index:9999999;
- height:20px;
+ height:18px;
  font:normal x-small/19px arial,verdana,tahoma,"sans serif";
  /**line-height:19px;*/
  color:#4f4f4f;
@@ -571,6 +571,10 @@ body {
  xmargin-right:-3px;
  width:3px;
  height:2px;
+}
+
+.proxy {
+  border: 1px dotted #666;
 }
 
 #soundmanager-debug {
