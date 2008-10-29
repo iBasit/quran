@@ -376,8 +376,8 @@
     }
 
     this.setRangeBackground = function() {
-      self.oRangeBackground.style.marginLeft = self.xRangeStart + 7 + 'px';
-      self.oRangeBackground.style.width = self.xRangeEnd - self.xRangeStart + 'px';
+      self.oRangeBackground.style.marginLeft = self.xRangeStart + 2 + 'px';
+      self.oRangeBackground.style.width = self.xRangeEnd - self.xRangeStart + 5 + 'px';
       if ((self.xRangeEnd == self.xMax) && (self.xRangeStart == self.xMin)) {
         $(self.oRangeBackground).animate({
             opacity: 0
@@ -431,7 +431,7 @@
     }
     this.moveRangeStartTo = function(x) {
       self.xRangeStart = x;
-      self.oRangeStart.style.marginLeft = (Math.floor(x) + 1) + 'px';
+      self.oRangeStart.style.marginLeft = (Math.floor(x) + 0) + 'px';
       self.setRangeBackground();
     }
     this.rangeStartUp = function(e) {
@@ -506,7 +506,7 @@
     }
     this.moveSliderTo = function(x) {
       self.x = x;
-      self.oSlider.style.marginLeft = (Math.floor(x) + 1) + 'px'; // 1 offset
+      self.oSlider.style.marginLeft = (Math.floor(x) + 3 ) + 'px'; // 1 offset
     }
     this.sliderUp = function(e) {
       try {
@@ -568,7 +568,7 @@
     }
     this.moveRangeEndTo = function(x) {
       self.xRangeEnd = x;
-      self.oRangeEnd.style.marginLeft = (Math.floor(x) + 1 + 6) + 'px'; // 1 offset
+      self.oRangeEnd.style.marginLeft = Math.floor(x) + 2 + 'px'; // 1 offset
       self.setRangeBackground();
     }
     this.rangeEndUp = function(e) {
@@ -1133,11 +1133,10 @@
           //q.d.bug('proposed oBar width',bar_width);
           //console.dir(ui);
           var new_bar = foo_bar(bar_width);
-          q.d.bug(new_bar.growth,new_bar.x,new_bar.start,new_bar.end,new_bar.loaded);
+          //q.d.bug(new_bar.growth,new_bar.x,new_bar.start,new_bar.end);
           self.moveSliderTo(new_bar.x);
           self.moveRangeStartTo(new_bar.start);
           self.moveRangeEndTo(new_bar.end);
-
           //q.d.bug('resize',self.barWidth,self.xMax);
         }
       });
@@ -1305,7 +1304,21 @@
 
     this.resetTemplate = function() {
       try {
-        $('#playlist-template').html('<div class="hd"><div class="c"></div></div>' + '<div class="bd">' + '<ul>' + '</ul>' + '</div>' + '<div class="ft"><div class="c"></div></div>');
+        $('#playlist-template').html(
+            '<div class="hd">' +
+              '<div class="l"></div>' +
+              '<div class="c"></div>' +
+              '<div class="r"></div>' +
+            '</div>' + 
+            '<div class="bd">' + 
+              '<ul>' + 
+              '</ul>' + 
+            '</div>' + 
+            '<div class="ft">' +
+              '<div class="c">' +
+              '</div>' +
+            '</div>'
+        );
       } catch(e) {
         q.d.bug(e);
       }
@@ -1324,6 +1337,7 @@
 
     this.addItem = function(oOptions) {
       try {
+
         var sURL = oOptions.url || null;
         var sName = oOptions.name || null;
         if (!sURL || self.findURL(sURL)) return false;
@@ -1996,6 +2010,22 @@
     this.init = function() {
       // append self.o somewhere
       // oParent.o.appendChild(self.o);
+      if (self.index == 0) {
+        q.d.bug('playlist item init',self.index);
+        var head = $('#playlist-template .hd');
+        var controls = $('#playlist-template .hd .c');
+        var triggers = $(
+          '<div class="triggers">' +
+            '<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.previous();return false"><span></span></a>' +
+            '<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.next();return false"><span></span></a>' +
+            '<a href="#" title="Auto-Play/Continuous" class="trigger s1 autoplay" onclick="quran.player.toggleAutoPlay();return false"><span></span></a>' +
+            '<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
+            '<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
+            '<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
+          '</div>'
+        );
+        controls.append(triggers);
+      }
       document.getElementById('playlist-template').getElementsByTagName('ul')[0].appendChild(self.o);
       self.o.onclick = self.onclick;
     }

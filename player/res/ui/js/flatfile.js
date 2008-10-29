@@ -222,7 +222,11 @@
                     '</div>' +
                     '<div class="sm2playlist-box">' +
                         '<div id="playlist-template" class="sm2playlist">' +
-                            '<div class="hd"><div class="c"></div></div>' +
+                            '<div class="hd">' +
+                                '<div class="l"></div>' +
+                                '<div class="c"></div>' +
+                                '<div class="r"></div>' +
+                            '</div>' +
                             '<div class="bd">' +
                                 '<ul>' +
                                 '</ul>' +
