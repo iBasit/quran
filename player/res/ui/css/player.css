@@ -14,12 +14,12 @@ body {
  Even the new (at time of writing, 12/2006) IE 7 has issues and other quirks. Too bad.
 
 */
-.sm2player * {
+.player * {
     font-size: 10px;
     font-family: Verdana, Tahoma, Arial, sans-serif;
     color: black;
 }
-.sm2player {
+.player {
  position:fixed;
  /*position:absolute;
  left:0.25em;
@@ -33,43 +33,43 @@ body {
  /*zoom:1;*/
 }
 
-.sm2player.altFont {
+.player.altFont {
  /* font tweaks for mac which has tighter spacing */
  letter-spacing:0px;
 }
 
-.sm2player,
-.sm2player .sm2playlist-box {
+.player,
+.player .more-options {
  /*width:284px;*/
 }
 
-/*.sm2player .ui,*/
-.sm2player .sm2playlist {
+/*.player .ui,*/
+.player .more-options {
  xfilter:alpha(opacity=90); /* Even IE 7 (still) sucks! */
  opacity:0.9;
 }
 
-.sm2player .ui {
+.player .ui {
  _filter:none; /* IE <7 sucks */
 }
 
-.sm2player.noOpacity .ui {
+.player.noOpacity .ui {
  /* Safari (1.3.2 at least?) has render bugs with UI display + animated PNG progress bar when applying opacity */
  opacity:1;
 }
 
-.sm2player .ui:hover {
+.player .ui:hover {
  opacity:1;
  filter:none;
 }
 
-.sm2player a:focus {
+.player a:focus {
  outline:none;
 }
 
-.sm2player .left,
-.sm2player .mid,
-.sm2player .right {
+.player .left,
+.player .mid,
+.player .right {
  position:relative;
  float:left;
  display:inline;
@@ -77,47 +77,47 @@ body {
  color:#4f4f4f;
 }
 
-.sm2player .left {
+.player .left {
  width:15px;
  background:transparent url(../img/player/skin-3-ui.png) 0px 0px no-repeat;
  _background-image:url(../img/player/skin-3-ui.gif); /* IE <7 */
 }
 
-.sm2player .left .trigger,
-.sm2player .left .trigger span {
+.player .left .trigger,
+.player .left .trigger span {
  display:block;
  width:15px;
  height:20px;
 }
 
-.sm2player .left .trigger.pauseplay span {
- background:transparent url(../img/player/sec-left-arr1.png) 5px 6px no-repeat;
- _background-image:url(../img/player/sec-left-arr1.gif);
+.player .left .trigger.pauseplay span {
+ background:transparent url(../img/player/right-arr1.png) 5px 6px no-repeat;
+ _background-image:url(../img/player/right-arr1.gif);
 }
 
-.sm2player .left .trigger.pauseplay span.playing {
+.player .left .trigger.pauseplay span.playing {
  /* class applied while playing */
  background-image:url(../img/player/sec-left-pause-1.gif);
  background-position:6px 7px;
 }
 
-.sm2player .left .trigger:hover {
+.player .left .trigger:hover {
  background:transparent url(../img/player/ui-highlight-1.png) 2px 0px no-repeat;
  _background-image:url(../img/player/ui-highlight-1.gif);
  _background-position:2px 0px;
 }
 
-.sm2player .left .trigger.pauseplay:hover span {
- background:transparent url(../img/player/sec-left-arr0.png) 5px 6px no-repeat;
- _background-image:url(../img/player/sec-left-arr2.gif);
+.player .left .trigger.pauseplay:hover span {
+ background:transparent url(../img/player/right-arr0.png) 5px 6px no-repeat;
+ _background-image:url(../img/player/right-arr2.gif);
 }
 
-.sm2player .left .trigger.pauseplay:hover span.playing {
+.player .left .trigger.pauseplay:hover span.playing {
  background-image:url(../img/player/sec-left-pause.gif);
  background-position:6px 7px;
 }
 
-.sm2player .mid {
+.player .mid {
  position:relative;
  width:223px;
  _width:224px;
@@ -125,7 +125,7 @@ body {
  _background-image:url(../img/player/skin-3-ui.gif);
 }
 
-.sm2player .mid .info {
+.player .mid .info {
  position:absolute;
  left:0px;
  top:0px;
@@ -137,7 +137,7 @@ body {
  cursor:default;
 }
 
-.sm2player .mid .progress {
+.player .mid .progress {
  position:relative;
  display:block;
  width:1px;
@@ -148,17 +148,19 @@ body {
  background-color:#eee;
 }
 
-.sm2player .mid .progress.loading {
+.player .mid .progress.loading {
  position:relative;
  display:block;
  width:1px;
  border-right:1px solid #eee;
 }
 
-.sm2player .mid .slider {
+.player .mid .slider {
  position:absolute;
  display:block;
- width:10px;
+ border-left: 1px solid transparent;
+ border-right: 1px solid transparent;
+ width:5px;
  height:13px;
  left:0px;
  top:0px;
@@ -167,21 +169,21 @@ body {
  _background-image:url(../img/player/slider-2.gif);
  /*z-index:1; swap between 1 and 2 to position on top */
  z-index:3;
- opacity:1.00;
- -moz-opacity:1.00;
- filter:alpha(opacity=100);
+ opacity:0.25;
+ -moz-opacity:0.25;
+ filter:alpha(opacity=25);
  /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
 }
-.sm2player .mid .range-start {
+.player .mid .range-start {
  position:absolute;
  display:block;
+ border-right: 3px solid transparent;
  width:5px;
  height:13px;
  left:0px;
  top:0px;
  margin-top:4px;
- background:transparent url(../img/player/range-start-1.png) 0px 0px no-repeat;
- _background-image:url(../img/player/range-start-1.gif);
+ background: url(../img/player/range_handle_start.png) no-repeat 0px 0px;
  z-index:2; /* swap between 1 and 2 to position on top */
 /* z-index:2;*/
  opacity:1.00;
@@ -189,26 +191,27 @@ body {
  filter:alpha(opacity=100);
  /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
 }
-.sm2player .mid .range-end {
+.player .mid .range-end {
  position:absolute;
  display:block;
- width:8px;
+ border-left: 3px solid transparent;
+ border-right: 1px solid transparent;
+ width:5px;
  height:13px;
  left:0px;
  top:0px;
  margin-top:4px;
- background:transparent url(../img/player/range-end-1.png) 4px 0px no-repeat;
- _background-image:url(../img/player/range-end-1.gif);
+ background: url(../img/player/range_handle_end.png) no-repeat 0px 0px;
 /* z-index:1; swap between 1 and 2 to position on top */
- z-index:4;
+ z-index:2;
  opacity:1.00;
  -moz-opacity:1.00;
  filter:alpha(opacity=100);
  /* filter:alpha(opacity=95); IE7 still messes up alpha transparency with PNGs when applying filters. Boo urns. */
 }
 
-.sm2player .mid.hover .slider,
-.sm2player .mid:hover .slider {
+.player .mid.hover .slider,
+.player .mid:hover .slider {
 /*
  z-index:2;
  opacity:0.95;
@@ -216,44 +219,44 @@ body {
 */
 }
 
-.sm2player .mid .range-start.active {
+.player .mid .range-start.active {
  opacity:1.00;
  -moz-opacity:1.00;
  filter:alpha(opacity=100);
 }
-.sm2player .mid .slider.active {
- opacity:1.00;
- -moz-opacity:1.00;
- filter:alpha(opacity=100);
+.player .mid .slider.active {
+ opacity:0.50;
+ -moz-opacity:0.50;
+ filter:alpha(opacity=50);
 }
-.sm2player .mid .range-end.active {
+.player .mid .range-end.active {
  opacity:1.00;
  -moz-opacity:1.00;
  filter:alpha(opacity=100);
 }
 
-.sm2player .mid .text,
-.sm2player .mid .default,
-.sm2player .mid .seek,
-.sm2player .mid .divider {
+.player .mid .text,
+.player .mid .default,
+.player .mid .seek,
+.player .mid .divider {
  display:none;
 }
 
-.sm2player .mid .caption {
+.player .mid .caption {
  *position:absolute; /* required for scroll positioning to work under IE */
  display:inline;
  white-space:nowrap;
  visibility:hidden; /* hidden by default */
 }
 
-.sm2player .mid .seek {
+.player .mid .seek {
  position:absolute;
  left:0px;
  top:0px;
  text-indent:2px;
 }
 
-.sm2player .right {
+.player .right {
 /*
  width:18px;
  width:45px;
@@ -264,7 +267,7 @@ body {
  _margin-left:0px; /* IE <7 sucks. */
 }
 
-.sm2player .right .divider {
+.player .right .divider {
  /* one-pixel visual divider between bar / cap (yep, this is a UI nit-pick.) */
  float:left;
  display:inline;
@@ -277,7 +280,7 @@ body {
  _display:none; /* IE <7 sucks. */
 }
 
-.sm2player .right .time {
+.player .right .time {
  float:left;
  display:inline;
  width:3em;
@@ -286,84 +289,104 @@ body {
  margin:0px 1px 0px 3px;
 }
 
-.sm2player .trigger {
+.player .trigger {
  float:left;
  display:inline;
  width:14px;
  height:20px;
 }
 
-.sm2player .trigger span {
+.player .trigger span {
  display:block;
  height:20px;
 }
 
-.sm2player .trigger.prev {
+.player .trigger.prev {
  margin-left:1px;
 }
 
-.sm2player .trigger.s0 {
+.player .trigger.s0 {
  width:16px;
 }
 
-.sm2player .trigger.s1 {
+.player .trigger.s1 {
  width:18px;
 }
 
-.sm2player .trigger.s2 {
+.player .trigger.s2 {
  width:20px;
 }
 
-.sm2player .trigger.s3 {
+.player .trigger.s3 {
  width:12px;
 }
 
-.sm2player .trigger.s4 {
+.player .trigger.s4 {
  width:13px;
 }
 
-.sm2player .trigger {
+.player .trigger {
  background:transparent;
 }
 
-.sm2player .trigger.prev {
+.player .trigger.prev {
 }
 
-.sm2player .trigger.dropdown {
+.player .trigger.help {
+    width: 16px;
+}
+
+.player .trigger.help span {
+ background:transparent url(../img/player/help.png) 0px 2px no-repeat;
+ }
+
+.player .trigger.dropdown {
  width:14px;
  margin-right:2px;
 }
 
-.sm2player .trigger span {
- background:transparent url(../img/player/sec-right-arr1.png) 3px 7px no-repeat; 
- /*
- _background-image:url(../img/player/sec-right-arr1.gif);
- _background-position:0px 0px;
- */
+.player .trigger.dropleft {
+ width:14px;
 }
 
-.sm2player .trigger.prev span {
+.player .trigger.dropright {
+ width:14px;
+}
+
+.player .trigger.dropdown span {
+ background:transparent url(../img/player/down-arr1.png) 3px 7px no-repeat; 
+}
+
+.player .trigger.dropleft span {
+ background:transparent url(../img/player/left-arr1.png) 3px 7px no-repeat; 
+}
+
+.player .trigger.dropright span {
+ background:transparent url(../img/player/right-arr1.png) 3px 7px no-repeat; 
+}
+
+.player .trigger.prev span {
  background:transparent url(../img/player/btn-prev-1.png) 4px 6px no-repeat;
  /* _background-image:url(../img/player/btn-prev-1.gif); */
 }
 
-.sm2player .trigger.next span {
+.player .trigger.next span {
  background:transparent url(../img/player/btn-next-1.png) 3px 6px no-repeat;
  /* _background-image:url(../img/player/btn-next-1.gif); */
 }
 
-.sm2player .trigger.loop span {
+.player .trigger.loop span {
  background:transparent url(../img/player/loop-light.png) 3px 5px no-repeat;
  opacity:0.5;
  filter:alpha(opacity=50);
 }
 
-.sm2player .trigger.loop.active span {
+.player .trigger.loop.active span {
  opacity:1;
  filter:none;
 }
 
-.sm2player .trigger.autoplay span {
+.player .trigger.autoplay span {
  background:transparent url(../img/player/autoplay-1-light.png) 2px 5px no-repeat; 
  opacity:0.5;
  filter:alpha(opacity=50);
@@ -372,148 +395,118 @@ body {
  _margin:5px 0px 0px 2px;
 }
 
-.sm2player .trigger.autoplay:hover span {
+.player .trigger.autoplay:hover span {
  background-image:url(../img/player/shuffle.png);
 }
 
-.sm2player .trigger.autoplay.active span {
+.player .trigger.autoplay.active span {
  opacity:1;
  filter:none;
 }
 
-.sm2player .trigger.mute span {
+.player .trigger.mute span {
  background:transparent url(../img/player/speaker-light.png) 3px 5px no-repeat; 
 }
 
-.sm2player .trigger.mute:hover span {
+.player .trigger.mute:hover span {
  background-image:url(../img/player/speaker.png);
  opacity:0.75;
 }
 
-.sm2player .trigger.mute.active span {
+.player .trigger.mute.active span {
  opacity:0.5;
 }
 
-.sm2player .trigger.volume span {
+.player .trigger.volume span {
  background:transparent url(../img/player/volume-light.png) 0px 4px no-repeat; 
 }
 
-.sm2player .trigger:hover {
+.player .trigger:hover {
  background:transparent url(../img/player/ui-highlight-1.png) -2px 0px no-repeat;
  _background-image:url(../img/player/ui-highlight-1.gif);
  /*_background-position:2px 2px;*/
 }
 
-.sm2player .trigger.dropdown:hover>span {
- background-image:url(../img/player/sec-right-arr0.png);
+.player .trigger.dropdown:hover>span {
+ background-image:url(../img/player/down-arr0.png);
 }
 
-.sm2player .trigger.prev:hover>span {
+.player .trigger.dropleft:hover>span {
+ background-image:url(../img/player/left-arr0.png);
+}
+
+.player .trigger.dropright:hover>span {
+ background-image:url(../img/player/right-arr0.png);
+}
+
+.player .trigger.prev:hover>span {
  background-image:url(../img/player/btn-prev.png);
 }
 
-.sm2player .trigger.next:hover>span {
+.player .trigger.next:hover>span {
  background-image:url(../img/player/btn-next.png); 
 }
 
-.sm2player .trigger.loop:hover>span {
+.player .trigger.loop:hover>span {
  background-image:url(../img/player/loop.png);
 }
 
-.sm2player .trigger.autoplay:hover>span {
+.player .trigger.autoplay:hover>span {
  background-image:url(../img/player/autoplay-1.png);
 }
 
-.sm2player .trigger.mute:hover>span {
+.player .trigger.mute:hover>span {
  background-image:url(../img/player/speaker.png);
 }
 
-.sm2player .trigger.volume:hover>span {
+.player .trigger.volume:hover>span {
  background-image:url(../img/player/volume.png);
 }
 
-.sm2player .dropdown:hover {
+.player .dropdown:hover {
  background-position:right 0px;
 }
 
-.sm2playlist-box {
+.player .dropleft:hover {
+ background-position:right 0px;
+}
+
+.player .dropright:hover {
+ background-position:right 0px;
+}
+
+.more-options {
  position:absolute;
  /*width:256px;*/
  /*overflow:hidden;*/
  /*max-height:33.1em;*/
- left:1px;
+ width: 156px;
+ right:1px;
  top:26px;
  overflow:auto;
  margin-top:-4px;
 }
 
-.sm2playlist {
- position:relative;
- /* zoom:1; stupid IE. */
- margin-top:-999em; /* hidden by default */
-}
-
-.sm2playlist .hd {
- margin-left:3px;
- margin-right:3px;
- margin-bottom:1px;
-}
-.sm2playlist .hd,
-.sm2playlist .hd .l,
-.sm2playlist .hd .c,
-.sm2playlist .hd .r {
- position:relative;
- height:20px;
-}
-
-
-.sm2playlist .hd .l,
-.sm2playlist .hd .r {
- position:absolute;
- top:0px;
- width:3px;
-}
-.sm2playlist .hd .l {
- background:transparent url(../img/player/skin-3-ui.png) no-repeat 0px 0px;
- left:0px;
- margin-left: -3px;
-}
-.sm2playlist .hd .c {
- background:transparent url(../img/player/skin-3-ui.png) no-repeat -20px 0px;
- text-align: right;
-}
-.sm2playlist .hd .c .triggers {
-    display: inline;
-    float: right;
-    margin-right: 13px;
-}
-.sm2playlist .hd .r {
- background:transparent url(../img/player/skin-3-ui.png) no-repeat 100% 0px;
- right:0px;
- margin-right:-3px;
-}
-
-.sm2playlist .bd {
- margin-right:2px;
-}
-
-.sm2playlist ul {
+.more-options ul {
  list-style-type:none;
  margin:0px;
  padding:0px;
- margin-left: 30px;
- height: 191px;
+/* height: 115px;*/
  overflow: auto;
  padding-right:3px; /* space for background */
  zoom:1; /* Even IE 7 needs this (!?) */
 }
 
-.sm2playlist ul li {
+.track-list ul {
+    height: 120px;
+}
+
+.more-options ul li {
  line-height:19px;
  height: 19px;
 }
 
-.sm2playlist ul li a {
+.more-options ul li a {
  display:block;
  background:transparent;
  margin-left:2px;
@@ -524,7 +517,7 @@ body {
  width:100%; /* stupid IE 7. */
 }
 
-.sm2playlist ul li a span {
+.more-options ul li a span {
  display:block;
  background:#eee;
  border-top:1px solid #fff;
@@ -533,64 +526,46 @@ body {
  border-left:1px solid #ccc;
 }
 
-.sm2playlist ul li.alt a span {
+.more-options ul li.alt a span {
  background:#e0e0e0;
 }
 
-.sm2playlist ul li:first-child a span {
+.more-options ul li:first-child a span {
  border-top:1px solid #ccc;
 }
 
-.sm2playlist ul li:last-child a span {
+.more-options ul li:last-child a span {
  border-bottom: none;
 }
 
-.sm2playlist ul li a:hover span {
+.more-options ul li a:hover span {
  background-color:#999;
  color:#fff;
 }
 
-.sm2playlist ul li a:hover span {
+.more-options ul li a:hover span {
  border-color:transparent;
  _border-color:#ccc;
 }
 
-.sm2playlist ul li.highlight a {
+.more-options ul li.highlight a {
  color:#fff;
 }
 
-.sm2playlist ul li.highlight a span {
+.more-options ul li.highlight a span {
  background:#fff url(../img/player/notreallyajaxandyouknowit-light.gif) no-repeat right 50%;
  color:#333;
- border-color:#fff;
+ border-left: 1px solid black;
+ border-right: 1px solid black;
 }
 
-.sm2playlist ul li.highlight a:hover {
+.more-options ul li.highlight a:hover {
  background-color:#999;
  color:#9999ff;
 }
 
-.sm2playlist ul li a:focus {
+.more-options ul li a:focus {
  outline:none;
-}
-
-.sm2playlist .ft {
- background:transparent url(../img/player/skin-3-ui.png) no-repeat 31px 100%;
- _background-image:url(../img/player/skin-3-ui.gif);
- margin-right:3px;
- height:2px;
-}
-
-.sm2playlist .ft .c {
- position:absolute;
- right:0px;
- bottom:0px;
- background:transparent url(../img/player/skin-3-ui.png) no-repeat 100% 100%;
- _background-image:url(../img/player/skin-3-ui.gif);
- xmargin-left:3px; /* leave room for left cap */
- xmargin-right:-3px;
- width:3px;
- height:2px;
 }
 
 .proxy {
@@ -598,7 +573,7 @@ body {
 }
 
 #soundmanager-debug {
- position:absolute;
+ min-width: 400px;
  position:fixed;
  right:2px;
  bottom:18px;
@@ -607,7 +582,8 @@ body {
  overflow:auto;
  /* background:transparent url(../img/player/whiteout.png); */
  padding:1em;
- background:#000;
+ background:black;
+ border: 1px dotted gray;
  color:#fff;
 }
 #soundmanager-debug div {

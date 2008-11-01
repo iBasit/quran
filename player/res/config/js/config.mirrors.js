@@ -1,0 +1,1 @@
+quran.config.mirrors = [{"ping":0.1006,"status":200,"url":"http:\/\/dev.globalquran.com\/audio\/www.everyayah.com\/data\/"},{"ping":0.1395,"status":200,"url":"http:\/\/everyayah.com\/data\/"}]

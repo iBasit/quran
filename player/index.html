@@ -5,8 +5,8 @@
     <head>
         <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
         <title>Quran 2.0 Media Player with Example Interface Protototype</title>
-        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/themes/testing/all.css" />
-        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/soundmanager2_player.css" />
+        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/themes/generic/all.css" />
+        <link rel="stylesheet" media="screen" type="text/css" href="./res/ui/css/player.css" />
         <script type="text/javascript" src="./res/ui/js/jquery.core.pack.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.ui.js"></script>
         <script type="text/javascript" src="./res/ui/js/jquery.tooltip.pack.js"></script>
@@ -21,42 +21,22 @@
                 _mode    : 'development'
             });
         </script>
-        <script type="text/javascript" src="./res/ui/js/app.js"></script>
-        <script type="text/javascript" src="./res/ui/js/soundmanager2_player.js"></script>
-        <script type="text/javascript" src="./res/config/js/quran.js"></script>
-        <script type="text/javascript" src="./res/data/js/quran.js"></script>
-        <script type="text/javascript" src="./res/ui/js/flatfile.js"></script>
+        <script type="text/javascript" src="./res/ui/js/ui.js"></script>
+        <script type="text/javascript" src="./res/ui/js/player.js"></script>
+        <script type="text/javascript" src="./res/config/js/config.js"></script>
+        <script type="text/javascript" src="./res/config/js/config.mirrors.js"></script>
+        <script type="text/javascript" src="./res/data/js/data.js"></script>
+        <script type="text/javascript" src="./res/ui/js/modules.js"></script>
     </head>
     <body>
+        <div id="pronounciation" class="verse-panel"></div>
+        <div id="tafseer" class="verse-panel"></div>
+        <div id="quran" class="verse-panel"></div>
+        <div id="translation" class="verse-panel"></div>
+        <div id="controls"></div>
+        <div id="player"></div>
+        
 
-
-
-
-
-
- <div style="position:absolute;left:0px;top:-9999px;width:30em">
-
- <ul>
-
-  <li><a href="http://dev.globalquran.com/audio/www.everyayah.com/data/Abdul_Basit_Murattal_192kbps/002009.mp3">test</a></li>
-  <li><a href="audio/office_lobby.mp3">Office Lobby Entrance</a></li>
-  <li><a href="audio/rain.mp3">Rain</a></li>
-  <li><a href="audio/walking.mp3">Walking</a></li>
-
-  <!-- files from the web (note that ID3 information will *not* load from remote domains without permission, Flash restriction) -->
-
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Rain 3.mp3">Rain 3</a></li>
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Frogs @ Yahoo!.mp3">Frogs @ Yahoo!</a></li>
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Walking past sprinklers, mailbox.mp3">Walking past sprinklers, mailbox</a></li>
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Cup of Coffee.mp3">Cup of Coffee</a></li>
-  <li><a href="http://www.freshly-ground.com/misc/music/carl-3-barlp.mp3">Barrlping with Carl (featureblend.com)</a></li>
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Mak.mp3">Angry cow sound?</a></li>
-  <li><a href="http://www.freshly-ground.com/data/audio/binaural/Things that open, close and roll.mp3">Things that open, close and roll</a></li>
-  <li><a href="http://www.freshly-ground.com/misc/music/20060826%20-%20Armstrong.mp3">20060826 - Armstrong</a></li>
-
- </ul>
-
- </div>
 
 
 

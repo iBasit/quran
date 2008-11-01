@@ -81,10 +81,11 @@
     function resize_debugger() {
     
         $('#soundmanager-debug')
-            .width($(window).width()-30)
-            .height($(window).height()*0.382)
+            .height($(window).height()*0.236)
             .resizable({
                 handles: 'n,w,nw',
+                transparent: true,
+                helper: 'proxy',
                 containment: 'document.body',
                 ghost: true
             })
@@ -152,9 +153,10 @@
     quran._state = {};
     quran.set_state = function(key,data) {
         quran._state[key] = data;
+        return quran._state[key];
     };
     quran.get_state = function(key) {
-        return quran._state[key];
+        return quran._state[key] || null;
     };
     quran.save_application_state = function() {
       //--console.log('Save app state');
@@ -175,7 +177,6 @@
         $.cookie('keys',keys);
     };
     quran.restore_application_state = function() {
-      //--console.log('Restore app state');
         if ($.cookie('keys')) {
             var keys = $.cookie('keys').split(',');
             var objects = {};
@@ -183,9 +184,15 @@
                 if (key.match(/_/)) {
                     var key1 = key.split('_')[0];
                     var key2 = key.split('_')[1];
+                    var value;
                     eval('objects.'+ key1 +' = objects.'+ key1 +' || {};');
-                    eval('$.extend(objects.'+ key1 +',{ '+ key2 +':'+ $.cookie(key) +' });');
-                    //eval('console.log(objects.'+ key1 +');');
+                    if ($.cookie(key).match(/^[0-9]+$/)) {
+                        value = parseInt($.cookie(key));
+                    } else
+                    if (typeof ($.cookie(key)) == 'string') {
+                        value = "\""+ $.cookie(key) + "\"";
+                    }
+                    eval("$.extend(objects."+ key1 +",{ "+ key2 +":"+ value +" });");
                 } else {
                     quran.set_state(key, $.cookie(key));
                 }
@@ -194,7 +201,63 @@
                 quran.set_state(key, objects[key]);
             }
         }
-        quran.trigger('application-state-restored');
+        if (!quran.get_state('recitor')) {
+            quran.set_state('recitor', quran.config.recitors[0]);
+        }
+        if (!quran.get_state('aya')) {
+            quran.set_state('aya', {
+                id: 1,
+                sura: 1,
+                aya: 1
+            });
+        }
+        // TODO: make this cleaner by return a comprehensive object as a parameter
+        // passed to the callbacks
+        // In the same fashion we could pass aya 1, sura 1, defaults etc. if there is no cookie,
+        // using this event callback
+        quran.trigger('application-state-restored', {
+            aya: quran.get_state('aya'),
+            recitor: quran.get_state('recitor')
+        });
+    };
+    quran.get_fastest_mirror = function() {
+        var fastest;
+        $.each(quran.config.mirrors,function(n,o) {
+            if (o.status == 200) {
+                if ((!fastest) || (o.ping < fastest.ping)) {
+                    fastest = o;
+                }
+            }
+        });
+        if (fastest) {
+            return fastest.url;
+        } else {
+            return false;
+        }
+    };
+    quran.get_random_mirror = function() {
+        function get_random(count) {
+            if (!count) {
+                count = 0;
+            }
+            var random = quran.config.mirrors[Math.floor(Math.random()*quran.config.mirrors.length)];
+            if (random.status == 200) {
+                return random;
+            } else {
+                count = count + 1;
+                if (count > quran.config.mirrors.length) {
+                    return false;
+                } else {
+                    get_random(count);
+                }
+            }
+        }
+        var random = get_random();
+        if (random) {
+            return random.url;
+        } else {
+            return false;
+        }
     };
     $(window).load(function() {
         quran.restore_application_state();
