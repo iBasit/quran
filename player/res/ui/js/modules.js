@@ -267,7 +267,7 @@ $.fn.verse_panel = function(config) {
         }
         $.ajax({
             type: 'POST',
-            url: '/old_quran/public/page/get',
+            url: '/quran/old/public/page/get',
             data: {
                 id: self.id,
                 count: self.count,
