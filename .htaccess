@@ -1,0 +1,4 @@
+IndexIgnore old/config/database.yml
+IndexIgnore old/log
+IndexIgnore old/tmp
+

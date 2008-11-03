@@ -5,7 +5,6 @@
     $.widget('ui.quranController', {
         _init: function() {
             quran._controller = this;
-          //--console.log('controller');
             this.body = quran._init_widget(this, {
                 name: 'Controller',
                 bind: {
@@ -17,12 +16,6 @@
                             this.set_sura(obj.sura);
                             this.set_aya(obj.aya);
                         }
-                        /*
-                        var recitor = quran.get_state('recitor');
-                        if (recitor) {
-                            this.set_recitor(recitor);
-                        }
-                        */
                     }
                 }
             });
@@ -36,30 +29,17 @@
             this.pronounciation_select = $('<select>');
             this.tafseer_select = $('<select>');
             this.font_select = $('<select>');
-            //this.recitor_select = $('<select>');
             this.sura_select = $('<select>');
             this.aya_select = $('<select>');
     
             var self = this;
-                    /*
-            //function populate_recitors() {
-              //--console.log('populate recitors');
-
-                    self.recitor_select
-                        .append('<option class="recitor" value='+ quran.config.recitors[i][1] +'>'+ quran.config.recitors[i][0] +'</option>');
-            //}
-                    */
             function populate_suras() {
-              //--console.log('populate suras');
                 for (var i=1; i < quran.data.sura.length - 1; i++) {
                      self.sura_select
                         .append('<option class="sura" value='+ i +'>'+ quran.data.sura[i][5] + '</option>');
                 }
             }
             function set_defaults() {
-                //if (!quran.get_state('recitor')) {
-                    //quran.set_state('recitor', self.recitor_select[0].options[self.recitor_select[0].selectedIndex].value);
-                //}
                 if (!quran.get_state('aya')) {
                     quran.set_state('aya', { id: 1, aya: 1, sura: 1 });
                 }
@@ -70,15 +50,12 @@
             set_defaults();
     
             //this.recitor_select.change(function() {
-              //--console.log('recitor select change setting state');
                 //quran.trigger('change-recitor', $(this)[0].options[$(this)[0].selectedIndex].value);
             //});
             this.sura_select.change(function() {
-              //--console.log('sura select change setting state');
                 quran.trigger('change', { sura: $(this)[0].options[$(this)[0].selectedIndex].value });
             });
             this.aya_select.change(function() {
-              //--console.log('aya select change setting state');
                 quran.trigger('change', { id: $(this)[0].options[$(this)[0].selectedIndex].value });
             });
     
@@ -111,7 +88,6 @@
             return parseInt(this.aya_select[0].options[this.aya_select[0].selectedIndex].value);
         },
         set_sura: function(sura) {
-            //console.log('set sura',sura);
             var selectedIndex = 0;
             for (var i = 0; i < this.sura_select[0].options.length; i++) {
                 var option = this.sura_select[0].options[i];
@@ -156,7 +132,7 @@
             quran.trigger('change','prev');
         },
         prev_sura: function() {
-            var sura = this.get_sura() - 1;
+            var sura = self.get_sura() - 1;
             if ((sura <= 0) || (sura > 114)) {
                 sura = 114;
             }
@@ -166,7 +142,7 @@
             quran.trigger('change','next');
         },
         next_sura: function() {
-            var sura = this.get_sura() + 1;
+            var sura = self.get_sura() + 1;
             if ((sura <= 0) || (sura > 114)) {
                 sura = 1;
             }
@@ -253,7 +229,7 @@ $.fn.verse_panel = function(config) {
                     aya_end_index = aya.attr('index');
                 }
 
-                var aya_div = $('<span name="'+ aya.attr('id') +'" title="'+ aya.attr('index') +'" class="aya aya-'+ aya.attr('id') +'">'+ aya.text() +'</span>');
+                var aya_div = $('<span name="'+ aya.attr('id') +'" title="'+ aya.attr('index') +'" class="aya '+ ((aya.attr('id') == self.id)? 'active' : '') +'">'+ aya.text() +'</span>');
 
                 aya_div.mousedown(function() {
                     var div = $(this);
@@ -263,8 +239,6 @@ $.fn.verse_panel = function(config) {
                 });
 
                 oBody.append(aya_div);
-
-                self.set_active();
             });
 
             var title = $('<span>'+ sura_start_index +':'+ aya_start_index +' - '+ sura_end_index +':'+ aya_end_index + '</span>');
@@ -274,24 +248,14 @@ $.fn.verse_panel = function(config) {
 
     this.set_active = function() {
         try {
-            self.each(function() {
-                var o = $(this);
-                var oBody = o.find('.b');
-                var oHead = o.find('.h');
-                var oFoot = o.find('.f');
-                var oAya  = oBody.find('.aya-'+ self.id);
-
-                o.find('.aya').removeClass('active');
-
-                oAya.addClass('active');
-
-                var offset = oAya.position().top;
-                var center = oBody.height()/2;
-
-                if ((offset > oBody.height()) || (offset < 0)) {
-                    oAya[0].scrollIntoView()
-                }
-            });
+            self.find('.active').removeClass('active');
+            var active = self.find('[name='+ self.id +']');
+            active.addClass('active');
+            var offset = active.position().top;
+            var center = self.find('.b').height()/2;
+            if ((offset > self.find('.b').height()) || (offset < 0)) {
+                active[0].scrollIntoView()
+            }
         } catch(e) {
             q.d.bug(e);
         }
@@ -508,7 +472,6 @@ $(document).ready(function() {
 /* PLAYER */
 $.fn.player = function(config) {
     var self = this;
-
     /* SMUtils */
     var smUtils = new function SMUtils() {
         var self = this;
@@ -543,7 +506,6 @@ $.fn.player = function(config) {
         this.sFormat = (this.oTitle.innerHTML || '%artist - %title');
         this.sFormatSeek = (this.oSeek.innerHTML || '%{time1}/%{time2} (%{percent}%)');
         this.oProgress = $('.player>div.ui>div.mid div.progress')[0];
-        this.oRangeBackground = this.oProgress;
         this.oRight = $('.player>div.ui>div.right')[0];
         this.oTime = $('.player>div.ui>div.right div.time')[0];
         this.oAutoPlay = $('.player>div.ui>div.right a.autoplay')[0];
@@ -553,7 +515,6 @@ $.fn.player = function(config) {
         this.lastTime = 0;
         this.scale = 100;
         this.percentLoaded = 0;
-        this.gotTimeEstimate = 0;
         this.offX = 0;
         this.x = 0;
         this.xMin = 0;
@@ -564,8 +525,6 @@ $.fn.player = function(config) {
         this.xMaxLoaded = 0;
         this.timer = null;
         this._className = this.oBar.className;
-        this.tween = [];
-        this.frame = 0;
         this.playState = 0;
         this.busy = false;
         this.maxOpacity = 100;
@@ -577,36 +536,137 @@ $.fn.player = function(config) {
             'offY': 0,
             'titleWidth': 0
         }
-        this.muted = false;
-        this.volume = soundManager.defaultOptions.volume;
+        this.mute = false;
+        this.volume = sm.defaultOptions.volume;
         this.oTitle.innerHTML = $('.player>div.ui>div.mid div.default')[0].innerHTML;
         this.oTitle.style.visibility = 'visible';
-        this.over = function() {
-            this.className = self._className + ' hover';
-            event.cancelBubble = true;
-            return false;
-        }
-        this.out = function() {
-            try {
-                this.className = self._className;
-                event.cancelBubble = true;
+
+
+        this.oSplitPoints = $('.player>div.split-points div.mid')
+            .mousedown(function(ev) {
+                q.d.bug('split points down');
+                var relative_x = ev.clientX - $(self.oSplitPoints).offset().left;
+                var point = $('<a class="point"><div></div></a>')
+                    .css({
+                        position: 'absolute',
+                        left: relative_x - 4 
+                    })
+                    .mousedown(function(e) {
+                        var sp_self = this;
+                        self.offX = e.clientX - $(self.oSplitPoints).offset().left;
+                        q.d.bug('split POINT down',self.offX);
+                        $(document).bind('mousemove', function(e) {
+                            self.split_point_move.call(sp_self,e);
+                            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+                            return false;
+                        });
+                        $(document).bind('mouseup', function(e) {
+                            self.split_point_up.call(sp_self,e);
+                            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+                            return false;
+                        });
+                        e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+                        return false;
+                    })
+                ;
+                $(this)
+                    .append(point)
+                ;
+                ev.stopPropgation ? ev.stopPropagation() : ev.cancelBubble = true;
                 return false;
-            } catch(e) {
-                q.d.bug(e);
+            })
+        ;
+        this.split_point_move = function(e) {
+            var e = e ? e: event;
+            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
+            if (x < self.xMin) {
+                x = self.xMin;
             }
+            if (x > self.xMax + 6) {
+                x = self.xMax + 6;
+            }
+            self.move_split_point_to.call(this,x);
+            q.d.bug('split POINT moving',x,self.offX);
+            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+            return false;
+        };
+        this.move_split_point_to = function(x) {
+            var left = Math.floor(x);
+            q.d.bug(left);
+            $(this).css({
+                position: 'absolute',
+                left: left
+            });
         }
-        this.barDown = function(e) {
+        this.split_point_up = function(e) {
+            q.d.bug('split POINT up');
+            $(document).unbind('mousemove');
+            $(document).unbind('mouseup');
+            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+            return false;
+        };
+        this.move_split_points_after_resize = function(growth) {
+        };
+        /*
+        this.oSplitPoints = $('.player>div.split-points')[0];
+        this.oSplitPoints.onmousedown = this.split_points_down;
+        this.split_points_down = function(e) {
+            var e = e ? e: event;
+            self.offX = e.clientX - $(self.oSplitPoints).offset().left;
+            q.d.bug('split points down',self.offX);
+            $(document).bind('mousemove', self.split_points_move);
+            $(document).bind('mouseup', self.split_points_up);
+            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+            return false;
+        };
+        this.split_points_move = function(e) {
+            var e = e ? e: event;
+            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
+            q.d.bug('split points move', x,self.offX);
+            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+            return false;
+        };
+        this.split_points_up = function(e) {
+            var e = e ? e: event;
+            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
+            q.d.bug('split points up',x,self.offX);
+            $(document).unbind('mousemove', self.split_points_move);
+            $(document).unbind('mouseup', self.split_points_up);
+            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
+            return false;
+        };
+        */
+        /*
+            .click(function(ev) {
+                var relative_x = ev.clientX - $(self.oMain).offset().left;
+                var point = $('<a class="point"><span></span></a>')
+                    .css({
+                        position: 'absolute',
+                        left: relative_x
+                    })
+                ;
+                $(this)
+                    .append(point)
+                ;
+            })
+        ;
+        */
+        this.set_split_point = function() {
+        };
+
+
+        this.bar_down = function(e) {
             var e = e ? e: event;
             self.didDrag = false;
             self.coords.x = e.clientX;
             self.coords.y = e.clientY;
             self.coords.offX = e.clientX - $(self.oMain).offset().left;
             self.coords.offY = e.clientY - $(self.oMain).offset().top;
-            $(document).bind('mousemove', self.barMove);
-            $(document).bind('mouseup', self.barUp);
+            $(document).bind('mousemove', self.bar_move);
+            $(document).bind('mouseup', self.bar_up);
             return false;
         }
-        this.barMove = function(e) {
+        this.bar_move = function(e) {
             try {
                 var e = e ? e: event;
                 if (!self.didDrag) {
@@ -629,48 +689,59 @@ $.fn.player = function(config) {
                 q.d.bug(e);
             }
         }
-        this.barUp = function(e) {
-            $(document).unbind('mousemove', self.barMove);
-            $(document).unbind('mouseup', self.barUp);
+        this.bar_up = function(e) {
+            $(document).unbind('mousemove', self.bar_move);
+            $(document).unbind('mouseup', self.bar_up);
         }
-        this.barClick = function(e) {
-            if (!self.oParent.currentSound) return false;
-            if (self.didDrag) return false;
+        this.bar_click = function(e) {
+            if (!self.oParent.current) {
+                return false;
+            }
+            if (self.didDrag) {
+                return false;
+            }
             var tgt = (e ? e.target: event.srcElement);
             var e = e ? e: event;
             if (tgt.tagName.toLowerCase() == 'a') return false; // ignore clicks on links (eg. dragging slider)
             var xNew = Math.min(e.clientX - $(self.oBar).offset().left, self.xMaxLoaded);
             self.slide(self.x, xNew);
         }
-        this.volumeX = 0;
-        this.volumeWidth = 0;
-        this.volumeDown = function(e) {
-            self.volumeX = $(self.oVolume).offset().left;
-            self.volumeWidth = parseInt(self.oVolume.offsetWidth);
-            $(document).bind('mousemove', self.volumeMove);
-            $(document).bind('mouseup', self.volumeUp);
-            self.volumeMove(e);
+        this.volume_x = 0;
+        this.volume_width = 0;
+        this.volume_down = function(e) {
+            q.d.bug(630,'volume_down');
+            self.volume_x = $(self.oVolume).offset().left;
+            self.volume_width = parseInt(self.oVolume.offsetWidth);
+            $(document).bind('mousemove', self.volume_move);
+            $(document).bind('mouseup', self.volume_up);
+            self.volume_move(e);
             return false;
         }
-        this.volumeMove = function(e) {
+        this.volume_move = function(e) {
             var e = e ? e: event;
-            var vol = ((e.clientX - self.volumeX) / (self.volumeWidth));
+            var vol = ((e.clientX - self.volume_x) / (self.volume_width));
             vol = Math.min(1, Math.max(0, vol));
-            self.setVolume(vol * 100);
+            q.d.bug(642,'volume_move',vol,vol*100);
+            self.set_volume(vol * 100);
             return false;
         }
-        this.volumeUp = function(e) {
+        this.volume_up = function(e) {
             var e = e ? e: event;
-            $(document).unbind('mousemove', self.volumeMove);
-            $(document).unbind('mouseup', self.volumeUp);
+            $(document).unbind('mousemove', self.volume_move);
+            $(document).unbind('mouseup', self.volume_up);
             return false;
         }
-        this.setVolume = function(nVol) {
+        this.set_volume = function(nVol) {
             try {
-                if (!self.oParent.currentSound || self.volume == nVol) return false;
-                soundManager.defaultOptions.volume = nVol;
+                if (!self.oParent.current || self.volume == nVol) {
+                    q.d.bug(655,'set_volume, returning false');
+                    return false;
+                }
+                sm.defaultOptions.volume = nVol;
                 self.volume = nVol;
-                if (!self.muted) soundManager.setVolume(self.oParent.currentSound, nVol);
+                if (!self.mute) {
+                    self.oParent.current.set_volume(nVol);
+                }
                 $(self.oVolume).css({
                     opacity: nVol / 100
                 });
@@ -678,39 +749,29 @@ $.fn.player = function(config) {
                 q.d.bug(e);
             }
         }
-        this.setRangeBackground = function() {
-            self.oRangeBackground.style.marginLeft = self.xRangeStart + 2 + 'px';
-            self.oRangeBackground.style.width = self.xRangeEnd - self.xRangeStart + 5 + 'px';
-            if ((self.xRangeEnd == self.xMax) && (self.xRangeStart == self.xMin)) {
-                $(self.oRangeBackground).animate({
-                    opacity: 0
-                },
-                500);
-            } else {
-                $(self.oRangeBackground).css({
-                    opacity: 1
-                });
-            }
-        }
-        this.rangeStartDown = function(e) {
+        this.range_start_down = function(e) {
             try {
-                if (!self.oParent.currentSound) return false;
+                q.d.bug('range_start_down 1');
+                if (!self.oParent.current) {
+                    return false;
+                }
+                q.d.bug('range_start_down 2');
                 self.didDrag = false;
                 var e = e ? e: event;
                 self.offX = e.clientX - ($(self.oRangeStart).offset().left - $(self.oBar).offset().left);
                 self.rangeBusy = true;
-                self.refreshSeek('rangeStart');
-                self.setSeekVisibility(1);
+                self.refresh_seek('rangeStart');
+                self.set_seek_visibility(1);
                 $(self.oRangeStart).addClass('active');
-                $(document).bind('mousemove', self.rangeStartMove);
-                $(document).bind('mouseup', self.rangeStartUp);
+                $(document).bind('mousemove', self.range_start_move);
+                $(document).bind('mouseup', self.range_start_up);
                 e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.rangeStartMove = function(e) {
+        this.range_start_move = function(e) {
             var e = e ? e: event;
             var x = e.clientX - self.offX;
             if (x > self.xMaxLoaded) {
@@ -722,31 +783,31 @@ $.fn.player = function(config) {
                 x = self.xRangeEnd;
             }
             if (self.x < x) {
-                self.moveSliderTo(x);
-                if (self.oParent.options.allowScrub) {
-                    self.doScrub();
+                self.move_slider_to(x);
+                if (self.oParent.options.allow_scrub) {
+                    self.do_scrub();
                 }
             }
             if (x != self.xRangeStart) {
-                self.moveRangeStartTo(x);
-                self.refreshSeek('rangeStart');
+                self.move_range_start_to(x);
+                self.refresh_seek('rangeStart');
             }
             e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
             return false;
         }
-        this.moveRangeStartTo = function(x) {
+        this.move_range_start_to = function(x) {
             self.xRangeStart = x;
             self.oRangeStart.style.marginLeft = (Math.floor(x) + 0) + 'px';
-            self.setRangeBackground();
         }
-        this.rangeStartUp = function(e) {
+        this.range_start_up = function(e) {
             try {
-                $(document).unbind('mousemove', self.rangeStartMove);
-                $(document).unbind('mouseup', self.rangeStartUp);
+                q.d.bug('rangeStart up');
+                $(document).unbind('mousemove', self.range_start_move);
+                $(document).unbind('mouseup', self.range_start_up);
                 $(self.oRangeStart).removeClass('active');
                 self.rangeBusy = false;
                 var x;
-                if (!self.oParent.options.allowScrub || self.oParent.paused) {
+                if (!self.oParent.options.allow_scrub || self.oParent.paused) {
                     if (self.x >= self.xRangeEnd) {
                         x = self.xRangeEnd;
                     } else if (self.x <= self.xRangeStart) {
@@ -755,38 +816,38 @@ $.fn.player = function(config) {
                         x = self.x;
                     }
                     if (x != self.x) {
-                        self.moveSliderTo(x);
-                        if (self.oParent.options.allowScrub) {
-                            self.doScrub();
+                        self.move_slider_to(x);
+                        if (self.oParent.options.allow_scrub) {
+                            self.do_scrub();
                         }
-                        self.oParent.onUserSetSlideValue(x); // notify parent of update
+                        self.oParent.set_position(x); // notify parent of update
                     }
                 }
-                self.setSeekVisibility();
+                self.set_seek_visibility();
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.sliderDown = function(e) {
+        this.slider_down = function(e) {
             try {
-                if (!self.oParent.currentSound) return false;
+                if (!self.oParent.current) return false;
                 self.didDrag = false;
                 var e = e ? e: event;
                 self.offX = e.clientX - ($(self.oSlider).offset().left - $(self.oBar).offset().left);
                 self.busy = true;
-                self.refreshSeek();
-                self.setSeekVisibility(1);
+                self.refresh_seek();
+                self.set_seek_visibility(1);
                 $(self.oSlider).addClass('active');
-                $(document).bind('mousemove', self.sliderMove);
-                $(document).bind('mouseup', self.sliderUp);
+                $(document).bind('mousemove', self.slider_move);
+                $(document).bind('mouseup', self.slider_up);
                 e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.sliderMove = function(e) {
+        this.slider_move = function(e) {
             var e = e ? e: event;
             var x = e.clientX - self.offX;
             if (x > self.xMaxLoaded) {
@@ -800,52 +861,52 @@ $.fn.player = function(config) {
                 x = self.xRangeStart;
             }
             if (x != self.x) {
-                self.moveSliderTo(x);
-                if (self.oParent.options.allowScrub) self.doScrub();
-                self.refreshSeek();
+                self.move_slider_to(x);
+                if (self.oParent.options.allow_scrub) self.do_scrub();
+                self.refresh_seek();
             }
             e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
             return false;
         }
-        this.moveSliderTo = function(x) {
+        this.move_slider_to = function(x) {
             self.x = x;
             self.oSlider.style.marginLeft = (Math.floor(x) + 2) + 'px'; // 1 offset
         }
-        this.sliderUp = function(e) {
+        this.slider_up = function(e) {
             try {
-                $(document).unbind('mousemove', self.sliderMove);
-                $(document).unbind('mouseup', self.sliderUp);
+                $(document).unbind('mousemove', self.slider_move);
+                $(document).unbind('mouseup', self.slider_up);
                 $(self.oSlider).removeClass('active');
                 self.busy = false;
 
-                if (!self.oParent.options.allowScrub || self.oParent.paused) {
-                    self.oParent.onUserSetSlideValue(self.x); // notify parent of update
+                if (!self.oParent.options.allow_scrub || self.oParent.paused) {
+                    self.oParent.set_position(self.x); // notify parent of update
                 }
-                self.setSeekVisibility();
+                self.set_seek_visibility();
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.rangeEndDown = function(e) {
+        this.range_end_down = function(e) {
             try {
-                if (!self.oParent.currentSound) return false;
+                if (!self.oParent.current) return false;
                 self.didDrag = false;
                 var e = e ? e: event;
                 self.offX = e.clientX - ($(self.oRangeEnd).offset().left - $(self.oBar).offset().left);
                 self.rangeBusy = true;
-                self.refreshSeek('rangeEnd');
-                self.setSeekVisibility(1);
+                self.refresh_seek('rangeEnd');
+                self.set_seek_visibility(1);
                 $(self.oRangeEnd).addClass('active');
-                $(document).bind('mousemove', self.rangeEndMove);
-                $(document).bind('mouseup', self.rangeEndUp);
+                $(document).bind('mousemove', self.range_end_move);
+                $(document).bind('mouseup', self.range_end_up);
                 e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.rangeEndMove = function(e) {
+        this.range_end_move = function(e) {
             var e = e ? e: event;
             var x = e.clientX - self.offX;
             if (x > self.xMaxLoaded) {
@@ -857,31 +918,31 @@ $.fn.player = function(config) {
                 x = self.xRangeStart;
             }
             if (self.x > x) {
-                self.moveSliderTo(x);
-                if (self.oParent.options.allowScrub) {
-                    self.doScrub();
+                self.move_slider_to(x);
+                if (self.oParent.options.allow_scrub) {
+                    self.do_scrub();
                 }
             }
             if (x != self.xRangeEnd) {
-                self.moveRangeEndTo(x);
-                self.refreshSeek('rangeEnd');
+                self.move_range_end_to(x);
+                self.refresh_seek('rangeEnd');
             }
             e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
             return false;
         }
-        this.moveRangeEndTo = function(x) {
+        this.move_range_end_to = function(x) {
             self.xRangeEnd = x;
             self.oRangeEnd.style.marginLeft = Math.floor(x) + 4 + 'px'; // 1 offset
-            self.setRangeBackground();
+            //self.setRangeBackground();
         }
-        this.rangeEndUp = function(e) {
+        this.range_end_up = function(e) {
             try {
-                $(document).unbind('mousemove', self.rangeEndMove);
-                $(document).unbind('mouseup', self.rangeEndUp);
+                $(document).unbind('mousemove', self.range_end_move);
+                $(document).unbind('mouseup', self.range_end_up);
                 $(self.oRangeEnd).removeClass('active');
                 self.rangeBusy = false;
                 var x;
-                if (!self.oParent.options.allowScrub || self.oParent.paused) {
+                if (!self.oParent.options.allow_scrub || self.oParent.paused) {
                     if (self.x >= self.xRangeEnd) {
                         x = self.xRangeEnd;
                     } else if (self.x <= self.xRangeStart) {
@@ -890,31 +951,24 @@ $.fn.player = function(config) {
                         x = self.x;
                     }
                     if (x != self.x) {
-                        self.moveSliderTo(x);
-                        if (self.oParent.options.allowScrub) {
-                            self.doScrub();
+                        self.move_slider_to(x);
+                        if (self.oParent.options.allow_scrub) {
+                            self.do_scrub();
                         }
-                        self.oParent.onUserSetSlideValue(x); // notify parent of update
+                        self.oParent.set_position(x); // notify parent of update
                     }
                 }
-                self.setSeekVisibility();
+                self.set_seek_visibility();
                 return false;
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.slide = function(x0, x1) {
-            try {
-                self.tween = animator.createTween(x0, x1);
-                self.busy = true;
-                self.slideLastExec = new Date();
-                animator.addMethod(self.animate, self.animateComplete);
-                animator.start();
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.refreshSeek = function(handleName) {
+        this.slide = function(a,b) {
+            self.move_slider_to(b);
+            self.oParent.set_position(b);
+        };
+        this.refresh_seek = function(handleName) {
             var position, action;
             switch (handleName) {
             case 'rangeStart':
@@ -931,17 +985,17 @@ $.fn.player = function(config) {
                 break;
             }
             var sData = self.sFormatSeek;
-            var oSound = soundManager.getSoundById(self.oParent.currentSound);
+            var oSound = self.oParent.current;
             var sliderMSec = position / self.xMaxLoaded * oSound.duration;
             var attrs = {
                 'action': action,
-                'time1': self.getTime(sliderMSec, true),
-                'time2': (!oSound.loaded ? '~': '') + self.getTime(oSound.durationEstimate, true),
+                'time1': self.get_time(sliderMSec, true),
+                'time2': (!oSound.loaded ? '~': '') + self.get_time(oSound.durationEstimate, true),
                 'percent': Math.floor(sliderMSec / oSound.durationEstimate * 100)
             }
             for (var attr in attrs) {
                 data = attrs[attr];
-                if (self.isEmpty(data)) data = '!null!';
+                if (self.is_empty(data)) data = '!null!';
                 sData = sData.replace('\%\{' + attr + '\}', data);
             }
             var aData = sData.split(' ');
@@ -950,29 +1004,13 @@ $.fn.player = function(config) {
             }
             self.oSeek.innerHTML = aData.join(' ');
         }
-        this.setSeekVisibility = function(bVisible) {
+        this.set_seek_visibility = function(bVisible) {
             self.oTitle.style.visibility = bVisible ? 'hidden': 'visible';
             self.oSeek.style.display = bVisible ? 'block': 'none';
         }
-        this.animateComplete = function() {
-            self.busy = false;
-            if (self.oParent) self.oParent.onUserSetSlideValue(self.x);
-        }
-        this.slideLastExec = new Date();
-        this.animate = function() {
-            self.moveSliderTo(self.tween[self.frame]);
-            self.frame = Math.max(++self.frame, animator.determineFrame(self.slideLastExec, 40));
-            if (self.frame >= self.tween.length - 1) {
-                self.active = false;
-                self.frame = 0;
-                if (self._oncomplete) self._oncomplete();
-                return false;
-            }
-            return true;
-        }
-        this.doScrub = function(t) {
+        this.do_scrub = function(t) {
             if (self.oParent.paused) return false;
-            if (self.oParent.options.scrubThrottle) {
+            if (self.oParent.options.scrob_throttle) {
                 if (!self.timer) self.timer = setTimeout(self.scrub, t || 20);
             } else {
                 self.scrub();
@@ -980,217 +1018,55 @@ $.fn.player = function(config) {
         }
         this.scrub = function() {
             self.timer = null;
-            self.oParent.onUserSetSlideValue(self.x)
+            self.oParent.set_position(self.x)
         }
-        this.getTimeEstimate = function(oSound) {
-            var byteCeiling = Math.min(1048576 || oSound.bytes);
-            var samples = (byteCeiling == oSound.bytes ? 2 : 4);
-            var milestone = Math.floor(oSound.bytesLoaded / byteCeiling * samples);
-            if (oSound.bytesLoaded > byteCeiling && self.gotTimeEstimate > 0) return false;
-            if (self.gotTimeEstimate == milestone) return false;
-            self.gotTimeEstimate = milestone;
-            self.setMetaData(oSound);
-        }
-        this.getTime = function(nMSec, bAsString) {
+        this.get_time = function(nMSec, bAsString) {
             var nSec = Math.floor(nMSec / 1000);
             var min = Math.floor(nSec / 60);
             var sec = nSec - (min * 60);
-            if (min == 0 && sec == 0) return null;
             return (bAsString ? (min + ':' + (sec < 10 ? '0' + sec: sec)).replace(/NaN/g, '0') : {
                 'min': min,
                 'sec': sec
             });
         }
-        this.updateTime = function(nMSec) {
+        this.update_time = function(nMSec) {
+            if (nMSec === false) {
+                self.oTime.innerHTML = '-:--';
+                return false;
+            }
             self.lastTime = nMSec;
-            self.oTime.innerHTML = (self.getTime(nMSec, true) || '0:00');
+            self.oTime.innerHTML = (self.get_time(nMSec, true) || '-:--');
         }
-        this.setTitle = function(sTitle) {
+        this.set_title = function(sTitle) {
             self.oTitle.innerHTML = unescape(sTitle);
             self.titleString = unescape(sTitle);
-            self.refreshScroll();
         }
-        this.isEmpty = function(o) {
+        this.is_empty = function(o) {
             return (typeof o == 'undefined' || o == null || o == 'null' || (typeof o == 'string' && o.toLowerCase() == 'n/a' || o.toLowerCase == 'undefined'));
         }
-        this.setMetaData = function(oSound) {
-            var friendlyAttrs = {
-                'title': 'songname',
-                'artist': 'artist',
-                'album': 'album',
-                'track': 'track',
-                'year': 'year',
-                'genre': 'genre',
-                'comment': 'comment',
-                'url': 'WXXX'
-            }
-            var sTime = self.getTime(oSound.durationEstimate, true);
-            sTime = (sTime && !oSound.loaded ? '~': '') + sTime;
-            var metaAttrs = {
-                'time': sTime // get time as mm:ss
-            }
-            var sData = self.sFormat; // eg. %{artist} - %{title}
-            var data = null;
-            var useID3 = (!self.isEmpty(oSound.id3.songname) && !self.isEmpty(oSound.id3.artist)); // artist & title must be present to consider using ID3
-            for (var attr in friendlyAttrs) {
-                data = oSound.id3[friendlyAttrs[attr]];
-                if (self.isEmpty(data)) data = '!null!';
-                sData = sData.replace('\%\{' + attr + '\}', data);
-            }
-            for (var attr in metaAttrs) {
-                data = metaAttrs[attr];
-                if (self.isEmpty(data)) data = '!null!';
-                sData = sData.replace('\%\{' + attr + '\}', data);
-            }
-            var aData = sData.split(' ');
-            for (var i = aData.length; i--;) {
-                if (aData[i].indexOf('!null!') + 1) aData[i] = null;
-            }
-            var sMetaData = (useID3 ? unescape(aData.join(' ')) : unescape(self.oParent.oPlaylist.getCurrentItem().userTitle) + (!self.isEmpty(metaAttrs.time) ? ' (' + metaAttrs.time + ')': '')).replace(/\s+/g, ' ');
-            self.oTitle.innerHTML = sMetaData;
-            self.titleString = sMetaData;
-            self.oParent.oPlaylist.getCurrentItem().setTooltip(sMetaData);
-            self.refreshScroll();
-        }
-        this.setLoadingProgress = function(nPercentage) {
+        this.set_progress = function(nPercentage) {
             try {
+                $(self.oProgress).width(parseInt(nPercentage * $(self.oBar).width()));
+                if ((nPercentage != 1) && !$(self.oProgress).hasClass('loading')) {
+                    $(self.oProgress).css({ opacity: 100 }).addClass('loading');
+                } else
+                if (nPercentage == 1) {
+                    $(self.oProgress).animate({ opacity: 0 },1000);
+                    setTimeout(function() { $(self.oProgress).removeClass('loading'); },999);
+                }
                 self.percentLoaded = nPercentage;
                 self.xMaxLoaded = self.percentLoaded * self.xMax;
-                self.oProgress.style.width = parseInt(nPercentage * self.barWidth) + 'px';
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.setLoading = function(bLoading) {
-            try {
-                if (self.isLoading == bLoading) return false;
-                self.isLoading = bLoading;
-                if (bLoading) {
-                    $(self.oProgress).addClass('loading');
-                } else {
-                    $(self.oProgress).removeClass('loading');
-                }
-                self.setLoadingAnimation(bLoading);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.setLoadingAnimation = function(bLoading) {
-            try {
-                if (bLoading) {
-                    self.loadingTween = self.loadingTweens[0];
-                    animator.addMethod(self.loadingAnimate);
-                    animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
-                    animator.start();
-                } else {
-                    self.loadingTween = self.loadingTweens[1];
-                    if (self.loadingAnimateFrame > 0) {
-                        self.loadingAnimateFrame = (self.loadingTween.length - self.loadingAnimateFrame);
-                    } else {
-                        self.loadingTween = self.loadingTweens[1];
-                        animator.addMethod(self.loadingAnimateSlide, self.loadingAnimateSlideComplete);
-                    }
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.loadingAnimate = function() {
-            var d = new Date();
-            if (d - self.loadingLastExec < 50) {
-                return true;
-            }
-            self.loadingLastExec = d;
-            self.loadingX--;
-            self.oProgress.style.backgroundPosition = self.loadingX + 'px ' + self.loadingY + 'px';
-            return self.isLoading;
-        }
-        this.loadingLastExec = new Date();
-        this.loadingTweens = [animator.createTween(0, self.maxOpacity), animator.createTween(self.maxOpacity, 0)];
-        this.loadingDirection = 0;
-        this.loadingTween = this.loadingTweens[this.loadingDirection];
-        this.loadingAnimateFrame = 0;
-        this.loadingAnimateSlide = function() {
-            var d = new Date();
-            if (d - self.loadingLastExec < 50) {
-                return true;
-            }
-            $(self.oProgress).css({
-                opacity: self.loadingTween[self.loadingAnimateFrame++] / 100
-            });
-            if (!self.isLoading) {
-                self.loadingAnimate();
-            }
-            self.loadingLastExec = d;
-            return (++self.loadingAnimateFrame < self.loadingTweens[0].length);
-        }
-        this.loadingAnimateSlideComplete = function() {
-            try {
-                self.loadingAnimateFrame = 0;
-                self.loadingX = 0;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.isLoading = false;
-        this.loadingTimer = null;
-        this.loadingX = 0;
-        this.loadingY = 0;
-        this.setPlayState = function(bPlayState) {
+        this.set_playing = function(bPlayState) {
             try {
                 self.playState = bPlayState;
                 self.oLeft.getElementsByTagName('span')[0].className = (self.playState ? 'playing': '');
             } catch(e) {
                 q.d.bug(e);
             }
-        }
-        this.togglePause = function() {
-            try {
-                if (self.oParent.currentSound) {
-                    soundManager.togglePause(self.oParent.currentSound);
-                } else {
-                    self.oParent.oPlaylist.playAya(self.oParent.oPlaylist.getAya());
-                }
-                var isPaused;
-                if (self.oParent.currentSound) {
-                    isPaused = soundManager.getSoundById(self.oParent.currentSound).paused;
-                    self.oParent.paused = isPaused;
-                    self.setPlayState(!isPaused);
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleAutoPlay = function() {
-            try {
-                self.oParent.oPlaylist.toggleAutoPlay();
-                self.setAutoPlay(self.oParent.oPlaylist.doAutoPlay);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleRepeat = function() {
-            try {
-                self.oParent.oPlaylist.toggleRepeat();
-                self.setRepeat(self.oParent.oPlaylist.doRepeat);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleMute = function() {
-            try {
-                self.muted = !self.muted;
-                if (self.muted) {
-                    soundManager.mute();
-                } else {
-                    soundManager.unmute();
-                }
-                self.setMute(self.muted);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleMore = function() {
         }
         this.setAutoPlay = function(bAutoPlay) {
             if (bAutoPlay) {
@@ -1213,773 +1089,51 @@ $.fn.player = function(config) {
                 $(self.oMute).removeClass('active');
             }
         }
-        this.scrollOffset = 0;
-        this.scrollOffsetMax = self.oBar.offsetWidth;
-        this.scrollInterval = 100;
-        this.scrollAmount = 2; // pixels
-        this.scrollLastExec = new Date();
-        this.scrollTimer = null;
-        this.isScrolling = null;
-        this.scrollTo = function(nOffset) {
-            self.oTitle.style.marginLeft = (nOffset * -1) + 'px';
-            self.refreshDocumentTitle();
-        }
-        var tmp = document.createElement('p');
-        tmp.innerHTML = '&nbsp;';
-        var nbsp = tmp.innerHTML;
-        this.refreshDocumentTitle = function(nOffset) {
-            var offset = (typeof nOffset != 'undefined' ? nOffset: null);
-            var str = (self.titleString).substr(nOffset != null ? nOffset: Math.max(self.scrollOffset - self.scrollAmount, 0));
-            str = str.replace(/ /i, ' ');
-            if (self.oParent.options.usePageTitle) {
-                try {
-                    document.title = str;
-                } catch(e) {
-                }
-            }
-        }
-        this.doScroll = function() {
-            var d = new Date();
-            if (d - self.scrollLastExec < self.scrollInterval) return true; // throttle
-            self.scrollLastExec = d;
-            self.scrollOffset += self.scrollAmount;
-            if (self.scrollOffset > self.coords.titleWidth) {
-                self.scrollOffset = ($.browser.msie ? 5 : 1);
-            }
-            self.scrollTo(self.scrollOffset);
-            return self.isScrolling;
-        }
-        this.resetScroll = function() {
-            self.scrollOffset = 0;
-            self.scrollTo(self.scrollOffset);
-            self.refreshDocumentTitle(0);
-        }
-        this.setScroll = function(bScroll) {
+        this.reset = function(current) {
             try {
-                if (bScroll && !self.isScrolling) {
-                    self.isScrolling = true;
-                    animator.addMethod(self.doScroll, self.resetScroll);
-                    animator.start();
-                }
-                if (!bScroll && self.isScrolling) {
-                    self.isScrolling = false;
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.titleString = '';
-        this.refreshScroll = function() {
-            self.coords.titleWidth = self.oTitle.offsetWidth;
-            var doScroll = (self.coords.titleWidth > self.scrollOffsetMax);
-            if (doScroll) {
-                var sHTML = self.oTitle.innerHTML;
-                var dHTML = self.oDivider.innerHTML; // heh
-                self.oTitle.innerHTML = sHTML + dHTML;
-                self.coords.titleWidth = self.oTitle.offsetWidth;
-                self.setScroll(doScroll);
-                self.titleString = sHTML;
-                self.oTitle.innerHTML = sHTML + dHTML + sHTML;
-            } else {
-                self.setScroll(doScroll);
-                self.titleString = self.oTitle.innerHTML;
-            }
-        }
-        this.reset = function() {
-            try {
-                self.moveSliderTo(0);
-                self.moveRangeStartTo(self.xMin);
-                self.moveRangeEndTo(self.xMax);
-                self.setLoadingProgress(0);
-                self.gotTimeEstimate = 0;
-                self.updateTime(1);
-                self.resetScroll();
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        if ($.browser.msie) {
-            self.oBar.onmouseover = self.over;
-            self.oBar.onmouseout = self.out;
-        }
-        if ($.browser.safari) {
-            $(this.oMain).addClass('noOpacity');
-        }
-        this.oSlider.onmousedown = this.sliderDown;
-        this.oRangeStart.onmousedown = this.rangeStartDown;
-        this.oRangeEnd.onmousedown = this.rangeEndDown;
-        this.oBar.onmousedown = this.barDown;
-        this.oBar.onclick = this.barClick;
-        self.refreshScroll();
-        this.init = function() {
-            function foo_bar(bar_width) {
-                if (!bar_width) {
-                    return false;
-                }
-                $(self.oBar).width(bar_width);
-                self._xMax = self.xMax;
-                self.barWidth = self.oBar.offsetWidth;
-                self.xMax = self.barWidth - self.oSlider.offsetWidth;
-                var growth = self.xMax / self._xMax;
-                var loaded = Math.ceil(self.xMaxLoaded * growth);
-                self.xMaxLoaded = (loaded > self.xMax) ? self.xMax: loaded;
-                return {
-                    growth: growth,
-                    x: self.x * growth,
-                    start: self.xRangeStart * growth,
-                    end: self.xRangeEnd * growth
-                }
-            }
-            $(self.oMain).resizable({
-                handles: 'e,w',
-                helper: 'proxy',
-                transparent: true,
-                stop: function(ev, ui) {
-                    var bar_width = ui.size.width - 176;
-                    var new_bar = foo_bar(bar_width);
-                    self.moveSliderTo(new_bar.x);
-                    self.moveRangeStartTo(new_bar.start);
-                    self.moveRangeEndTo(new_bar.end);
-                }
-            });
-        }
-        this.init();
-    }
-    /* Animator */
-    var animator = new function Animator() {
-        var self = this;
-        this.timer = null;
-        this.active = null;
-        this.methods = [];
-        this.tweenStep = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 9, 8, 7, 6, 5, 4, 3, 2];
-        this.frameCount = this.tweenStep.length;
-        this.start = function() {
-            if (self.active == true) return false;
-            self.active = true;
-            self.timer = window.setInterval(self.animate, 20);
-        }
-        this.stop = function() {
-            if (self.timer) {
-                window.clearInterval(self.timer);
-                self.timer = null;
-                self.active = false;
-            }
-        }
-        this.reset = function() {
-            self.methods = [];
-        }
-        this.addMethod = function(oMethod, oncomplete) {
-            for (var i = self.methods.length; i--;) {
-                if (self.methods[i] == oMethod) {
-                    if (oncomplete) {
-                        self.methods[i]._oncomplete = oncomplete;
-                    }
-                    return false;
-                }
-            }
-            self.methods[self.methods.length] = oMethod;
-            self.methods[self.methods.length - 1]._oncomplete = oncomplete || null;
-        }
-        this.createTween = function(start, end) {
-            var start = parseInt(start);
-            var end = parseInt(end);
-            var tweenStepData = self.tweenStep;
-            var tween = [start];
-            var tmp = start;
-            var diff = end - start;
-            var j = tweenStepData.length;
-            var isAscending = end > start;
-            for (var i = 0; i < j; i++) {
-                tmp += diff * tweenStepData[i] * 0.01;
-                tween[i] = parseInt(tmp);
-                if (isAscending) {
-                    if (tween[i] > end) tween[i] = end;
+                if (current) {
+                    self.move_slider_to(self.oParent.current.position);
+                    self.move_range_start_to(self.xRangeMin);
+                    self.move_range_end_to(self.xRangeMax);
                 } else {
-                    if (tween[i] < end) tween[i] = end;
+                    self.move_slider_to(self.xMin);
+                    self.move_range_start_to(self.xMin);
+                    self.move_range_end_to(self.xMax);
                 }
-            }
-            if (tween[i] != end) tween[i] = end;
-            return tween;
-        }
-        this.determineFrame = function(tStart, nInterval) {
-            var d = new Date();
-            return Math.min(self.frameCount, Math.floor(self.frameCount * ((new Date() - tStart) / (nInterval * self.frameCount))));
-        }
-        this.animate = function(e) {
-            if (!self.active) return false;
-            var active = false;
-            for (var i = self.methods.length; i--;) {
-                if (self.methods[i]) {
-                    if (self.methods[i]()) {
-                        active = true;
-                    } else {
-                        if (self.methods[i]._oncomplete) {
-                            self.methods[i]._oncomplete();
-                            self.methods[i]._oncomplete = null;
-                        }
-                        self.methods[i] = null;
+                if (self.oParent.current) {
+                    if (self.oParent.current.loaded) {
+                        self.update_time(self.oParent.current.duration);
+                    } else
+                    if (self.oParent.current.readyState == 1) {
+                        self.update_time(self.oParent.current.durationEstimate);
                     }
-                }
-            }
-            if (!active) {
-                self.stop();
-                self.reset();
-            }
-        }
-
-    }();
-    /* SPPlaylist */
-    function SPPlaylist(oSoundPlayer, oPlaylist) {
-        var self = this;
-        var oParent = oSoundPlayer;
-        var seamlessDelay = 0; // offset for justBeforeFinish
-        this.o = oPlaylist || null; // containing element
-        this.links = [];
-        this.items = [];
-        this.playlistItems = []; // pointer
-        this.playlistItemsUnsorted = [];
-        this.history = [];
-        this.index = -1;
-        this.lastIndex = null;
-        this.isVisible = false;
-        this.doAutoPlay = false;
-        this.doRepeat = false;
-        this._ignoreCurrentSound = false;
-        function get_sound_id(i) {
-            var id = "spsound" + i;
-            if (!soundManager.getSoundById(id)) {
-                createSound(id, i);
-            }
-            return id;
-        }
-        function createSound(id, i) {
-            try {
-                if (typeof id == 'number') {
-                    i = id;
-                    id = "spsound" + i; //hack
-                    if (! (i >= 0)) {
-                        return false;
-                    }
-                }
-                soundManager.createSound({
-                    'id': id,
-                    'url': self.items[i].url,
-                    'stream': true,
-                    'autoPlay': false,
-                    'onload': function() {
-                        oParent.onload.call(this);
-                    },
-                    'onid3': oParent.onid3,
-                    'onplay': oParent.onplay,
-                    'onpause': oParent.onpause,
-                    'onstop': oParent.onstop,
-                    'onresume': oParent.onresume,
-                    'whileloading': function() {
-                        oParent.whileloading.call(this);
-                    },
-                    'whileplaying': oParent.whileplaying,
-                    'onbeforefinishtime': 4000,
-                    'onbeforefinish': function() {
-                        self.onbeforefinish.call(this);
-                        oParent.onbeforefinish.call(this);
-                    },
-                    'onjustbeforefinishtime': 2000,
-                    'onjustbeforefinish': function() {
-                        self.onjustbeforefinish.call(this);
-                        oParent.onjustbeforefinish.call(this);
-                    },
-                    'onfinish': function() {
-                        self.onfinish.call(this);
-                        oParent.onfinish.call(this);
-                    },
-                    'onbeforefinishcomplete': function() {
-                        self.onbeforefinishcomplete.call(this);
-                        oParent.onbeforefinishcomplete.call(this);
-                    },
-                    'multiShot': false
-                });
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.resetArrays = function() {
-            try {
-                self.links = [];
-                self.items = [];
-                self.playlistItems = []; // pointer
-                self.playlistItemsUnsorted = [];
-                self.history = [];
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.resetMisc = function() {
-            try {
-                oParent.reset();
-                if (oParent.currentSound) {
-                    soundManager.stop(oParent.currentSound);
-                    soundManager.unload(oParent.currentSound);
-                }
-                oParent.lastSound = null;
-                oParent.currentSound = null
-                oParent.setPlayState(false);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.resetTemplate = function() {
-            try {
-                $('.track-list').html('<div class="hd">' + '<div class="l"></div>' + '<div class="c"></div>' + '<div class="r"></div>' + '</div>' + '<div class="bd">' + '<ul>' + '</ul>' + '</div>' + '<div class="ft">' + '<div class="c">' + '</div>' + '</div>');
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.findURL = function(sURL) {
-            try {
-                for (var i = self.items.length; i--;) {
-                    if (self.items[i].url == sURL) return true;
-                }
-                return false;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.addItem = function(oOptions) {
-            try {
-
-                var sURL = oOptions.url || null;
-                var sName = oOptions.name || null;
-                if (!sURL || self.findURL(sURL)) return false;
-                self.items[self.items.length] = {
-                    url: sURL,
-                    name: (sName || sURL.substr(sURL.lastIndexOf('/') + 1))
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.getCurrentItem = function() {
-            try {
-                return self.playlistItems[self.index];
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.resetSliders = function() {
-            oParent.oSMPlayer.moveRangeStartTo(oParent.oSMPlayer.xMin);
-            oParent.oSMPlayer.moveSliderTo(oParent.oSMPlayer.xMin);
-            oParent.oSMPlayer.moveRangeEndTo(oParent.oSMPlayer.xMax);
-        }
-        this.preloadCurrent = function(play) {
-            try {
-                var sound = soundManager.getSoundById(oParent.currentSound);
-                if (sound && (sound.readyState == 0)) {
-                    sound.load();
-                    oParent.oSMPlayer.updateTime(1);
-                }
-                if (sound && (sound.readyState == 1)) {
-                    oParent.oSMPlayer.updateTime(sound.durationEstimate);
-                }
-                if (sound && (sound.readyState == 3)) {
-                    oParent.oSMPlayer.updateTime(sound.duration);
-                }
-                if (play && sound && ((sound.readyState == 1) || (sound.readyState == 3))) {
-                    self.play(self.index);
                 } else {
-                    if (play && sound) {} else if (play && !sound) {}
+                    self.update_time(false);
                 }
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.preloadNext = function() {
-            try {
-                if ((self.index + 1) == self.items.length) {
-                    return false;
-                }
-                var id = get_sound_id(self.index + 1);
-                var sound = soundManager.getSoundById(id);
-                if (sound && ((sound.readyState == 0) || (sound.readyState == 2))) {
-                    sound.load();
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.first = function() {
-            try {
-                q.trigger('change-aya', 1);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.next = function() {
-            try {
-                if (self.doAutoPlay && (self.getAya() == self.items.length)) {
-                    q.trigger('change', 'next');
-                } else {
-                    quran.trigger('change-aya', 'next');
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.previous = function() {
-            try {
-                if (self.doAutoPlay && (self.getAya() == 1)) {
-                    q.trigger('change', 'prev');
-                } else {
-                    quran.trigger('change-aya', 'prev');
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.setHighlight = function(i) {
-            try {
-                if (self.playlistItems[i]) self.playlistItems[i].setHighlight();
-                if (self.lastIndex != null && self.lastIndex != i) {
-                    self.removeHighlight(self.lastIndex);
-                }
-                self.lastIndex = i;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.removeHighlight = function(i) {
-            try {
-                if (self.playlistItems[i]) self.playlistItems[i].removeHighlight();
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.selectAya = function(a) {
-            try {
-                var i = a - 1;
-                oParent.lastSound = oParent.currentSound;
-                oParent.currentSound = get_sound_id(i);
-                self.index = i;
-                self.setHighlight(i);
-                oParent.refreshDetails();
-
-                var last;
-                if (oParent.lastSound) {
-                    last = soundManager.getSoundById(oParent.lastSound);
-                }
-                if (last && last.playState) {
-                    last.stop();
-                    oParent.setPlayState(last.playState);
-                }
-                self.resetSliders();
-                var play;
-                if (self.doAutoPlay) {
-                    play = true;
-                } else {
-                    play = false;
-                }
-                self.preloadCurrent(play);
-                quran.trigger('change-aya',a);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.playAya = function(a) {
-            try {
-                var i = a - 1;
-                self.selectAya(a);
-                self.play(i);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.getAya = function() {
-            try {
-                var aya = self.index + 1;
-                if (!aya) {
-                    aya = q.get_state('aya').aya;
-                }
-                return aya;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.onbeforefinish = function() {
-            try {
-                self.preloadNext();
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.onjustbeforefinish = function() {
-            try {} catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.onfinish = function() {
-            try {
-                if (self.doAutoPlay) {
-                    self.next();
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.onbeforefinishcomplete = function() {
-            try {} catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleAutoPlay = function() {
-            try {
-                self.doAutoPlay = !self.doAutoPlay;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.toggleRepeat = function() {
-            try {
-                self.doRepeat = !self.doRepeat;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.displayTweens = null;
-        this.opacityTweens = [animator.createTween(90, 0), animator.createTween(0, 90)];
-        this.displayTween = null;
-        this.opacityTween = null;
-        this.widthTweens = null;
-        this.widthTween = null;
-        this.frame = 0;
-        this.setCoords = function(nHeight, nOpacity, nWidth) {
-            try {
-                self.o.style.marginTop = -nHeight + 'px';
-                if (!$.browser.msie) $(self.o).css({
-                    opacity: nOpacity / 100
-                });
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.clearPlaylist = function() {
-            try {
-                var sID;
-                for (var i = 0,
-                j = self.items.length; i < j; i++) {
-                    sID = 'spsound' + i;
-                    soundManager.destroySound(sID);
-                }
-                self.resetArrays();
-                self.resetMisc();
-                self.resetTemplate();
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.createPlaylist = function() {
-            try {
-                for (var i = 0,
-                j = self.items.length; i < j; i++) {
-                    self.playlistItems[i] = new SPPlaylistItem(self.links[i], self, i);
-                }
-                self.playlistItemsUnsorted = smUtils.copy(self.playlistItems);
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.searchForSoundLinks = function(oContainer) {
-            try {
-                var o = oContainer || document.body;
-                if (!o) return false;
-                self.links = [];
-                function get_url(index) {
-                    function get_data(index) {
-                        var sura, aya;
-                        id = parseInt(index);
-                        for (var i = 1; i < (q.data.sura.length - 1); i++) {
-                            if (q.data.sura[i + 1][0] >= id) {
-                                sura = i;
-                                aya = id - q.data.sura[i][0];
-                                break;
-                            }
-                        }
-                        if (id && sura && aya) {
-                            return {
-                                id: id,
-                                sura: sura,
-                                aya: aya
-                            };
-                        } else {
-                            return {
-                                id: 1,
-                                sura: 1,
-                                aya: 1
-                            };
-                        }
-                    }
-                    function get_name(sura, aya) {
-                        var prepend;
-                        sura = sura.toString();
-                        aya = aya.toString();
-                        prepend = '';
-                        for (var i = sura.length; i < 3; i++) {
-                            prepend = prepend.concat('0');
-                        }
-                        sura = prepend.concat(sura);
-                        prepend = '';
-                        for (var i = aya.length; i < 3; i++) {
-                            prepend = prepend.concat('0');
-                        }
-                        aya = prepend.concat(aya);
-                        return sura + aya + '.mp3';
-                    }
-                    var data = get_data(index);
-                    var name = get_name(data.sura, data.aya);
-                    var mirror = q.get_random_mirror();
-                    var recitor = q.get_state('recitor').path;
-                    var url = mirror + recitor + '/' + name;
-                    return url;
-                }
-                var ayas = $('option.aya');
-                $.each(ayas,
-                function(i, item) {
-                    self.links[self.links.length] = item;
-                    self.addItem({
-                        url: get_url(item.value)
-                    });
-                });
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.load = function(i) {
-            try {
-                var sID = 'spsound' + i;
-                var s = soundManager.getSoundById(sID, true);
-                if (s) {
-                    var thisOptions = {
-                        'autoPlay': false,
-                        'url': s.url,
-                        'stream': true
-                    }
-                    s.load(thisOptions);
-                } else {
-                    createSound(i);
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.play = function(i) {
-            try {
-                if (i === undefined) {
-                    i = self.getAya() - 1;
-                    createSound(i);
-                }
-                if (!self.items[i]) {
-                    return false;
-                }
-                var sID = 'spsound' + i;
-                var exists = false;
-                if (oParent.currentSound) {
-                    if (!self._ignoreCurrentSound) {
-                        soundManager.stop(oParent.currentSound);
-                        soundManager.unload(oParent.currentSound);
-                    } else {
-                        self._ignoreCurrentSound = false;
-                    }
-                }
-                if (!soundManager.getSoundById(sID, true)) {
-                    createSound(i);
-                } else {
-                    exists = true;
-                }
-                oParent.refreshDetails(sID);
-                oParent.lastSound = oParent.currentSound;
-                oParent.currentSound = sID;
-                oParent.reset();
-                oParent.setLoading(true);
-                soundManager.play(sID);
-                oParent.setPlayState(true);
-                if (oParent.options.allowBookmarking) window.location.hash = 'track=' + encodeURI(self.items[i].url.substr(self.items[i].url.lastIndexOf('/') + 1));
-                if (exists) {
-                    var s = soundManager.getSoundById(sID);
-                    oParent.setMetaData(s);
-                    if (s.loaded) {
-                        oParent.onload.apply(s);
-                    }
-                }
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.init = function() {
-            try {
-                self.o = $('.track-list')[0];
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.init();
-    }
-    /* SPPlaylistItem */
-    function SPPlaylistItem(oLink, oPlaylist, nIndex) {
-        var self = this;
-        var oParent = oPlaylist;
-        this.index = nIndex;
-        this.origIndex = nIndex;
-        this.userTitle = oLink.innerHTML;
-        var sURL = oParent.items[this.index].url;
-        this.o = document.createElement('li');
-        if (nIndex % 2 == 0) {
-            this.o.className = 'alt';
-        }
-        this.o.innerHTML = '<a href="' + sURL + '"><span></span></a>';
-        this.o.getElementsByTagName('span')[0].innerHTML = this.userTitle;
-        this.setHighlight = function() {
-            $(self.o).addClass('highlight');
-        }
-        this.removeHighlight = function() {
-            $(self.o).removeClass('highlight');
-        }
-        this.setTooltip = function(sHTML) {
-            self.o.title = sHTML;
-        }
-        this.onclick = function() {
-            try {
-                oParent.selectAya(self.index + 1);
-                oParent.play(self.index);
-                return false;
-            } catch(e) {
-                q.d.bug(e);
-            }
-        }
-        this.init = function() {
-            $('.track-list .bd ul').append($(self.o));
-            self.o.onclick = self.onclick;
-        }
-        this.init();
+        this.oSlider.onmousedown = this.slider_down;
+        this.oRangeStart.onmousedown = this.range_start_down;
+        this.oRangeEnd.onmousedown = this.range_end_down;
+        this.oBar.onmousedown = this.bar_down;
+        this.oBar.onclick = this.bar_click;
     }
     /* SoundPlayer */
     function SoundPlayer() {
         var self = this;
-        this.urls = []; // will get from somewhere..
-        this.currentSound = null; // current sound ID (offset/count)
-        this.lastSound = null;
-        this.oPlaylist = null;
+        this.current = null; // current sound ID (offset/count)
+        this.last = null;
         this.oSMPlayer = null;
-        this.playState = 0;
+        this.playing = false;
         this.paused = false;
-        this._mode1 = null;
-        this._mode2 = null;
+        this.auto = false;
+        this.repeat = false;
+        this.mute = false;
         this.options = {
-            allowScrub: true,
-            scrubThrottle: false,
-            allowBookmarking: false,
-            usePageTitle: false,
-            hashPrefix: 'track='
-        }
-        this.toggleRecitorList = function() {
-            $('.recitor-list').toggle();
+            allow_scrub: true,
+            scrob_throttle: false
         }
         this.reset = function() {
             try {
@@ -1990,22 +1144,23 @@ $.fn.player = function(config) {
         }
         this.whileloading = function() {
             try {
-                if (this.sID != self.currentSound) return false;
-                self.oSMPlayer.setLoadingProgress(Math.max(0, this.bytesLoaded / this.bytesTotal));
-                self.oSMPlayer.getTimeEstimate(this);
+                if (this.sID != self.current.sID) {
+                    return false;
+                }
+                var progress = Math.max(0, this.bytesLoaded / this.bytesTotal);
+                self.oSMPlayer.set_progress(progress);
             } catch(e) {
                 q.d.bug(e);
             }
         }
         this.onload = function() {
             try {
-                if (this.sID != self.currentSound) {
+                if (this.sID != self.current.sID) {
                     return false;
                 }
-                self.oSMPlayer.setLoadingProgress(1);
-                self.setMetaData(this);
-                self.oSMPlayer.setLoading(false);
-                self.oSMPlayer.updateTime(this.duration);
+                q.d.bug('onload');
+                self.oSMPlayer.set_progress(1);
+                self.oSMPlayer.update_time(this.duration);
 
             } catch(e) {
                 q.d.bug(e);
@@ -2013,10 +1168,9 @@ $.fn.player = function(config) {
         }
         this.onid3 = function() {
             try {
-                if (this.sID != self.currentSound) {
+                if (this.sID != self.current.sID) {
                     return false;
                 }
-                self.setMetaData(this);
             } catch(e) {
                 q.d.bug(e);
             }
@@ -2034,20 +1188,21 @@ $.fn.player = function(config) {
         this.onresume = function() {
             try {
                 if (self.oSMPlayer.x >= self.oSMPlayer.xRangeEnd) {
-                    self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-                    self.onUserSetSlideValue(self.oSMPlayer.xRangeStart);
-                    self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+                    self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeStart);
+                    self.set_position(self.oSMPlayer.xRangeStart);
+                    self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
                 }
             } catch(e) {
                 q.d.bug(e);
             }
         }
         this.onplay = function() {
+            q.d.bug('onplay');
             try {
                 if (self.oSMPlayer.xRangeStart != self.oSMPlayer.xMin) {
-                    self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-                    self.onUserSetSlideValue(self.oSMPlayer.xRangeStart);
-                    self.oSMPlayer.updateTime(self.oSMPlayer.xRangeStart);
+                    self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeStart);
+                    self.set_position(self.oSMPlayer.xRangeStart);
+                    self.oSMPlayer.update_time(self.oSMPlayer.xRangeStart);
                 }
             } catch(e) {
                 q.d.bug(e);
@@ -2055,33 +1210,35 @@ $.fn.player = function(config) {
         }
         this.whileplaying = function() {
             try {
-                if (this.sID != self.currentSound) return false;
+                if (this.sID != self.current.sID) { 
+                    return false;
+                }
                 self.duration = (!this.loaded ? this.durationEstimate: this.duration); // use estimated duration until completely loaded
                 if (this.position > self.duration) return false; // can happen when resuming from an unloaded state?
                 var newPos = Math.floor(this.position / self.duration * self.oSMPlayer.xMax);
                 if (Math.abs(this.position - self.oSMPlayer.lastTime) >= 1000) {
-                    self.oSMPlayer.updateTime(this.position);
+                    self.oSMPlayer.update_time(this.position);
                 }
                 if (newPos != self.oSMPlayer.x) { // newPos > self.oSMPlayer.x
                     if ((newPos >= self.oSMPlayer.xRangeStart) && (newPos <= self.oSMPlayer.xRangeEnd)) {
                         if (!self.oSMPlayer.busy) {
-                            self.oSMPlayer.moveSliderTo(newPos);
+                            self.oSMPlayer.move_slider_to(newPos);
                         }
                     } else if ((!self.oSMPlayer.rangeBusy) && (!self.oSMPlayer.busy)) {
                         if (newPos <= self.oSMPlayer.xRangeStart) {
-                            self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-                            self.onUserSetSlideValue(self.oSMPlayer.xRangeStart);
-                            self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+                            self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeStart);
+                            self.set_position(self.oSMPlayer.xRangeStart);
+                            self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
                         } else if (newPos >= self.oSMPlayer.xRangeEnd) {
-                            if (self.oPlaylist.doRepeat) {
-                                self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-                                self.onUserSetSlideValue(self.oSMPlayer.xRangeStart);
-                                self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+                            if (self.repeat) {
+                                self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeStart);
+                                self.set_position(self.oSMPlayer.xRangeStart);
+                                self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
                             } else {
-                                self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
-                                self.onUserSetSlideValue(self.oSMPlayer.xRangeEnd);
-                                self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
-                                self.togglePause(); // (because onfinish never fires)
+                                self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeEnd);
+                                self.set_position(self.oSMPlayer.xRangeEnd);
+                                self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
+                                self.toggle_pause(); // (because onfinish never fires)
                             }
                         }
                     }
@@ -2092,9 +1249,7 @@ $.fn.player = function(config) {
             }
         }
         this.onbeforefinish = function() {
-            try {} catch(e) {
-                q.d.bug(e);
-            }
+            self.preload_next();
         }
         this.onjustbeforefinish = function() {
             try {} catch(e) {
@@ -2103,16 +1258,16 @@ $.fn.player = function(config) {
         }
         this.onfinish = function() {
             try {
-                if (self.oPlaylist.doRepeat) {
-                    if (!self.oPlaylist.doAutoPlay) {
-                        self.togglePause();
+                if (self.repeat) {
+                    if (!self.auto) {
+                        self.toggle_pause();
                     }
-                    self.onUserSetSlideValue(self.oSMPlayer.xRangeStart);
-                    self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeStart);
-                    self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
+                    self.set_position(self.oSMPlayer.xRangeStart);
+                    self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeStart);
+                    self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeStart / self.oSMPlayer.xMax * self.duration));
                 } else {
-                    self.oSMPlayer.moveSliderTo(self.oSMPlayer.xRangeEnd);
-                    self.oSMPlayer.updateTime(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
+                    self.oSMPlayer.move_slider_to(self.oSMPlayer.xRangeEnd);
+                    self.oSMPlayer.update_time(Math.floor(self.oSMPlayer.xRangeEnd / self.oSMPlayer.xMax * self.duration));
 
                 }
             } catch(e) {
@@ -2121,86 +1276,310 @@ $.fn.player = function(config) {
         }
         this.onbeforefinishcomplete = function() {
             try {
-                if (sm.getSoundById(self.currentSound).playState == 0) {
-                    self.setPlayState(0);
-                    if (self.oPlaylist.doRepeat && self.oPlaylist.doAutoPlay && (self.oPlaylist.getAya() == self.oPlaylist.items.length)) {
-                        self.oPlaylist.first();
-                    } else if (self.oPlaylist.doAutoPlay && (self.oPlaylist.getAya() == self.oPlaylist.items.length)) {
-                        self.oPlaylist.next();
+                self.set_playing(self.current.playState);
+                q.d.bug(2165,'onbeforefinishcomplete');
+                if (self.current.playState == 0) {
+                    q.d.bug(2167,'onbeforefinishcomplete');
+                    self.set_playing(0);
+                    if (self.repeat && self.auto && (self.get_aya() == self.get_last_aya())) {
+                        q.d.bug(2176,'onbeforefinishcomplete');
+                        self.first();
+                    } else if (self.auto) {
+                        q.d.bug(2179,'onbeforefinishcomplete');
+                        self.next();
                     }
                 }
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.onUserSetSlideValue = function(nX) {
+        this.set_position = function(nX) {
             try {
                 var x = parseInt(nX);
-                var s = soundManager.sounds[self.currentSound];
-                if (!s) return false;
+                var s = self.current;
+                if (!s) {
+                    return false;
+                }
                 var nMsecOffset = Math.floor(x / self.oSMPlayer.xMax * s.durationEstimate);
-                soundManager.setPosition(self.currentSound, nMsecOffset);
+                self.current.setPosition(nMsecOffset);
+                self.oSMPlayer.update_time(self.current.position);
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.setTitle = function(sTitle) {
+        this.set_title = function(sTitle) {
             var title = (typeof sTitle == 'undefined' ? 'Untitled': sTitle);
-            self.oSMPlayer.setTitle(title);
-            self.oSMPlayer.refreshScroll();
+            self.oSMPlayer.set_title(title);
         }
-        this.setMetaData = function(oSound) {
-            self.oSMPlayer.setMetaData(oSound);
+        this.set_playing = function(bPlaying) {
+            self.playing = bPlaying;
+            self.oSMPlayer.set_playing(bPlaying);
         }
-        this.setLoading = function(bLoading) {
-            self.oSMPlayer.setLoading(bLoading);
+        this.volume_down = function(e) {
+            self.oSMPlayer.volume_down(e);
         }
-        this.setPlayState = function(bPlaying) {
-            self.playState = bPlaying;
-            self.oSMPlayer.setPlayState(bPlaying);
-        }
-        this.refreshDetails = function(sID) {
-            self.setTitle(self.oPlaylist.getCurrentItem().userTitle);
-        }
-        this.volumeDown = function(e) {
-            self.oSMPlayer.volumeDown(e);
-        }
-        this.togglePause = function() {
+        this.toggle_pause = function() {
             try {
-                self.oSMPlayer.togglePause();
+                if (!self.last || (self.current.sID == self.last.sID)) {
+                    self.current.togglePause();
+                    self.paused = self.current.paused;
+                    self.oSMPlayer.set_playing(!self.paused);
+                } else {
+                    self.set_aya();
+                    self.play_aya();
+                }
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.toggleAutoPlay = function() {
-            self.oSMPlayer.toggleAutoPlay();
+        this.toggle_auto = function() {
+            self.auto = !self.auto;
+            self.oSMPlayer.setAutoPlay(self.auto);
         }
-        this.toggleRepeat = function() {
-            self.oSMPlayer.toggleRepeat();
+        this.toggle_repeat = function() {
+            self.repeat = !self.repeat;
+            self.oSMPlayer.setRepeat(self.repeat);
         }
-        this.toggleMute = function() {
-            self.oSMPlayer.toggleMute();
+        this.toggle_mute = function() {
+            self.mute = !self.mute;
+            if (self.mute) {
+                soundManager.mute();
+            } else {
+                soundManager.unmute();
+            }
+            self.oSMPlayer.setMute(self.mute);
         }
-        this.toggleMore = function() {
+        this.toggle_recitors = function() {
             try {
                 $('.more-options').toggle();
             } catch(e) {
                 q.d.bug(e);
             }
         }
-        this.init = function() {
-            self.oSMPlayer = new SMPlayer(self);
-        }
-    }
+        this.first = function() {
+            q.d.bug(2260,'first');
+            try {
+                q.trigger('change-aya', 1);
+            } catch(e) {
+                q.d.bug(e);
+            }
+        };
+        this.next = function() {
+            q.d.bug(2268,'next');
+            try {
+                if (self.auto && (self.get_aya() == self.get_last_aya())) {
+                    q.trigger('change', 'next');
+                } else {
+                    quran.trigger('change-aya', 'next');
+                }
+            } catch(e) {
+                q.d.bug(e);
+            }
+        };
+        this.previous = function() {
+            q.d.bug(2280,'previous');
+            try {
+                if (self.auto && (self.get_aya() == 1)) {
+                    q.trigger('change', 'prev');
+                } else {
+                    quran.trigger('change-aya', 'prev');
+                }
+            } catch(e) {
+                q.d.bug(e);
+            }
+        };
+        this.preload_next = function() {
+            q.d.bug('preload next');
+            if (self.get_aya() == self.get_last_aya()) {
+                return false;
+            }
+            var id = self.get_id(self.get_aya() + 1);
+            if (sm.getSoundById(id)) {
+                return false;
+            }
+            q.d.bug('preloading next');
+            self.load_aya(self.get_aya() + 1);
+        };
+        this.get_id = function(a,filename) {
+            if (!a) {
+                a = self.get_aya();
+            }
+            var aya = a.toString();
+            var sura = self.get_sura().toString();
+            var zeros = '';
+            for (var i = sura.length; i < 3; i++) {
+                zeros = zeros.concat('0');
+            }
+            sura = zeros.concat(sura);
+            zeros = '';
+            for (var i = aya.length; i < 3; i++) {
+                zeros = zeros.concat('0');
+            }
+            aya = zeros.concat(aya);
 
+            if (!filename) {
+                return self.get_recitor().id + ':' + sura + aya + '.mp3';
+            } else {
+                return sura + aya + '.mp3';
+            }
+        };
+        this.get_url = function(a) {
+            if (!a) {
+                a = self.get_aya();
+            }
+            return q.get_random_mirror() + self.get_recitor().path + self.get_id(a,true);
+        };
+        this.load_aya = function(a) {
+            var sound = sm.getSoundById(self.get_id(a), true);
+            if (!sound) {
+                sound = sm.createSound({
+                    'id': a? self.get_id(a) : self.get_id(),
+                    'url': a? self.get_url(a) : self.get_url(),
+                    'stream': true,
+                    'autoLoad': true,
+                    'autoPlay': false,
+                    'multiShot': false,
+                    'onid3': self.onid3,
+                    'onload': self.onload,
+                    'onplay': self.onplay,
+                    'onpause': self.onpause,
+                    'onresume': self.onresume,
+                    'onstop': self.onstop,
+                    'whileloading': self.whileloading,
+                    'whileplaying': self.whileplaying,
+                    'onjustbeforefinish': self.onjustbeforefinish,
+                    'onbeforefinish': self.onbeforefinish,
+                    'onfinish': self.onfinish,
+                    'onbeforefinishcomplete': self.onbeforefinishcomplete,
+                    'onjustbeforefinishtime': 2000,
+                    'onbeforefinishtime': 4000
+                });
+            }
+            return sound;
+        };
+        this.set_aya = function(a) {
+            q.d.bug('set_aya');
+            if (!a) {
+                a = self.get_aya();
+            }
+            self.last = self.current;
+            var id = self.get_id(a);
+            var sound = sm.getSoundById(id);
+            if (!sound) {
+                self.current = self.load_aya(a);
+            } else {
+                self.current = sound;
+            }
+            // debug
+            window.sound = self.current;
+            window.player = self;
+            // end debug
+            if (self.last && self.last.playState) {
+                self.last.stop();
+                self.set_playing(self.last.playState);
+            }
+            self.reset(true);
+            if (self.auto) {
+                if ((self.current.readyState == 1) || (self.current.readyState == 3)) {
+                    self.play_aya();
+                } else {
+                    self.current._onload = self.play_aya;
+                }
+            }
+            q.trigger('change-aya', a);
+        };
+        this.play_aya = function() {
+            self.set_playing(true);
+            self.current.play();
+        };
+        this.get_aya = function() {
+            try {
+                return q.get_state('aya').aya;
+            } catch(e) {
+                q.d.bug(e);
+            }
+        };
+        this.get_sura = function() {
+            try {
+                return q.get_state('aya').sura;
+            } catch(e) {
+                q.d.bug(e);
+            }
+        };
+        this.get_recitor = function() {
+            return q.get_state('recitor');
+        };
+        this.set_recitor = function(recitor) {
+            q.set_state('recitor', recitor);
+            self.set_aya();
+            return self.get_recitor();
+        };
+        this.get_last_aya = function() {
+            try {
+                return q.data.sura[self.get_sura()][1];
+            } catch(e) {
+                q.d.bug(e);
+            } 
+        };
+        this.init = function() {
+            q.d.bug('init!');
+            self.oSMPlayer = new SMPlayer(self);
+            function foo_bar(bar_width) {
+                if (!bar_width) {
+                    return false;
+                }
+                $(self.oSMPlayer.oBar).width(bar_width);
+                $(self.oSMPlayer.oSplitPoints).width(bar_width);
+                self.oSMPlayer._xMax = self.oSMPlayer.xMax;
+                self.oSMPlayer.barWidth = self.oSMPlayer.oBar.offsetWidth;
+                self.oSMPlayer.xMax = self.oSMPlayer.barWidth - self.oSMPlayer.oSlider.offsetWidth;
+                var growth = self.oSMPlayer.xMax / self.oSMPlayer._xMax;
+                self.oSMPlayer.move_split_points_after_resize(growth);
+                var loaded = Math.ceil(self.oSMPlayer.xMaxLoaded * growth);
+                self.oSMPlayer.xMaxLoaded = (loaded > self.oSMPlayer.xMax) ? self.oSMPlayer.xMax: loaded;
+                var result = {
+                    growth: growth,
+                    x: self.oSMPlayer.x * growth,
+                    start: self.oSMPlayer.xRangeStart * growth,
+                    end: self.oSMPlayer.xRangeEnd * growth
+                };
+                self.oSMPlayer.move_slider_to(result.x);
+                self.oSMPlayer.move_range_start_to(result.start);
+                self.oSMPlayer.move_range_end_to(result.end);
+            }
+            $(self.oSMPlayer.oMain).resizable({
+                handles: 'e,w',
+                helper: 'proxy',
+                transparent: true,
+                stop: function(ev, ui) {
+                    var bar_width = ui.size.width - 179;
+                    foo_bar(bar_width);
+                }
+            });
+            self.set_aya();
+            q.bind('aya-changed', function() {
+                q.d.bug('aya-changed');
+                self.set_aya();
+            });
+            q.bind('sura-changed', function() {
+                q.d.bug('sura-changed');
+                self.set_aya();
+            });
+        };
+    }
     return this.each(function() {
         var o = $(this);
 
         var template = $(
             '<div class="player">' +
+                '<div class="split-points">' +
+                    '<div class="left"></div>' +
+                    '<div class="mid"></div>' +
+                    '<div class="right"></div>' +
+                '</div>' +
                 '<div class="ui">' +
                     '<div class="left">' +
-                        //'<a href="#" title="Pause/Play" onclick="quran.player.togglePause();return false" class="trigger pauseplay"><span></span></a>' +
+                        //'<a href="#" title="Pause/Play" onclick="quran.player.toggle_pause();return false" class="trigger pauseplay"><span></span></a>' +
                     '</div>' +
                     '<div class="mid">' +
                         '<div class="progress"></div>' +
@@ -2214,156 +1593,111 @@ $.fn.player = function(config) {
                     '</div>' +
                     '<div class="right">' +
                         '<div class="divider"></div>' +
-                        '<div class="time" title="Time">0:00</div>' +
+                        '<div class="time" title="Time">-:--</div>' +
                         //'<a href="#" title="Previous" class="trigger prev" onclick="quran.player.oPlaylist.previous();return false"><span></span></a>' +
                         //'<a href="#" title="Next" class="trigger next" onclick="quran.player.oPlaylist.next();return false"><span></span></a>' +
-                        //'<a href="#" title="Auto-Play/Continuous" class="trigger s1 autoplay" onclick="quran.player.toggleAutoPlay();return false"><span></span></a>' +
-                        //'<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggleRepeat();return false"><span></span></a>' +
-                        //'<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggleMute();return false"><span></span></a>' +
-                        //'<a href="#" title="Volume" onmousedown="quran.player.volumeDown(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
+                        //'<a href="#" title="Auto-Play/Continuous" class="trigger s1 autoplay" onclick="quran.player.toggle_auto();return false"><span></span></a>' +
+                        //'<a href="#" title="Repeat" class="trigger s2 loop" onclick="quran.player.toggle_repeat();return false"><span></span></a>' +
+                        //'<a href="#" title="Mute" class="trigger s3 mute" onclick="quran.player.toggle_mute();return false"><span></span></a>' +
+                        //'<a href="#" title="Volume" onmousedown="quran.player.volume_down(event);return false" onclick="return false" class="trigger s4 volume"><span></span></a>' +
                         //'<a href="#" class="trigger help" onmousedown="alert(\'hi\');return false" onclick="return false;"><span></span></a>' +
-                        //'<a href="#" title="More..." class="trigger dropdown" onclick="quran.player.toggleMore();return false"><span></span></a>' +
+                        //'<a href="#" title="More..." class="trigger dropdown" onclick="quran.player.toggle_recitors();return false"><span></span></a>' +
                     '</div>' +
                 '</div>' +
                 '<div class="more-options" style="display: none;">' +
-                    '<div class="title">Recitor</div>' +
-                    '<div class="body recitor-list">' +
+                    '<div class="recitor-list">' +
                         '<ul>' +
                         '</ul>' +
                     '</div>' +
-                    '<div class="title">Playlist</div>' +
-                        '<div class="body track-list">' +
-                        '<ul>' +
+                    /*
+                    '<div class="title" style="display: none;">Playlist</div>' +
+                        '<div class="body track-list" style="display: none;">' +
+                        '<ul style="display: none;">' +
                         '</ul>' +
                     '</div>' +
+                    */
                 '</div>' +
             '</div>'
         );
 
         var pauseplay = $('<a href="#" title="Pause/Play" class="trigger pauseplay"><span></span></a>').click(function() {
-            o.player.togglePause();
+            o.player.toggle_pause();
             return false;
         });
-        template.find('div.left').append(pauseplay);
+        template.find('div.ui>div.left').append(pauseplay);
         var previous = $('<a href="#" title="Previous" class="trigger prev"><span></span></a>').click(function() {
-            o.player.oPlaylist.previous();
+            o.player.previous();
             return false;
         });
-        template.find('div.right').append(previous);
+        template.find('div.ui>div.right').append(previous);
         var next = $('<a href="#" title="Next" class="trigger next"><span></span></a>').click(function() {
-            o.player.oPlaylist.next();
+            o.player.next();
             return false;
         });
-        template.find('div.right').append(next);
+        template.find('div.ui>div.right').append(next);
         var autoplay = $('<a href="#" title="Auto-Play/Continuous" class="trigger s1 autoplay"><span></span></a>').click(function() {
-            o.player.toggleAutoPlay();
+            o.player.toggle_auto();
             return false;
         });
-        template.find('div.right').append(autoplay);
+        template.find('div.ui>div.right').append(autoplay);
         var repeat = $('<a href="#" title="Repeat" class="trigger s2 loop"><span></span></a>').click(function() {
-            o.player.toggleRepeat();
+            o.player.toggle_repeat();
             return false;
         });
-        template.find('div.right').append(repeat);
+        template.find('div.ui>div.right').append(repeat);
         var mute = $('<a href="#" title="Mute" class="trigger s3 mute"><span></span></a>').click(function() {
-            o.player.toggleMute();
+            o.player.toggle_mute();
             return false;
         });
-        template.find('div.right').append(mute);
+        template.find('div.ui>div.right').append(mute);
         var volume = $('<a href="#" title="Volume" class="trigger s4 volume"><span></span></a>').mousedown(function(ev) {
-            o.player.volumeDown(ev);
+            o.player.volume_down(ev);
             return false;
         }).click(function() {
             return false;
         });
-        template.find('div.right').append(volume);
+        template.find('div.ui>div.right').append(volume);
         var help = $('<a href="#" class="trigger help"><span></span></a>').click(function() {
             return false;
         });
-        template.find('div.right').append(help);
+        template.find('div.ui>div.right').append(help);
         var more = $('<a href="#" title="More..." class="trigger dropdown"><span></span></a>').click(function() {
-            o.player.toggleMore();
+            o.player.toggle_recitors();
             return false;
         });
-        template.find('div.right').append(more);
+        template.find('div.ui>div.right').append(more);
 
         o.append(template);
+        
+        $.each(quran.config.recitors, function(i,recitor) {
+            var li = $('<li class="'+ ((i%2 == 0)? 'alt' : '') +'">');
+            var a = $('<a href="#" onclick="return false;"><span>'+ recitor.name +'</span></a>')
+                .mousedown(function() {
+                    o.player.set_recitor(recitor);
+                })
+                .appendTo(li);
+            ;
+            o.find('.recitor-list>ul')
+                .append(li)
+            ;
+        });
 
         o.player = new SoundPlayer();
-
-        var sura_set, init_stuff;
-
-        function initStuff() {
-            q.d.bug('player initialized');
-            o.player.init(); // load mp3, etc.
-            o.player.oPlaylist = new SPPlaylist(o.player, null);
-
-            if (sura_set) {
-                var playlist = o.player.oPlaylist;
-                playlist.clearPlaylist();
-                playlist.searchForSoundLinks();
-                playlist.createPlaylist();
-            }
-
-            init_stuff = true;
-        }
-
-        var aya = 1;
-
-        q.bind('sura-set',
-        function() {
-            if (init_stuff) {
-                var playlist = o.player.oPlaylist;
-                try {
-                    playlist.clearPlaylist();
-                    playlist.searchForSoundLinks();
-                    playlist.createPlaylist();
-                } catch(e) {
-                    q.d.bug(e);
-                }
-            }
-
-            sura_set = true;
-        });
-
-        q.bind('aya-changed',
-        function(ev, aya) {
-            o.player.oPlaylist.selectAya(aya)
-        });
-
         q.bind('application-state-restored',
-        function() {
-            aya = q.get_state('aya').aya;
+        function(ev, state) {
+            if (q._sound_ready) {
+                o.player.init();
+            }
+            q._state_restored = true;
         });
-
-        q.bind('sound-ready',
-        function() {
-            initStuff();
+        q.bind('sm-onload', function() {
+            if (q._state_restored) {
+                o.player.init();
+            }
+            q._sound_ready = true;
         });
     });
-    /*
-            function make_recitor_list() {
-                for (var i=0; i < quran.config.recitors.length; i++) {
-                    var recitor = $(
-                        '<li class="'+ ((i%2 == 0)? 'alt' : '') +'">' +
-                            '<a href="#" onmousedown="quran.player.set_recitor(\''+ quran.config.recitors[i][1] +'\'); return false;" onclick="return false;">' + 
-                                '<span>' + 
-                                    quran.config.recitors[i][0] +
-                                '</span>' + 
-                            '</a>' +
-                        '</li>'
-                    );
-                    $('.recitor-list>ul')
-                        .append(recitor)
-                    ;
-                }
-            }
-            make_recitor_list();
-    */
 };
-    
-
-
 $.extend(sm, {
     url: 'res/ui/swf/',
     flashVersion: (window.location.toString().match(/flash9/) ? 9 : 8),
@@ -2374,17 +1708,18 @@ $.extend(sm, {
         stream: true
     },
     onload: function() {
-        quran.trigger('sound-ready');
+        q.trigger('sm-onload');
     }
-});
+}); 
 
-quran.bind('sound-ready', function() {
-    q.d.bug('sound-ready fired');
-});
+
 
 $(document).ready(function() {
     $('#player').player({
     });
+});
+$(window).load(function() {
+
 });
 })(jQuery);
 })(quran);
