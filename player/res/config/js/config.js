@@ -24,12 +24,12 @@
         // todo: extract recitors to a similar script which recurses the directories and finds
         // complete verse-by-verse mp3s
         recitors: [ // [name, path]
-            { id: 0, name: 'Muhamad Ayyoub', path: 'Muhammad_Ayyoub_128kbps/' },
-            { id: 1, name: 'Hudhaify', path: 'Hudhaify_128kbps/' },
-            { id: 2, name: 'Alafasy', path: 'Alafasy_128kbps/' },
-            { id: 3, name: 'Abdullah Basfar', path: 'Abdullah_Basfar_192kbps/' },
-            { id: 4, name: 'Abu Bakr Ash-Shatree', path: 'Abu%20Bakr%20Ash-Shaatree_128kbps/' },
-            { id: 5, name: 'Abdul Basit Murattal', path: 'Abdul_Basit_Murattal_192kbps/' }
+            { id: 0, name: 'Abdul Basit Murattal', path: 'Abdul_Basit_Murattal_192kbps/' },
+            { id: 1, name: 'Abu Bakr Ash-Shatree', path: 'Abu%20Bakr%20Ash-Shaatree_128kbps/' },
+            { id: 2, name: 'Muhamad Ayyoub', path: 'Muhammad_Ayyoub_128kbps/' },
+            { id: 3, name: 'Hudhaify', path: 'Hudhaify_128kbps/' },
+            { id: 4, name: 'Alafasy', path: 'Alafasy_128kbps/' },
+            { id: 5, name: 'Abdullah Basfar', path: 'Abdullah_Basfar_192kbps/' }
         ]
     });
 

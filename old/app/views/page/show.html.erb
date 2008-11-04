@@ -1,0 +1,10 @@
+<% @page_verses['verses'].each do |verse| %>
+    <%= verse.content %>
+    (<%= verse.verse_number %>)
+    <%#= verse.sajdah_wajib %>
+    <%#= verse.sajdah_mustahib %>
+<% end %>
+<br/>
+<br/>
+<br/>
+<%= @page_verses['page'].page_id %>

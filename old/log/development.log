@@ -1,0 +1,134 @@
+# Logfile created on Mon Aug 04 18:18:45 +0000 2008
+
+Processing QuranController#index (for  at 2008-08-04 18:18:45) [GET]
+  Session ID: 8eb73510d01955a2913ff5f453e687da
+  Parameters: {"action"=>"index", "controller"=>"quran"}
+  [4;36;1mSQL (0.000132)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000069)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+Rendering template within layouts/application
+Rendering quran/index
+Completed in 0.12388 (8 reqs/sec) | Rendering: 0.12167 (98%) | DB: 0.00020 (0%) | 200 OK [http://:]
+  [4;36;1mSQL (0.000127)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000057)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000000)[0m   [0;1mIRB::Abort: abort then interrupt!!: select verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2[0m
+  [4;35;1mVerse Load (0.000930)[0m   [0mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;36;1mVerse Columns (0.000699)[0m   [0;1mSHOW FIELDS FROM `verse`[0m
+  [4;35;1mSQL (0.048325)[0m   [0mSHOW TABLES[0m
+  [4;36;1mRendition Columns (0.000578)[0m   [0;1mSHOW FIELDS FROM `rendition`[0m
+  [4;35;1mSQL (0.000265)[0m   [0mSHOW TABLES[0m
+  [4;36;1mRendition Columns (0.000524)[0m   [0;1mSHOW FIELDS FROM `rendition`[0m
+  [4;35;1mSQL (0.000275)[0m   [0mSHOW TABLES[0m
+  [4;36;1mRendition Columns (0.000515)[0m   [0;1mSHOW FIELDS FROM `rendition`[0m
+  [4;35;1mVerse Load (0.022304)[0m   [0mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=2[0m
+  [4;36;1mVerse Load (0.000832)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Load (0.000905)[0m   [0mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=1 and verse.chapter_id=1[0m
+  [4;36;1mVerse Load (0.000800)[0m   [0;1mselect verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=1 and verse.chapter_id=1[0m
+  [4;35;1mVerseRendition Load (0.000793)[0m   [0mselect verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=1 and verse.chapter_id=1[0m
+  [4;36;1mVerseRendition Columns (0.000616)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerse Load (0.000810)[0m   [0mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;36;1mVerseRendition Load (0.000822)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;36;1mSQL (0.000128)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000816)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000660)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mSQL (0.000132)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000808)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000569)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mVerse Load (0.000958)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;36;1mSQL (0.000123)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000824)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000660)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mSQL (0.000131)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000057)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000902)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000665)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mSQL (0.000130)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000061)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000880)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000669)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mVerse Load (0.000824)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;36;1mSQL (0.000138)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000061)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000876)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=1[0m
+  [4;35;1mVerse Columns (0.000670)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mVerse Load (0.021463)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=2[0m
+  [4;35;1mVerse Load (0.000653)[0m   [0mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=114[0m
+  [4;36;1mVerse Load (0.000637)[0m   [0;1mselect verse.sajdah_mustahib, verse.sajdah_wajib, verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=2 and verse.chapter_id=114[0m
+  [4;36;1mSQL (0.000161)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Load (0.000616)[0m   [0;1mselect verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=1 and verse.chapter_id=114[0m
+  [4;35;1mVerse Columns (0.000580)[0m   [0mSHOW FIELDS FROM `verse`[0m
+  [4;36;1mVerse Load (0.000647)[0m   [0;1mselect verse.verse_number, verse_rendition.content from verse, verse_rendition where verse.verse_id=verse_rendition.verse_id and verse_rendition.rendition_id=1 and verse.chapter_id=114[0m
+  [4;36;1mSQL (0.000129)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000574)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.029618)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.028813)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.028821)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.028766)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.029467)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.028847)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.029077)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.029706)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mSQL (0.000122)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000058)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000668)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.028762)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.029029)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.029016)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.029122)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.069705)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mSQL (0.000335)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mVerseRendition Load (0.029243)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.000326)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`verse_id` = 6231 AND `verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.000262)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`verse_id` = 6231 AND `verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mSQL (0.000120)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000057)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000665)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.028806)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.028774)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.058129)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 1 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.055151)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 4 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;35;1mVerseRendition Load (0.100330)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 3 AND `verse_rendition`.`chapter_id` = 114) LIMIT 1[0m
+  [4;36;1mSQL (0.000199)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000714)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.000215)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114 AND `verse_rendition`.`verse_id` = 6231) LIMIT 1[0m
+  [4;36;1mSQL (0.000140)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000056)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000833)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.000250)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114 AND `verse_rendition`.`verse_id` = 6231) LIMIT 1[0m
+  [4;36;1mVerseRendition Load (0.000261)[0m   [0;1mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114 AND `verse_rendition`.`verse_id` = 6231) LIMIT 1[0m
+  [4;36;1mSQL (0.000136)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000060)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerseRendition Columns (0.000692)[0m   [0;1mSHOW FIELDS FROM `verse_rendition`[0m
+  [4;35;1mVerseRendition Load (0.000235)[0m   [0mSELECT * FROM `verse_rendition` WHERE (`verse_rendition`.`rendition_id` = 2 AND `verse_rendition`.`chapter_id` = 114 AND `verse_rendition`.`verse_id` = 6231) LIMIT 1[0m
+
+
+Processing QuranController#index (for  at 2008-08-06 16:57:01) [GET]
+  Session ID: aee9e491447e5c3b1b641fd12a47cb4b
+  Parameters: {"action"=>"index", "controller"=>"quran"}
+  [4;36;1mSQL (0.000227)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000093)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+Rendering template within layouts/application
+Rendering quran/index
+Completed in 0.27147 (3 reqs/sec) | Rendering: 0.26920 (99%) | DB: 0.00032 (0%) | 200 OK [http://:]
+  [4;36;1mSQL (0.000134)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000112)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mChapter Load (0.000924)[0m   [0;1mselect chapter.chapter_id, title.name from chapter, title where chapter.chapter_id = title.chapter_id and language_id=1[0m
+  [4;35;1mChapter Columns (0.000631)[0m   [0mSHOW FIELDS FROM `chapter`[0m
+  [4;36;1mChapter Load (0.000991)[0m   [0;1mselect chapter.chapter_id, title.name from chapter, title where chapter.chapter_id = title.chapter_id and language_id=1[0m
+  [4;35;1mChapter Load (0.000904)[0m   [0mselect chapter.chapter_id, title.name from chapter, title where chapter.chapter_id = title.chapter_id and language_id=1[0m
+  [4;36;1mSQL (0.000120)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000084)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mVerse Columns (0.000782)[0m   [0;1mSHOW FIELDS FROM `verse`[0m
+  [4;35;1mVerse Load (0.036051)[0m   [0mSELECT * FROM `verse` WHERE (`verse`.`verse_id` = 1) [0m
+  [4;36;1mVerse Load (0.000440)[0m   [0;1mSELECT * FROM `verse` WHERE (`verse`.`verse_id` = 620) [0m
+  [4;36;1mSQL (0.000118)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000049)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.000258)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mRendition Columns (0.031660)[0m   [0mSHOW FIELDS FROM `rendition`[0m
+  [4;36;1mSQL (0.000270)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mRendition Columns (0.000668)[0m   [0mSHOW FIELDS FROM `rendition`[0m

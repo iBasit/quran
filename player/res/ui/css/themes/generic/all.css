@@ -19,13 +19,12 @@
   padding: 10px;
   background: #eee;
 }
-
+.verse-panel .b * {
+  color: #666;
+}
 .verse-panel .b .aya {
   display: inline;
-  font-size: 12pt;
-  color: #666;
   padding-bottom: 20px;
-  font-family: 'Traditional Arabic','Scheherazade',sans-serif,serif;
   float: right;
 }
 
@@ -41,23 +40,15 @@
 }
 
 .verse-panel .f .l,
-.verse-panel .f .c,
 .verse-panel .f .r {
-  position: absolute;
+  height: 100%;
+  display: inline;
 }
 .verse-panel .f .l {
-  left: 0px;
   float: left;
-  width: 60px;
-}
-.verse-panel .f .c {
-  width: 100%;
-  text-align: center;
 }
 .verse-panel .f .r {
-  right: 0px;
   float: right;
-  width: 60px;
 }
 .verse-panel .f .trigger {
   position: relative;

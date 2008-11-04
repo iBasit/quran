@@ -162,38 +162,44 @@
 $.fn.verse_panel = function(config) {
     var self = this;
 
-    this.xml     = null;
-    this.type    = config.type    || 'quran';
-    this.id      = config.id      || 1;
-    this.count   = config.count   || 10;
-    this.size    = config.size    || 12;
-    this.display = config.display || 'inline';
-    this.css     = config.css     || {};
-    this.cls     = config.cls     || null;
+    this.xml         = null;
+    this.type        = config.type       || 'quran';
+    this.id          = config.id         || 1;
+    this.count       = config.count      || 10;
+    this.css         = config.css        || {};
+    this.header_css  = config.header_css || {};
+    this.body_css    = config.body_css   || {};
+    this.verse_css   = config.verse_css  || {};
+    this.footer_css  = config.footer_css || {};
+    this.font_size   = config.font_size  || this.verse_css['font-size']? parseInt(this.verse_css['font-size'].match(/\d*/)[0]) : false || (self.type == 'quran')? 24 : (self.type == 'tafseer')? 8 : 10;
+    this.font_family = config.font_size  || this.verse_css['font-family']? this.verse_css['font-family'] : false || (self.type == 'quran')? 'Scheherazade' : (self.type == 'tafseer')? 'Traditional Arabic' : 'Arial, Verdana, Tahoma, Helvetica, sans-serif';
 
-    this.set_count = function(n) {
-    };
-
-    this.set_font = function(font) {
-    };
-
-    this.set_size = function(size) {
+    this.set_font_family = function() {
         self.each(function() {
             var o = $(this);
-            var oBody = o.find('.b');
-            var oHead = o.find('.h');
-            var oFoot = o.find('.f');
 
-            oBody.find('.aya').each(function() {
-                var aya = $(this);
-                aya.css({
-                    'font-size': self.size + 'pt'
-                });
+            o.find('.b *').css({
+                'font-family': self.font_family +', sans-serif, serif'
             });
         });
     };
 
-    this.set_style = function(style) {
+    this.set_font_size = function() {
+        self.each(function() {
+            var o = $(this);
+
+            o.find('.b *').css({
+                'font-size': self.font_size + 'pt'
+            });
+        });
+    };
+
+    this.set_verse_css = function() {
+        self.each(function() {
+            var o = $(this);
+
+            o.find('.b *').css(self.verse_css);
+        });
     };
 
     this.set_content = function() {
@@ -241,8 +247,26 @@ $.fn.verse_panel = function(config) {
                 oBody.append(aya_div);
             });
 
-            var title = $('<span>'+ sura_start_index +':'+ aya_start_index +' - '+ sura_end_index +':'+ aya_end_index + '</span>');
-            oHead.append(title);
+            var title = $('<h1 style="display: inline; float: left;">Chapter X, Verse Y</h1>');
+            var select = $('<select style="display: inline; float: right;">');
+            switch (self.type) {
+                case 'quran':
+                    var option = $('<option>Uthmani</option>');
+                    select.append(option);
+                break;
+                case 'tafseer':
+                    var option = $('<option>Ibn-Kathir</option>');
+                    select.append(option);
+                break;
+                case 'translation':
+                    var option = $('<option>Pickthall</option>');
+                    select.append(option);
+                break;
+            }
+            oHead
+                .append(title)
+                .append(select)
+            ;
         });
     };
 
@@ -251,16 +275,19 @@ $.fn.verse_panel = function(config) {
             self.find('.active').removeClass('active');
             var active = self.find('[name='+ self.id +']');
             active.addClass('active');
-            var offset = active.position().top;
-            var center = self.find('.b').height()/2;
-            if ((offset > self.find('.b').height()) || (offset < 0)) {
+            if (active[0]) {
                 active[0].scrollIntoView()
             }
         } catch(e) {
             q.d.bug(e);
         }
-    }
-
+    };
+    this.set_misc = function() {
+        self.set_font_family();
+        self.set_font_size();
+        self.set_verse_css();
+        self.set_active();
+    };
     this.load = function(id,count) {
         if ((self.id === undefined) || (self.count === undefined) || (typeof self.id != 'number') || (typeof self.count != 'number')) {
             return false;
@@ -277,12 +304,14 @@ $.fn.verse_panel = function(config) {
             success: function(r) {
                 self.xml = r;
                 self.set_content();
+                self.set_misc();
             }
         });
     };
 
     this.init = function() {
         q.bind('application-state-restored', function() {
+            q.d.bug('state restored');
             var aya = q.get_state('aya');
             self.id = aya.id;
             self._last_id = self.id;
@@ -290,6 +319,7 @@ $.fn.verse_panel = function(config) {
             self.load();
         });
         q.bind('aya-changed', function(ev,aya) {
+            q.d.bug('aya changed');
             var aya = q.get_state('aya');
 
             self.id = aya.id;
@@ -302,12 +332,11 @@ $.fn.verse_panel = function(config) {
             }
         });
         q.bind('sura-changed', function(ev,sura) {
+            q.d.bug('sura changed');
             var aya = q.get_state('aya');
             self.id = aya.id;
             self.load();
         });
-
-        self.set_size();
 
         $[self.type] = self;
     };
@@ -325,27 +354,30 @@ $.fn.verse_panel = function(config) {
         var oFoot = $('<div class="f">');
 
         o.css(self.css);
+        oHead.css(self.header_css);
+        oBody.css(self.body_css);
+        oFoot.css(self.footer_css);
 
         var left   = $('<div class="l">');
-        var center = $('<div class="c">');
         var right  = $('<div class="r">');
 
         var dec  = $('<div class="trigger font-decrease"><a href="#" onclick="return false;"><span>-</span></a></div>')
             .appendTo(left)
         ;
-        var size = $('<input class="input-text" type="text" value="'+ self.size +'"/>')
+        var size = $('<input class="input-text" type="text" value="'+ self.font_size +'"/>')
             .appendTo(left)
         ;
         var inc  = $('<div class="trigger font-increase"><a href="#" onclick="return false;"><span>+</span></a></div>')
             .appendTo(left)
         ;
 
-        var page = $('<div><a href="#" onclick="return false;"><span>page #</span></a></div>')
-            .appendTo(center)
-        ;
-
-        var prev  = $('<div class="trigger prev-page"><a href="#" onclick="return false;"><span>&lt;</span></a></div>')
-            .appendTo(right)
+        var prev  = $(
+            '<div class="trigger prev-page">' +
+                '<a href="#" onclick="return false;">' +
+                    '<span>&lt;</span>' +
+                '</a>' +
+            '</div>'
+        ).appendTo(right)
         ;
         var count = $('<input class="input-text" type="text" value="'+ self.count +'"/>')
             .appendTo(right)
@@ -355,27 +387,27 @@ $.fn.verse_panel = function(config) {
         ;
 
         dec.click(function() {
-            if (self.size <= 1) {
+            if (self.font_size <= 1) {
                 return false;
             }
-            self.size--;
-            size[0].value = self.size;
-            self.set_size();
+            self.font_size--;
+            size[0].value = self.font_size;
+            self.set_font_size();
         });
         size.change(function(ev) {
             var value = parseInt(ev.target.value);
             if (!(value >= 1)) {
-                ev.target.value = self.size;
+                ev.target.value = self.font_size;
                 return false;
             } else {
-                self.size = value;
+                self.font_size = value;
             }
-            self.set_size();
+            self.set_font_size();
         });
         inc.mousedown(function() {
-            self.size++;
-            size[0].value = self.size;
-            self.set_size();
+            self.font_size++;
+            size[0].value = self.font_size;
+            self.set_font_size();
         });
 
         prev.mousedown(function() {
@@ -404,7 +436,6 @@ $.fn.verse_panel = function(config) {
         });
 
         oFoot.append(left)
-             .append(center)
              .append(right)
         ;
 
@@ -414,15 +445,14 @@ $.fn.verse_panel = function(config) {
         ;
 
         oBody.height(
-            o.height() - oHead.height() - oFoot.height()
+            o.height() - oHead.height() - oFoot.height() - 24
         );
         function resize(ev,ui) {
             oBody.height(
-                ui.size.height - oHead.height() - oFoot.height() - 2
+                ui.size.height - oHead.height() - oFoot.height() - 24
             );
         }
         o.resizable({
-            handle: '.f',
             handles: 'all',
             helper: 'proxy',
             transparent: true,
@@ -442,28 +472,42 @@ $(document).ready(function() {
     $('#tafseer').verse_panel({
         type: 'tafseer',
         css: {
+            width: 1000,
+            height: 100,
+            position: 'absolute',
+            top: 200,
+            left: 0
+        },
+        header_css: {
+        },
+        body_css: {
             direction: 'rtl',
-            width: '300px',
-            height: '300px',
+            border: '1px solid black'
+        },
+        verse_css: {
+        },
+        footer_css: {
+        }
+    });
+    $('#translation').verse_panel({
+        type: 'translation',
+        css: {
+            width: 500,
+            height: 200
+        },
+        body_css: {
+            direction: 'ltr',
             border: '1px solid black'
         }
     });
     $('#quran').verse_panel({
         type: 'quran',
         css: {
+            width: 500,
+            height: 200
+        },
+        body_css: {
             direction: 'rtl',
-            'text-align': 'justify',
-            width: '300px',
-            height: '300px',
-            border: '1px solid black'
-        }
-    });
-    $('#translation').verse_panel({
-        type: 'translation',
-        css: {
-            direction: 'ltr',
-            width: '300px',
-            height: '300px',
             border: '1px solid black'
         }
     });

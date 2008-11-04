@@ -1,0 +1,22 @@
+    <body scroll="no">
+        <%= render :file => 'quran/index.css.erb' %>
+        <%= render :file => 'quran/index.js.erb' %>
+
+        <div id="x-desktop">
+            <div id="x-titlebar">
+                <header>Quran Desktop</header>
+            </div>
+            <div id="x-shortcuts">
+                <shortcut id="quran-reader-shortcut">
+                    <a href="#"><img src="images/s.gif" />
+                        <div>Quran Reader</div>
+                    </a>
+                </shortcut>
+            </div>
+        </div>
+        <div id="x-taskbar">
+            <div id="x-taskbar-start"></div>
+            <div id="x-taskbuttons-panel"></div>
+            <div class="x-clear"></div>
+        </div>
+    </body>

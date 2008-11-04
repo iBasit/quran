@@ -1,0 +1,13 @@
+<!--
+xml.instruct!
+xml.page @page_verses
+-->
+<% @page_verses['verses'].each do |verse| %>
+    <% if (verse.bism.length > 0) %>
+        <%= verse.bism %><br/><br/>
+    <% end %>
+    <%= verse.content %>
+    (<%= verse.verse_number %>)
+    <%#= verse.sajdah_wajib %>
+    <%#= verse.sajdah_mustahib %>
+<% end %>
