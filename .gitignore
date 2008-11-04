@@ -1,0 +1,7 @@
+sql
+sql/*
+old/tmp
+old/log
+old/tmp/*
+old/log/*
+old/config/database.yml
