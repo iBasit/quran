@@ -20,12 +20,13 @@ body {
     color: black;
 }
 .player {
- position:absolute;
+ position: absolute;
  /*position:absolute;
+ position:absolute;
  left:0.25em;
- top:0.5em;*/
+ top:0.5em;
  top: 0px;
- right: 0px;
+ right: 0px;*/
  padding:1px;
  z-index:9999999;
  height:40px;
@@ -198,8 +199,6 @@ body {
 .player .ui .mid .slider {
  position:absolute;
  display:block;
- border-left: 1px solid transparent;
- border-right: 1px solid transparent;
  width:5px;
  height:13px;
  left:0px;
@@ -217,7 +216,6 @@ body {
 .player .ui .mid .range-start {
  position:absolute;
  display:block;
- border-right: 3px solid transparent;
  width:5px;
  height:13px;
  left:0px;
@@ -234,8 +232,6 @@ body {
 .player .ui .mid .range-end {
  position:absolute;
  display:block;
- border-left: 3px solid transparent;
- border-right: 1px solid transparent;
  width:5px;
  height:13px;
  left:0px;

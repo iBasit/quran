@@ -22,12 +22,11 @@
 .verse-panel .b * {
   color: #666;
 }
-.verse-panel .b .aya {
-  display: inline;
-  padding-bottom: 20px;
-  float: right;
+.verse-panel .b div.aya {
+  margin-bottom: 10px;
 }
-
+.verse-panel .b span.aya {
+}
 .verse-panel .b .aya.active {
   color: black;
 }

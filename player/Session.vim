@@ -293,8 +293,9 @@ set suffixes=.bak,~,.o,.h,.info,.swp,.obj,.info,.aux,.log,.dvi,.bbl,.out,.o,.lo
 set tabstop=4
 set termencoding=utf-8
 set viminfo=!,'20,\"500
-set window=57
-set winheight=20
+set window=29
+set winheight=35
+set winminheight=0
 set winminwidth=20
 let s:so_save = &so | let s:siso_save = &siso | set so=0 siso=0
 let v:this_session=expand("<sfile>:p")
@@ -304,10 +305,17 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +29 index.html
+badd +461 res/ui/js/ui.js
+badd +454 res/ui/js/modules.js
+badd +0 res/ui/js/soundmanager2.js
+badd +1 res/config/js/config.mirrors.js
+badd +0 res/data/js/data.js
+badd +20 res/ui/css/player.css
 badd +0 res/ui/css/themes/generic/all.css
-badd +0 res/ui/css/themes/generic/screen.css
 badd +0 res/ui/css/themes/generic/icons.css
+badd +0 res/ui/css/themes/generic/player.css
+badd +0 res/ui/css/themes/generic/screen.css
+badd +0 res/ui/css/themes/generic/testing.css
 badd +0 res/ui/css/themes/generic/widgets.css
 badd +0 res/ui/css/themes/generic/widgets/accordions.css
 badd +0 res/ui/css/themes/generic/widgets/dialogs.css
@@ -315,24 +323,61 @@ badd +0 res/ui/css/themes/generic/widgets/resizables.css
 badd +0 res/ui/css/themes/generic/widgets/sliders.css
 badd +0 res/ui/css/themes/generic/widgets/sortables.css
 badd +0 res/ui/css/themes/generic/widgets/tabs.css
-badd +0 res/ui/css/player.css
-badd +0 res/data/js/data.js
+badd +32 index.html
 badd +0 res/config/js/config.js
-badd +0 res/ui/js/ui.js
-badd +0 res/ui/js/modules.js
-badd +0 res/ui/js/player.js
-args index.html res/ui/css/themes/generic/all.css res/ui/css/themes/generic/screen.css res/ui/css/themes/generic/icons.css res/ui/css/themes/generic/widgets.css res/ui/css/themes/generic/widgets/accordions.css res/ui/css/themes/generic/widgets/dialogs.css res/ui/css/themes/generic/widgets/resizables.css res/ui/css/themes/generic/widgets/sliders.css res/ui/css/themes/generic/widgets/sortables.css res/ui/css/themes/generic/widgets/tabs.css res/ui/css/player.css res/data/js/data.js res/config/js/config.js res/ui/js/ui.js res/ui/js/modules.js res/ui/js/player.js
-edit index.html
+badd +0 ../old/app/controllers/page_controller.rb
+args res/ui/js/ui.js res/ui/js/modules.js res/ui/js/soundmanager2.js res/config/js/config.mirrors.js res/data/js/data.js res/ui/css/player.css res/ui/css/themes/generic/all.css res/ui/css/themes/generic/icons.css res/ui/css/themes/generic/player.css res/ui/css/themes/generic/screen.css res/ui/css/themes/generic/testing.css res/ui/css/themes/generic/widgets.css res/ui/css/themes/generic/widgets/accordions.css res/ui/css/themes/generic/widgets/dialogs.css res/ui/css/themes/generic/widgets/resizables.css res/ui/css/themes/generic/widgets/sliders.css res/ui/css/themes/generic/widgets/sortables.css res/ui/css/themes/generic/widgets/tabs.css index.html
+edit ../old/app/controllers/page_controller.rb
 set splitbelow splitright
 wincmd _ | wincmd |
 vsplit
-1wincmd h
+wincmd _ | wincmd |
+vsplit
+wincmd _ | wincmd |
+vsplit
+3wincmd h
+wincmd w
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+wincmd w
+wincmd _ | wincmd |
+split
+1wincmd k
+wincmd w
+wincmd w
+wincmd _ | wincmd |
+split
+wincmd _ | wincmd |
+split
+wincmd _ | wincmd |
+split
+3wincmd k
+wincmd w
+wincmd w
 wincmd w
 set nosplitbelow
 set nosplitright
 wincmd t
-exe 'vert 1resize ' . ((&columns * 20 + 121) / 242)
-exe 'vert 2resize ' . ((&columns * 221 + 121) / 242)
+set winheight=1 winwidth=1
+exe 'vert 1resize ' . ((&columns * 24 + 163) / 327)
+exe '2resize ' . ((&lines * 27 + 15) / 30)
+exe 'vert 2resize ' . ((&columns * 98 + 163) / 327)
+exe '3resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 3resize ' . ((&columns * 98 + 163) / 327)
+exe '4resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 4resize ' . ((&columns * 101 + 163) / 327)
+exe '5resize ' . ((&lines * 27 + 15) / 30)
+exe 'vert 5resize ' . ((&columns * 101 + 163) / 327)
+exe '6resize ' . ((&lines * 25 + 15) / 30)
+exe 'vert 6resize ' . ((&columns * 101 + 163) / 327)
+exe '7resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 7resize ' . ((&columns * 101 + 163) / 327)
+exe '8resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 8resize ' . ((&columns * 101 + 163) / 327)
+exe '9resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 9resize ' . ((&columns * 101 + 163) / 327)
 argglobal
 enew
 file -MiniBufExplorer-
@@ -441,12 +486,770 @@ setlocal tags=
 setlocal textwidth=0
 setlocal thesaurus=
 setlocal nowinfixheight
-setlocal nowinfixwidth
+set winfixwidth
+setlocal winfixwidth
 set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 wincmd w
 argglobal
+edit ../old/app/controllers/page_controller.rb
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=RubyBalloonexpr()
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=:#
+setlocal commentstring=#\ %s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'ruby'
+setlocal filetype=ruby
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=^\\s*\\<\\(load\\|w*require\\)\\>
+setlocal includeexpr=substitute(substitute(v:fname,'::','/','g'),'$','.rb','')
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=ri\ -T
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=rubycomplete#Complete
+setlocal path=.,/usr/lib64/ruby/site_ruby/1.8,/usr/lib64/ruby/site_ruby/1.8/x86_64-linux,/usr/lib64/ruby/site_ruby,/usr/lib64/ruby/1.8,/usr/lib64/ruby/1.8/x86_64-linux,,/usr/lib64/ruby/gems/1.8/gems/BlueCloth-1.0.0/lib,/usr/lib64/ruby/gems/1.8/gems/RedCloth-3.0.4/lib,/usr/lib64/ruby/gems/1.8/gems/THERuSH-0.9/lib,/usr/lib64/ruby/gems/1.8/gems/actionmailer-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/actionmailer-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/actionpack-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/actionpack-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/activerecord-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/activerecord-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/activerecord-2.1.1/lib,/usr/lib64/ruby/gems/1.8/gems/activeresource-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/activeresource-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/activesupport-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/activesupport-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/activesupport-2.1.1/lib,/usr/lib64/ruby/gems/1.8/gems/administrated_scaffold-0.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/administrated_scaffold_generator-0.0.1/templates,/usr/lib64/ruby/gems/1.8/gems/ajax-scaffold-generator-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/ajax_scaffold-1.0.0/.,/usr/lib64/ruby/gems/1.8/gems/ajax_scaffold_generator-3.1.11/lib,/usr/lib64/ruby/gems/1.8/gems/ajax_scaffold_plugin-3.2.4/lib,/usr/lib64/ruby/gems/1.8/gems/archive-tar-minitar-0.5.2/lib,/usr/lib64/ruby/gems/1.8/gems/arrayfields-4.5.0/lib,/usr/lib64/ruby/gems/1.8/gems/attributes-5.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/bloggit-1.0.7/lib,/usr/lib64/ruby/gems/1.8/gems/builder-2.1.2/lib,/usr/lib64/ruby/gems/1.8/gems/cgi_multipart_eof_fix-2.5.0/lib,/usr/lib64/ruby/gems/1.8/gems/cmdparse-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/color-1.4.0/lib,/usr/lib64/ruby/gems/1.8/gems/daemons-1.0.10/lib,/usr/lib64/ruby/gems/1.8/gems/fastthread-1.0.1/ext,/usr/lib64/ruby/gems/1.8/gems/fastthread-1.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/fcgi-0.8.7/lib,/usr/lib64/ruby/gems/1.8/gems/flex_egenial_scaffold-0.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/flex_egenial_scaffold_generator-0.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/flex_scaffold-0.1.1/lib,/usr/lib64/ruby/gems/1.8/gems/gem_plugin-0.2.3/lib,/usr/lib64/ruby/gems/1.8/gems/gettext-1.93.0/lib,/usr/lib64/ruby/gems/1.8/gems/git-1.0.5/lib,/usr/lib64/ruby/gems/1.8/gems/git-rails-0.2.1/lib,/usr/lib64/ruby/gems/1.8/gems/git-trac-0.1.1/lib,/usr/lib64/ruby/gems/1.8/gems/git_autocomplete-0.2.0/lib,/usr/lib64/ruby/gems/1.8/gems/github-0.1.1/lib,/usr/lib64/ruby/gems/1.8/gems/heroku-0.1/lib,/usr/lib64/ruby/gems/1.8/gems/hoe-1.5.1/lib,/usr/lib64/ruby/gems/1.8/gems/hpdf-2.0.8/lib,/usr/lib64/ruby/gems/1.8/gems/hpricot-0.6/lib,/usr/lib64/ruby/gems/1.8/gems/hpricot-0.6/lib/i686-linux,/usr/lib64/ruby/gems/1.8/gems/jpeg2pdf-0.12/lib,/usr/lib64/ruby/gems/1.8/gems/json-1.1.2/ext,/usr/lib64/ruby/gems/1.8/gems/json-1.1.2/ext/json/ext,/usr/lib64/ruby/gems/1.8/gems/json-1.1.2/lib,/usr/lib64/ruby/gems/1.8/gems/main-2.8.0/lib,/usr/lib64/ruby/gems/1.8/gems/markaby-0.5/lib,/usr/lib64/ruby/gems/1.8/gems/mash-0.0.3/lib,/usr/lib64/ruby/gems/1.8/gems/mechanize-0.7.5/lib,/usr/lib64/ruby/gems/1.8/gems/mkrf-0.2.3/lib,/usr/lib64/ruby/gems/1.8/gems/mongrel-1.1.4/ext,/usr/lib64/ruby/gems/1.8/gems/mongrel-1.1.4/lib,/usr/lib64/ruby/gems/1.8/gems/mysql-2.7/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-labels-1.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-reader-0.6.2/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-storycards-0.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-toolkit-0.49/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-wrapper-0.0.6/lib,/usr/lib64/ruby/gems/1.8/gems/pdf-writer-1.1.8/lib,/usr/lib64/ruby/gems/1.8/gems/postgres-0.7.9.2008.01.28/lib,/usr/lib64/ruby/gems/1.8/gems/railroad-0.4.0/lib,/usr/lib64/ruby/gems/1.8/gems/rails-2.0.2/lib,/usr/lib64/ruby/gems/1.8/gems/rails-2.1.0/lib,/usr/lib64/ruby/gems/1.8/gems/rake-0.8.1/lib,/usr/lib64/ruby/gems/1.8/gems/rake-0.8.2/lib,/usr/lib64/ruby/gems/1.8/gems/rhtml2pdf-0.0.1/lib,/usr/lib64/ruby/gems/1.8/gems/rspec-1.1.3/lib,/usr/lib64/ruby/gems/1.8/gems/ruby-github-0.0.3/lib,/usr/lib64/ruby/gems/1.8/gems/ruby-opengl-0.60.0/lib,/usr/lib64/ruby/gems/1
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=.rb
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'ruby'
+setlocal syntax=ruby
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 1 - ((0 * winheight(0) + 13) / 27)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+1
+normal! 0
+wincmd w
+argglobal
+edit res/ui/js/ui.js
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=//%s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'javascript'
+setlocal filetype=javascript
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=javascriptcomplete#CompleteJS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'javascript'
+setlocal syntax=javascript
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 450 - ((7 * winheight(0) + 0) / 0)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+450
+normal! 015l
+wincmd w
+argglobal
+edit res/ui/js/ui.js
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=//%s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'javascript'
+setlocal filetype=javascript
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=2
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=javascriptcomplete#CompleteJS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'javascript'
+setlocal syntax=javascript
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 461 - ((13 * winheight(0) + 0) / 0)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+461
+normal! 0
+wincmd w
+argglobal
+edit res/ui/js/modules.js
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=//%s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'javascript'
+setlocal filetype=javascript
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=javascriptcomplete#CompleteJS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'javascript'
+setlocal syntax=javascript
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 176 - ((13 * winheight(0) + 13) / 27)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+176
+normal! 0
+wincmd w
+argglobal
+edit res/ui/css/themes/generic/all.css
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'css'
+setlocal filetype=css
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=2
+setlocal include=^\\s*@import\\s\\+\\%(url(\\)\\=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=csscomplete#CompleteCSS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'css'
+setlocal syntax=css
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 8 - ((7 * winheight(0) + 12) / 25)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+8
+normal! 02l
+wincmd w
+argglobal
+edit res/ui/css/player.css
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=s1:/*,mb:*,ex:*/
+setlocal commentstring=/*%s*/
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'css'
+setlocal filetype=css
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=2
+setlocal include=^\\s*@import\\s\\+\\%(url(\\)\\=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=csscomplete#CompleteCSS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'css'
+setlocal syntax=css
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 28 - ((21 * winheight(0) + 0) / 0)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+28
+normal! 011l
+wincmd w
+argglobal
+edit res/config/js/config.js
+setlocal keymap=
+setlocal noarabic
+setlocal autoindent
+setlocal balloonexpr=
+setlocal nobinary
+setlocal bufhidden=
+setlocal buflisted
+setlocal buftype=
+setlocal nocindent
+setlocal cinkeys=0{,0},0),:,0#,!^F,o,O,e
+setlocal cinoptions=
+setlocal cinwords=if,else,while,do,for,switch
+setlocal comments=sO:*\ -,mO:*\ \ ,exO:*/,s1:/*,mb:*,ex:*/,://
+setlocal commentstring=//%s
+setlocal complete=.,w,b,u,t,i
+setlocal completefunc=
+setlocal nocopyindent
+set cursorcolumn
+setlocal cursorcolumn
+set cursorline
+setlocal cursorline
+setlocal define=
+setlocal dictionary=
+setlocal nodiff
+setlocal equalprg=
+setlocal errorformat=
+setlocal expandtab
+if &filetype != 'javascript'
+setlocal filetype=javascript
+endif
+setlocal foldcolumn=0
+setlocal foldenable
+setlocal foldexpr=0
+setlocal foldignore=#
+setlocal foldlevel=0
+setlocal foldmarker={{{,}}}
+setlocal foldmethod=manual
+setlocal foldminlines=1
+setlocal foldnestmax=20
+setlocal foldtext=foldtext()
+setlocal formatexpr=
+setlocal formatoptions=croql
+setlocal formatlistpat=^\\s*\\d\\+[\\]:.)}\\t\ ]\\s*
+setlocal grepprg=
+setlocal iminsert=0
+setlocal imsearch=2
+setlocal include=
+setlocal includeexpr=
+setlocal indentexpr=
+setlocal indentkeys=0{,0},:,0#,!^F,o,O,e
+setlocal noinfercase
+setlocal iskeyword=@,48-57,_,192-255
+setlocal keywordprg=
+setlocal nolinebreak
+setlocal nolisp
+setlocal nolist
+setlocal makeprg=
+setlocal matchpairs=(:),{:},[:]
+setlocal nomodeline
+setlocal modifiable
+setlocal nrformats=octal,hex
+set number
+setlocal number
+set numberwidth=3
+setlocal numberwidth=3
+setlocal omnifunc=javascriptcomplete#CompleteJS
+setlocal path=
+setlocal nopreserveindent
+setlocal nopreviewwindow
+setlocal quoteescape=\\
+setlocal noreadonly
+setlocal norightleft
+setlocal rightleftcmd=search
+setlocal noscrollbind
+setlocal shiftwidth=4
+setlocal noshortname
+setlocal nosmartindent
+setlocal softtabstop=0
+setlocal nospell
+setlocal spellcapcheck=[.?!]\\_[\\])'\"\	\ ]\\+
+setlocal spellfile=
+setlocal spelllang=en
+setlocal statusline=
+setlocal suffixesadd=
+setlocal swapfile
+setlocal synmaxcol=3000
+if &syntax != 'javascript'
+setlocal syntax=javascript
+endif
+setlocal tabstop=4
+setlocal tags=
+setlocal textwidth=0
+setlocal thesaurus=
+setlocal nowinfixheight
+setlocal nowinfixwidth
+set nowrap
+setlocal nowrap
+setlocal wrapmargin=0
+silent! normal! zE
+let s:l = 32 - ((8 * winheight(0) + 0) / 0)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+32
+normal! 018l
+wincmd w
+argglobal
+edit index.html
 setlocal keymap=
 setlocal noarabic
 setlocal autoindent
@@ -546,22 +1349,37 @@ set nowrap
 setlocal nowrap
 setlocal wrapmargin=0
 silent! normal! zE
-let s:l = 40 - ((39 * winheight(0) + 28) / 56)
+let s:l = 32 - ((2 * winheight(0) + 0) / 0)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-40
-normal! 0
+32
+normal! 027l
 wincmd w
 2wincmd w
-exe 'vert 1resize ' . ((&columns * 20 + 121) / 242)
-exe 'vert 2resize ' . ((&columns * 221 + 121) / 242)
+exe 'vert 1resize ' . ((&columns * 24 + 163) / 327)
+exe '2resize ' . ((&lines * 27 + 15) / 30)
+exe 'vert 2resize ' . ((&columns * 98 + 163) / 327)
+exe '3resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 3resize ' . ((&columns * 98 + 163) / 327)
+exe '4resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 4resize ' . ((&columns * 101 + 163) / 327)
+exe '5resize ' . ((&lines * 27 + 15) / 30)
+exe 'vert 5resize ' . ((&columns * 101 + 163) / 327)
+exe '6resize ' . ((&lines * 25 + 15) / 30)
+exe 'vert 6resize ' . ((&columns * 101 + 163) / 327)
+exe '7resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 7resize ' . ((&columns * 101 + 163) / 327)
+exe '8resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 8resize ' . ((&columns * 101 + 163) / 327)
+exe '9resize ' . ((&lines * 0 + 15) / 30)
+exe 'vert 9resize ' . ((&columns * 101 + 163) / 327)
 tabnext 1
 if exists('s:wipebuf')
   silent exe 'bwipe ' . s:wipebuf
 endif
 unlet! s:wipebuf
-set winheight=20 winwidth=20 shortmess=filnxtToO
+set winheight=35 winwidth=20 shortmess=filnxtToO
 let s:sx = expand("<sfile>:p:r")."x.vim"
 if file_readable(s:sx)
   exe "source " . s:sx

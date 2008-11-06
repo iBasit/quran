@@ -1,0 +1,12 @@
+<application xmlns="http://ns.adobe.com/air/application/1.0">
+  <id>com.quran</id>
+  <version>1.0</version>
+  <filename>Quran</filename>
+  <initialWindow>
+    <content>index.html</content>
+    <visible>true</visible>
+    <width>600</width>
+    <height>600</height>
+  </initialWindow>
+</application>
+

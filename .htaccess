@@ -1,4 +1,3 @@
-IndexIgnore old/config/database.yml
-IndexIgnore old/log
-IndexIgnore old/tmp
+IndexIgnore sql
+IndexIgnore nour.vim
 

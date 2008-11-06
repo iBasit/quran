@@ -165,7 +165,8 @@ $.fn.verse_panel = function(config) {
     this.xml         = null;
     this.type        = config.type       || 'quran';
     this.id          = config.id         || 1;
-    this.count       = config.count      || 10;
+    this.count       = config.count      || (self.type == 'tafseer')? 1 : 10 ;
+    this.display     = config.display    || (self.type == 'quran')? 'inline' : 'block';
     this.css         = config.css        || {};
     this.header_css  = config.header_css || {};
     this.body_css    = config.body_css   || {};
@@ -225,6 +226,10 @@ $.fn.verse_panel = function(config) {
                 }
             });
 
+            //var aya_container = $('<div class="ayas">');
+            //oBody.append(aya_container);
+            //var aya_text = '';
+
             var ayas = $(self.xml).find('aya');
             ayas.each(function(n) {
                 var aya = $(this);
@@ -235,23 +240,38 @@ $.fn.verse_panel = function(config) {
                     aya_end_index = aya.attr('index');
                 }
 
-                var aya_div = $('<span name="'+ aya.attr('id') +'" title="'+ aya.attr('index') +'" class="aya '+ ((aya.attr('id') == self.id)? 'active' : '') +'">'+ aya.text() +'</span>');
+                //if (self.display == 'inline') {
+                    //aya_text = aya_text + aya.text() + '<span class="aya_num" name="'+ aya.attr('id') +'">'+ aya.attr('index') + '</span>';
+                //} else {
+                var tag;
+                if (self.display == 'block') {
+                    tag = 'div';
+                } else
+                if (self.display == 'inline') {
+                    tag = 'span';
+                } else {
+                    tag = 'p';
+                }
+                    var aya_node = $('<'+ tag +' name="'+ aya.attr('id') +'" title="'+ aya.attr('index') +'" class="aya '+ ((aya.attr('id') == self.id)? 'active' : '') +'">'+ aya.text() +'</'+ tag +'>');
 
-                aya_div.mousedown(function() {
-                    var div = $(this);
-                    var id = parseInt(div.attr('name'));
-                    q.d.bug('clicked aya id ',id);
-                    quran.trigger('change', { id: id });
-                });
+                    aya_node.mousedown(function() {
+                        var div = $(this);
+                        var id = parseInt(div.attr('name'));
+                        q.d.bug('clicked aya id ',id);
+                        quran.trigger('change', { id: id });
+                    });
 
-                oBody.append(aya_div);
+                    oBody.append(aya_node);
+                //}
             });
+            //aya_container.html(aya_text);
+
 
             var title = $('<h1 style="display: inline; float: left;">Chapter X, Verse Y</h1>');
             var select = $('<select style="display: inline; float: right;">');
             switch (self.type) {
                 case 'quran':
-                    var option = $('<option>Uthmani</option>');
+                    var option = $('<option>Normal Script, Modified</option>');
                     select.append(option);
                 break;
                 case 'tafseer':
@@ -259,7 +279,7 @@ $.fn.verse_panel = function(config) {
                     select.append(option);
                 break;
                 case 'translation':
-                    var option = $('<option>Pickthall</option>');
+                    var option = $('<option>Shakir</option>');
                     select.append(option);
                 break;
             }
@@ -472,10 +492,10 @@ $(document).ready(function() {
     $('#tafseer').verse_panel({
         type: 'tafseer',
         css: {
-            width: 1000,
-            height: 100,
+            width: $(window).width()-500,
+            height: $(window).height()/3,
             position: 'absolute',
-            top: 200,
+            top: ($(window).height()/3)*2,
             left: 0
         },
         header_css: {
@@ -492,8 +512,8 @@ $(document).ready(function() {
     $('#translation').verse_panel({
         type: 'translation',
         css: {
-            width: 500,
-            height: 200
+            width: ($(window).width()-500)/2,
+            height: ($(window).height()/3)*2
         },
         body_css: {
             direction: 'ltr',
@@ -503,8 +523,8 @@ $(document).ready(function() {
     $('#quran').verse_panel({
         type: 'quran',
         css: {
-            width: 500,
-            height: 200
+            width: ($(window).width()-500)/2,
+            height: ($(window).height()/3)*2
         },
         body_css: {
             direction: 'rtl',
@@ -562,8 +582,8 @@ $.fn.player = function(config) {
         this.offX = 0;
         this.x = 0;
         this.xMin = 0;
-        this.barWidth = self.oBar.offsetWidth;
-        this.xMax = self.barWidth - self.oSlider.offsetWidth;
+        this.barWidth = $(self.oBar).width();
+        this.xMax = self.barWidth;
         this.xRangeStart = 0;
         this.xRangeEnd = 0;
         this.xMaxLoaded = 0;
@@ -587,27 +607,24 @@ $.fn.player = function(config) {
 
 
         this.oSplitPoints = $('.player>div.split-points div.mid')
-            .mousedown(function(ev) {
+            .mousedown(function(e) {
                 q.d.bug('split points down');
-                var relative_x = ev.clientX - $(self.oSplitPoints).offset().left;
+                var relative_x = e.clientX - $(self.oSplitPoints).offset().left;
                 var point = $('<a class="point"><div></div></a>')
                     .css({
                         position: 'absolute',
-                        left: relative_x - 4 
+                        display: 'block',
+                        'margin-left': relative_x 
                     })
                     .mousedown(function(e) {
-                        var sp_self = this;
                         self.offX = e.clientX - $(self.oSplitPoints).offset().left;
                         q.d.bug('split POINT down',self.offX);
+                        var context = this;
                         $(document).bind('mousemove', function(e) {
-                            self.split_point_move.call(sp_self,e);
-                            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-                            return false;
+                            self.split_point_move.call(context,e);
                         });
                         $(document).bind('mouseup', function(e) {
-                            self.split_point_up.call(sp_self,e);
-                            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-                            return false;
+                            self.split_point_up.call(context,e);
                         });
                         e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
                         return false;
@@ -616,86 +633,46 @@ $.fn.player = function(config) {
                 $(this)
                     .append(point)
                 ;
-                ev.stopPropgation ? ev.stopPropagation() : ev.cancelBubble = true;
+                var context = point[0];
+                $(document).bind('mousemove', function(e) {
+                    self.split_point_move.call(context,e);
+                });
+                $(document).bind('mouseup', function(e) {
+                    self.split_point_up.call(context,e);
+                });
+                e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
                 return false;
             })
         ;
         this.split_point_move = function(e) {
             var e = e ? e: event;
-            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
+            var x = e.clientX - $(self.oSplitPoints).offset().left;
+            if (x > self.xMax) {
+                x = self.xMax;
+            }
             if (x < self.xMin) {
                 x = self.xMin;
             }
-            if (x > self.xMax + 6) {
-                x = self.xMax + 6;
-            }
             self.move_split_point_to.call(this,x);
-            q.d.bug('split POINT moving',x,self.offX);
+            q.d.bug('split point move', x,self.offX);
             e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
             return false;
         };
         this.move_split_point_to = function(x) {
-            var left = Math.floor(x);
-            q.d.bug(left);
             $(this).css({
-                position: 'absolute',
-                left: left
+                'margin-left': Math.floor(x)
             });
-        }
+        };
         this.split_point_up = function(e) {
-            q.d.bug('split POINT up');
+            var e = e ? e: event;
+            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
+            q.d.bug('split point up',x,self.offX);
             $(document).unbind('mousemove');
             $(document).unbind('mouseup');
             e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
             return false;
         };
         this.move_split_points_after_resize = function(growth) {
-        };
-        /*
-        this.oSplitPoints = $('.player>div.split-points')[0];
-        this.oSplitPoints.onmousedown = this.split_points_down;
-        this.split_points_down = function(e) {
-            var e = e ? e: event;
-            self.offX = e.clientX - $(self.oSplitPoints).offset().left;
-            q.d.bug('split points down',self.offX);
-            $(document).bind('mousemove', self.split_points_move);
-            $(document).bind('mouseup', self.split_points_up);
-            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-            return false;
-        };
-        this.split_points_move = function(e) {
-            var e = e ? e: event;
-            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
-            q.d.bug('split points move', x,self.offX);
-            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-            return false;
-        };
-        this.split_points_up = function(e) {
-            var e = e ? e: event;
-            var x = e.clientX - $(self.oSplitPoints).offset().left;// - self.offX;
-            q.d.bug('split points up',x,self.offX);
-            $(document).unbind('mousemove', self.split_points_move);
-            $(document).unbind('mouseup', self.split_points_up);
-            e.stopPropgation ? e.stopPropagation() : e.cancelBubble = true;
-            return false;
-        };
-        */
-        /*
-            .click(function(ev) {
-                var relative_x = ev.clientX - $(self.oMain).offset().left;
-                var point = $('<a class="point"><span></span></a>')
-                    .css({
-                        position: 'absolute',
-                        left: relative_x
-                    })
-                ;
-                $(this)
-                    .append(point)
-                ;
-            })
-        ;
-        */
-        this.set_split_point = function() {
         };
 
 
@@ -841,7 +818,9 @@ $.fn.player = function(config) {
         }
         this.move_range_start_to = function(x) {
             self.xRangeStart = x;
-            self.oRangeStart.style.marginLeft = (Math.floor(x) + 0) + 'px';
+            $(self.oRangeStart).css({
+                'margin-left': Math.floor(x)
+            });
         }
         this.range_start_up = function(e) {
             try {
@@ -875,7 +854,9 @@ $.fn.player = function(config) {
         }
         this.slider_down = function(e) {
             try {
-                if (!self.oParent.current) return false;
+                if (!self.oParent.current) {
+                    return false;
+                }
                 self.didDrag = false;
                 var e = e ? e: event;
                 self.offX = e.clientX - ($(self.oSlider).offset().left - $(self.oBar).offset().left);
@@ -914,7 +895,9 @@ $.fn.player = function(config) {
         }
         this.move_slider_to = function(x) {
             self.x = x;
-            self.oSlider.style.marginLeft = (Math.floor(x) + 2) + 'px'; // 1 offset
+            $(self.oSlider).css({
+                'margin-left': Math.floor(x)
+            });
         }
         this.slider_up = function(e) {
             try {
@@ -976,8 +959,9 @@ $.fn.player = function(config) {
         }
         this.move_range_end_to = function(x) {
             self.xRangeEnd = x;
-            self.oRangeEnd.style.marginLeft = Math.floor(x) + 4 + 'px'; // 1 offset
-            //self.setRangeBackground();
+            $(self.oRangeEnd).css({
+                'margin-left': Math.floor(x)
+            });
         }
         this.range_end_up = function(e) {
             try {
