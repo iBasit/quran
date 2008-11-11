@@ -1,0 +1,229 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+    <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en_US">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+
+        <title>Interface Protototype</title>
+
+        <script type="text/javascript" src="/shared/lib/jquery.js" runat="both"></script>
+        <script type="text/javascript" src="/shared/lib/jquery.ui.js" runat="both"></script>
+        <script type="text/javascript" src="./server.js" runat="server"></script>
+        <script type="text/javascript" src="./client.js"></script>
+
+        <link rel="stylesheet" media="screen" type="text/css" href="./index.css" />
+    </head>
+    <body>
+        <!-- draggable, droppable, sortable, resizable -->
+        <div id="test">
+            <p>currently in development</p>
+        </div>
+        <!--
+        <div style="width: 500px; height: 300px;" class="vim-split">
+            <div class="vim-box v">
+                <div class="outer-wrap">
+                    <div class="inner-wrap">
+                        <p>hello world from html, #1</p>
+                    </div>
+                </div>
+                <div class="vim-box h">
+                    <div class="outer-wrap">
+                        <div class="inner-wrap">
+                            <p>hello world from html, #1</p>
+                        </div>
+                    </div>
+                    <div class="outer-wrap">
+                        <div class="inner-wrap">
+                            <p>hello world from html, #1</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="wrap">
+            <div class="v-box">
+                <div class="h-box">
+                    <div class="h-box">
+                        <div class="box">
+                            <div class="box-wrap">
+                                <h2>hello</h2>
+                                <p>world</p>
+                            </div>
+                        </div>
+                        <div class="box">
+                            <div class="box-wrap">
+                                <h2>hello</h2>
+                                <p>world</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="v-box">
+                        <div class="box">
+                            <div class="box-wrap">
+                                <h2>hello</h2>
+                                <p>world</p>
+                            </div>
+                        </div>
+                        <div class="h-box">
+                            <div class="box">
+                                <div class="box-wrap">
+                                    <h2>hello</h2>
+                                    <p>world</p>
+                                </div>
+                            </div>
+                            <div class="box">
+                                <div class="box-wrap">
+                                    <h2>hello</h2>
+                                    <p>world</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="v-box">
+                    <div class="box">
+                        <div class="box-wrap">
+                            <h2>hello</h2>
+                            <p>world</p>
+                        </div>
+                    </div>
+                    <div class="box">
+                        <div class="box-wrap">
+                            <h2>hello</h2>
+                            <p>world</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        -->
+    </body>
+    <!-- notice div: used for dialogs, pop-ups, alerts, errors, notices, modals, whatever -->
+    <!--<div id="notice" style="display: none;" class="ui-dialog"></div>-->
+
+    <!-- main ui: essentially the interface 'body' -->
+    <!--<div id="main" class="ui-wrapper">-->
+
+        <!-- header strip (unobtrusive, thin, elegant)                -->
+        <!-- ideally should be draggable and dockable to both the top -->
+        <!-- and bottom of the ui, and also feature a 'hide' button   -->
+        <!-- which would minimize this panel horizontally. to the     -->
+        <!-- left or right corner; i.e. standard widget functionality -->
+        <!--<div id="header" class="primary">
+            <h1>Header</h1>-->
+
+            <!-- navigation menu: displayed as a horizontal strip, -->
+            <!-- and should behave likes a nested drop-down menu   -->
+            <!-- e.g. File, Edit, View, Tools, Help, whatever...   -->
+            <!-- Displays inline wth the main header (above)       -->
+            <!--<ul id="navigation"></ul>
+        </div>--><!-- end header -->
+
+        <!-- content area: dockable panels would be nice... -->
+        <!-- e.g. lateral or vertical side by side view of  -->
+        <!-- quran, tafseer, translation, or whatever else  -->
+        <!--<div id="content" class="ui-sortable ui-resizable">
+            <h2>Content</h2>
+
+            <div class="panel sort ui-resizable">
+                <div class="head">one</div>
+                <div>random</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">two</div>
+                <div>something</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">three</div>
+                <div>random</div>
+            </div>
+            <div class="panel sort ui-resizable">
+                <div class="head">four</div>
+                <div>something</div>
+            </div>
+        </div>--><!-- end content -->
+
+        <!-- side panel: this is where the ui control widgets    -->
+        <!-- would go, and perhaps also user-contributed widgets -->
+        <!-- if we can think of practical use-cases for such a   -->
+        <!-- thing and figure out an open-standard solution      -->
+        <!--<div id="side" class="ui-sortable ui-resizable">
+            <h2>Sidebar</h2>-->
+            <!-- todo: build range functionality interval listening -->
+            <!--<div class="widget sort ui-resizable" id="media-player">
+                <div class="head">media player</div>
+                <div class="body">
+                    <div class="position-slider">
+                        <div class="position-slider-handle"></div>
+                    </div>
+                    <div class="volume-slider">
+                        <div class="volume-slider-handle"></div>
+                    </div>
+                    <div class="icon-control-eject">&#160;</div>
+                    <div class="icon-control-eject-blue">&#160;</div>
+                    <div class="icon-control-end">&#160;</div>
+                    <div class="icon-control-end-blue">&#160;</div>
+                    <div class="icon-control-equalizer">&#160;</div>
+                    <div class="icon-control-equalizer-blue">&#160;</div>
+                    <div class="icon-control-fastforward">&#160;</div>
+                    <div class="icon-control-fastforward-blue">&#160;</div>
+                    <div class="icon-control-pause">&#160;</div>
+                    <div class="icon-control-pause-blue">&#160;</div>
+                    <div class="icon-control-play">&#160;</div>
+                    <div class="icon-control-play-blue">&#160;</div>
+                    <div class="icon-control-repeat">&#160;</div>
+                    <div class="icon-control-repeat-blue">&#160;</div>
+                    <div class="icon-control-rewind">&#160;</div>
+                    <div class="icon-control-rewind-blue">&#160;</div>
+                    <div class="icon-control-start">&#160;</div>
+                    <div class="icon-control-start-blue">&#160;</div>
+                    <div class="icon-control-stop">&#160;</div>
+                    <div class="icon-control-stop-blue">&#160;</div>
+                    <div class="icon-sound">&#160;</div>
+                    <div class="icon-sound-add">&#160;</div>
+                    <div class="icon-sound-delete">&#160;</div>
+                    <div class="icon-sound-low">&#160;</div>
+                    <div class="icon-sound-mute">&#160;</div>
+                    <div class="icon-sound-none">&#160;</div>
+                    <div class="icon-resultset-first">&#160;</div>
+                    <div class="icon-resultset-last">&#160;</div>
+                    <div class="icon-resultset-next">&#160;</div>
+                    <div class="icon-resultset-previous">&#160;</div>
+                    <div class="icon-arrow-branch">&#160;</div>
+                    <div class="icon-arrow-divide">&#160;</div>
+                    <div class="icon-arrow-down">&#160;</div>
+                    <div class="icon-arrow-inout">&#160;</div>
+                    <div class="icon-arrow-in">&#160;</div>
+                    <div class="icon-arrow-join">&#160;</div>
+                    <div class="icon-arrow-left">&#160;</div>
+                    <div class="icon-arrow-merge">&#160;</div>
+                    <div class="icon-arrow-out">&#160;</div>
+                    <div class="icon-arrow-redo">&#160;</div>
+                    <div class="icon-arrow-refresh">&#160;</div>
+                    <div class="icon-arrow-refresh-small">&#160;</div>
+                    <div class="icon-arrow-right">&#160;</div>
+                    <div class="icon-arrow-rotate-anticlockwise">&#160;</div>
+                    <div class="icon-arrow-rotate-clockwise">&#160;</div>
+                    <div class="icon-arrow-switch">&#160;</div>
+                    <div class="icon-arrow-turn-left">&#160;</div>
+                    <div class="icon-arrow-turn-right">&#160;</div>
+                    <div class="icon-arrow-undo">&#160;</div>
+                    <div class="icon-arrow-up">&#160;</div>
+                    <div class="icon-star">&#160;</div>
+                    <div class="icon-tux">&#160;</div>
+                </div>
+            </div>
+            <div class="widget sort ui-resizable">
+                <div class="head">display</div>
+                <div class="body">widget</div>
+            </div>
+            <div class="widget sort ui-resizable">
+                <div class="head">control</div>
+                <div class="body">widget</div>
+            </div>
+        </div>--><!-- end side -->
+
+
+    <!--</div>--><!-- end main -->
+</html>

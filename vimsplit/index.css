@@ -1,0 +1,152 @@
+/* screen */
+* {
+    padding: 0px;
+    margin: 0px;
+    font-family: sans-serif;
+    font-size: 10px;
+}
+html, body {
+    width: 100%;
+    height: 100%;
+}
+/* panel headers */
+.header {
+    width: 100%;
+    background: #AAA;
+}
+.header, .header>.title {
+    float: left;
+}
+.header>.triggers {
+    float: right;
+}
+
+/* foo */
+.foo {
+    background: red;
+}
+.bar {
+    background: green;
+}
+
+/* bar */
+.wrap {
+    /*border: 10px dotted red;*/
+    display: inline;
+    /*margin: 20px 40px;*/
+    /* width = $(this).parent().width() - 40 */
+    /* height = $(this).parent().height() - 40 */
+}
+div.vim-split.h, div.vim-split.v {
+    position: relative;
+    float: left;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    background: gray;
+}
+div.vim-split.v>div[class^=vim-] {
+    background: orange;
+    float: left;
+    /* width = $(this).parent().width() / n_cols; //(default) */
+}
+div.vim-split.h>div[class^=vim-] {
+    background: red;
+    /* height = $(this).parent().height() / n_rows; //(default) */
+}
+div.vim-box {
+    position: relative;
+    /*height: 100%;*/
+    background: green;
+    width: 100%;
+}
+div.vim-wrap {
+    padding-left: 5px;
+}
+
+
+
+
+
+/* baz */
+.h_handle {
+    background: green;
+}
+.v_handle {
+    background: blue;
+}
+
+.split {
+    position: relative;
+}
+.h.split {
+    width: 100%;
+    height: 50%;
+    background: transparent;/*#0099ff;*/
+}
+.v.split {
+    background: transparent;/*#99ff00;*/
+    display: inline;
+    float: left;
+    height: 100%;
+    width: 50%;
+}
+
+.split-toolbar {
+    float: left;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+}
+.split-toolbar .item {
+    border-right: 1px solid black;
+    border-bottom: 1px solid black;
+    width: 30px;
+    height: 20px;
+    text-align: center;
+    float: left;
+    display: inline;
+    position: relative;
+}
+.v.split-toolbar .item {
+    clear: left;
+}
+.h.split-toolbar .item {
+}
+.v.split-toolbar {
+    position: static;
+}
+.h.split-toolbar {
+    position: static;
+}
+.split-handle {
+    cursor: pointer;
+    position:relative;
+    background:black none repeat scroll 0 0;
+}
+.v.split-handle {
+    cursor: ew-resize;
+    display:inline;
+    float:left;
+    height:100%;
+    /*margin-left: -4px;
+    padding-right: 4px;*/
+    width:4px;
+}
+.h.split-handle {
+    cursor: ns-resize;
+    /*padding-bottom: 4px;*/
+    height:4px;
+}
+
+
+
+
+
+
+/* foofoo */
+#test {
+    width: 90%;
+    height: 90%;
+    border: 1px solid red;
+}
