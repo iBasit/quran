@@ -251,9 +251,6 @@ $.fn.splitPanel = function(a,b) {
                     child = $(parent_.find('>.'+ type +'.split')[0]);
                     sibling = $(parent_.find('>.'+ type +'.split')[1]);
                 }
-                //console.log('parent',parent_[0]);
-                //console.log('child',child[0]);
-                //console.log('sibling',sibling[0]);
 
                 handle = $(parent_.find('>.handle')[0]);
 
@@ -267,10 +264,34 @@ $.fn.splitPanel = function(a,b) {
 
                 if (sum != goal) {
                     diff = goal - sum;
-                    console.log(diff);
                     child[method](
                         t + diff
                     );
+                    if (!(parent_[method]() - child[method]() - sibling[method]() - handle[method]())) {
+                        console.log('width test passed!')
+                        console.log('child',child[method](),child[0]);
+                    } else {
+                        console.log('width test failed :(')
+                        console.log('parent',parent_[method](),parent_[0]);
+                        console.log('child',child[method](),child[0]);
+                        console.log('sibling',sibling[method](),sibling[0]);
+                    }
+                    var foo, bar;
+                    if (side == 'left') {
+                        foo = child.offset().left;
+                        bar = sibling.offset().left+sibling.width();
+                    } else {
+                        bar = child.offset().left + child.width();
+                        foo = sibling.offset().left;
+                    }
+                    if (!(foo - bar - handle[method]())) {
+                        console.log('offset test passed!');
+                    } else {
+                        console.log('offset test failed :(');
+                        console.log('parent',parent_[method](),parent_[0]);
+                        console.log('child',child[method](),child[0]);
+                        console.log('sibling',sibling[method](),sibling[0]);
+                    }
                 }
 
                 child.one('resize',function(e) {
@@ -294,6 +315,18 @@ $.fn.splitPanel = function(a,b) {
         right.one('resize',function(e) {
             do_recursive_size(e,'right');
         });
+    };
+
+    function SplitPanel(o) {
+        console.log('new SplitPanel',o);
+        function Panel() {
+            function Toolbar() {
+            };
+        };
+        function Handle() {
+            function handleHandler() {
+            };
+        };
     };
 
     function Toolbar(type) {
@@ -421,6 +454,7 @@ $.fn.splitPanel = function(a,b) {
 
     return this.each(function() {
         var o = $(this);
+        new SplitPanel(o);
         var splits = self.split(o,config);
     });
 };
