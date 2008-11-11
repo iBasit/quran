@@ -148,75 +148,6 @@ $.fn.splitPanel = function(a,b) {
 
         setTimeout(function() {
             self.do_size(o);
-            o.bind('resize', function(e,params) {
-                //console.log('resize?',o[0],params.dir,params.chg);
-                // if dir = left & this = left, target = right
-                // if dir = left & this = right, target = left
-                // if dir = right & this = left, target = right
-                // if dir = right & this = right, target = left
-                var target, sibling, handle, which = params.foo;
-                if (which == 'left') {
-                    target = $(o.find('>.split')[1]);
-                    sibling = $(o.find('>.split')[0]);
-                } else
-                if (which == 'right') {
-                    target = $(o.find('>.split')[0]);
-                    sibling = $(o.find('>.split')[1]);
-                }
-                handle = o.find('>.handle');
-
-                var sign, dir = params.dir;
-                if ((dir == 'left') && (which == 'left')) {
-                    sign = -1;
-                } else
-                if ((dir == 'right') && (which == 'left')) {
-                    sign = +1;
-                } else
-                if ((dir == 'left') && (which == 'right')) {
-                    sign = +1;
-                } else
-                if ((dir == 'right') && (which == 'right')) {
-                    sign = -1;
-                }
-
-                var min, property, type, method;
-                if (o.hasClass('v')) {
-                    min = 30;
-                    type = 'v';
-                    property = 'width';
-                    method = 'innerWidth';
-                } else {
-                    min = 21;
-                    type = 'h';
-                    property = 'height';
-                    method = 'innerHeight';
-                }
-
-                var change = sign * params.chg;
-
-                var sum, goal, diff;
-                sum = target[method]() + sibling[method]() + handle[method]() + change;
-                goal = o[method]();
-                diff = goal - sum;
-
-                if (diff) {
-                    change += -sign * diff;
-                }
-
-                var current = target[method]();
-                var css = {};
-
-                function set_size(size) {
-                }
-
-                if (current + change < min) {
-                    css[property] = min;
-                    target.css(css);
-                } else {
-                    css[property] = current + change;
-                    target.css(css);
-                }
-            });
         },10);
 
         return {
@@ -263,22 +194,12 @@ $.fn.splitPanel = function(a,b) {
         lsize = Math.floor((l / (l + r)) * o[method]() - handle[method]()/2);
         rsize = Math.floor((r / (l + r)) * o[method]() - handle[method]()/2);
 
-        /*
-        var min = 30;
-        if (lsize < min) {
-            lsize = Math.floor(min - handle[method]()/2);
-            rsize = Math.floor(o[method]() - min - handle[method]()/2);
-        }
-        if (rsize < min) {
-            rsize = Math.floor(min - handle[method]()/2);
-            lsize = Math.floor(o[method]() - min - handle[method]()/2);
-        }
-        */
-
         var sum, goal, sgdiff;
+
         sum  = lsize + rsize + handle[method]();
         goal = o[method]();
         diff = goal - sum;
+
         if (sum < goal) {
             if (!(diff%2)) {
                 lsize += diff/2;
@@ -306,19 +227,73 @@ $.fn.splitPanel = function(a,b) {
             css[property] = lsize;
             left.css(css);
         }
-        
-        var direction;
-        if (-change < 0) {
-            direction = 'left'
-        } else
-        if (-change > 0) {
-            direction = 'right';
-        }
 
-        if (direction) {
-            left.trigger('resize',{ foo: 'left', dir: direction, chg: Math.abs(change) });
-            right.trigger('resize',{ foo: 'right', dir: direction, chg: Math.abs(change) });
-        }
+        function do_recursive_size(e,side) {
+            var parent_ = $(e.target);
+
+            var min, type, method;
+            if (parent_.hasClass('v')) {
+                min = 30;
+                type = 'v';
+                method = 'width';
+            } else {
+                min = 25;
+                type = 'h';
+                method = 'height';
+            }
+            var child, sibling, handle, p, t, s, h, sum, goal, diff;
+            if (parent_.find('>.'+ type +'.split').length > 1) {
+
+                if (side == 'left') {
+                    child = $(parent_.find('>.'+ type +'.split')[1]);
+                    sibling = $(parent_.find('>.'+ type +'.split')[0]);
+                } else {
+                    child = $(parent_.find('>.'+ type +'.split')[0]);
+                    sibling = $(parent_.find('>.'+ type +'.split')[1]);
+                }
+                //console.log('parent',parent_[0]);
+                //console.log('child',child[0]);
+                //console.log('sibling',sibling[0]);
+
+                handle = $(parent_.find('>.handle')[0]);
+
+                p = parent_[method]();
+                t = child[method]();
+                s = sibling[method]();
+                h = handle[method]();
+
+                sum = t + s + h;
+                goal = p;
+
+                if (sum != goal) {
+                    diff = goal - sum;
+                    console.log(diff);
+                    child[method](
+                        t + diff
+                    );
+                }
+
+                child.one('resize',function(e) {
+                    do_recursive_size(e,side);
+                });
+                child.trigger('resize');
+            } else {
+                //console.log(parent_[0]);
+                //checkout the parent sibling and traverse all the way down, ensuring that
+                //all the vsplits are sized up to equal the sum total of the parent
+                //sibling width
+            }
+        };
+
+        left.trigger('resize');
+        left.one('resize', function(e) {
+            do_recursive_size(e,'left');
+        });
+
+        right.trigger('resize');
+        right.one('resize',function(e) {
+            do_recursive_size(e,'right');
+        });
     };
 
     function Toolbar(type) {
