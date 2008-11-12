@@ -81,7 +81,7 @@ div.vim-wrap {
 }
 .h.split {
     width: 100%;
-    height: 50%;
+    /*height: 50%;*/
     background: transparent;/*#0099ff;*/
 }
 .v.split {
@@ -89,7 +89,7 @@ div.vim-wrap {
     display: inline;
     float: left;
     height: 100%;
-    width: 50%;
+    /*width: 50%;*/
 }
 
 .split-toolbar {
@@ -129,14 +129,10 @@ div.vim-wrap {
     display:inline;
     float:left;
     height:100%;
-    /*margin-left: -4px;
-    padding-right: 4px;*/
-    width:4px;
 }
 .h.split-handle {
     cursor: ns-resize;
-    /*padding-bottom: 4px;*/
-    height:4px;
+    display: block;
 }
 
 

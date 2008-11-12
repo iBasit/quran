@@ -28,6 +28,7 @@ $.fn.splitPanel = function(a,b) {
 
     var self = this;
 
+    /*
     if (config.toolbar === undefined) {
         self.toolbar = $('<div class="toolbar">');
         self.toolbar
@@ -316,19 +317,335 @@ $.fn.splitPanel = function(a,b) {
             do_recursive_size(e,'right');
         });
     };
+    */
+    
+    function SplitPanel(o,conf) {
+        if (!conf) {
+            conf = config
+        }
 
-    function SplitPanel(o) {
-        console.log('new SplitPanel',o);
-        function Panel() {
+        if ((conf.type == 'vertical') || (conf.type == 'v')) {
+            conf.type = 'v';
+        } else {
+            conf.type = 'h';
+        }
+
+        var method, innerMethod, outerMethod;
+        if (conf.type == 'v') {
+            method = 'width';
+            innerMethod = 'innerWidth';
+            outerMethod = 'outerWidth';
+        } else {
+            method = 'height';
+            innerMethod = 'innerHeight';
+            outerMethod = 'outerHeight';
+        }
+
+        var original_content = $($.grep(o.childNodes, function(a,b) {
+            if ($(a).hasClass('split-toolbar')) {
+                return false;
+            } else {
+                return true;
+            }
+        })).clone(true);
+
+        var splitPanel = this;
+            splitPanel.$ = $(o).empty();
+
+        splitPanel.handle = new Handle();
+        splitPanel.topLeft = new Panel(original_content);
+        splitPanel.bottomRight = new Panel(conf.content? conf.content : '');
+
+        splitPanel.$.append(splitPanel.topLeft.$);
+        splitPanel.$.append(splitPanel.bottomRight.$);
+        splitPanel.handle.$.insertAfter(splitPanel.topLeft.$);
+
+        splitPanel.$.ready(function() {
+            splitPanel.topLeft.$.trigger('resize');
+            splitPanel.bottomRight.$.trigger('resize');
+        });
+
+        function Panel(c) {
+            var panel = this;
+            panel.$ = $('<div class="split">');
+            panel.$.addClass(conf.type);
+
+            panel.$.append(c? c : '');
+
+            panel.toolbar = new Toolbar();
+
+            panel.$.prepend(panel.toolbar.$);
+
             function Toolbar() {
-            };
-        };
-        function Handle() {
-            function handleHandler() {
-            };
-        };
-    };
+                var toolbar = this;
+                    toolbar.$ = $('<div class="split-toolbar">');
+                    toolbar.$.addClass(conf.type);
 
+                toolbar.items = {
+                    h_split: $('<a>--</a>')
+                        .click(function() {
+                            new SplitPanel(panel.$[0], {
+                                type: 'horizontal',
+                                content: '<p>a new horizontal split</p>'
+                            });
+                            return false;
+                        }),
+                    v_split: $('<a>|</a>')
+                        .click(function() {
+                            new SplitPanel(panel.$[0], {
+                                type: 'vertical',
+                                content: '<p>a new vertical split</p>'
+                            });
+                            return false;
+                        }),
+                    close: $('<a>x</a>').click(function() {
+                            panel.close();
+                            return false;
+                        })
+                };
+
+                $.each(toolbar.items, function(a,b) {
+                    b.addClass('item');
+                    b.addClass(conf.type);
+
+                    toolbar.$.append(b);
+                });
+            };
+
+            panel.close = function() {
+                console.log('close');
+            };
+
+            panel.resize = function(e,data) {
+                var sp_size = splitPanel.$[method]();
+                var  h_size = splitPanel.handle.$[method]();
+                var  p_size = panel.$[method]();
+
+                if (data === undefined) {
+                    panel.$[method](
+                        (sp_size - h_size) / 2
+                    );
+                } else {
+                    if (data.diff) {
+                        panel.$[method](
+                            p_size + data.diff
+                        );
+                    } else
+                    if (data.recursive) {
+                        var sibling = false;
+                        if (panel.$.next().length == 0) {
+                            sibling = splitPanel.topLeft.$;
+                        }
+
+                        if (sibling) {
+                            var sum = sibling[method]() + p_size + h_size;
+                            var goal = sp_size;
+                            var diff = goal - sum;
+                            panel.$[method](
+                                p_size + diff
+                            );
+                        }
+/*
+        function do_recursive_size(e,side) {
+            var parent_ = $(e.target);
+
+            var min, type, method;
+            if (parent_.hasClass('v')) {
+                min = 30;
+                type = 'v';
+                method = 'width';
+            } else {
+                min = 25;
+                type = 'h';
+                method = 'height';
+            }
+            var child, sibling, handle, p, t, s, h, sum, goal, diff;
+            if (parent_.find('>.'+ type +'.split').length > 1) {
+
+                if (side == 'left') {
+                    child = $(parent_.find('>.'+ type +'.split')[1]);
+                    sibling = $(parent_.find('>.'+ type +'.split')[0]);
+                } else {
+                    child = $(parent_.find('>.'+ type +'.split')[0]);
+                    sibling = $(parent_.find('>.'+ type +'.split')[1]);
+                }
+
+                handle = $(parent_.find('>.handle')[0]);
+
+                p = parent_[method]();
+                t = child[method]();
+                s = sibling[method]();
+                h = handle[method]();
+
+                sum = t + s + h;
+                goal = p;
+
+                if (sum != goal) {
+                    diff = goal - sum;
+                    child[method](
+                        t + diff
+                    );
+                    if (!(parent_[method]() - child[method]() - sibling[method]() - handle[method]())) {
+                        console.log('width test passed!')
+                        console.log('child',child[method](),child[0]);
+                    } else {
+                        console.log('width test failed :(')
+                        console.log('parent',parent_[method](),parent_[0]);
+                        console.log('child',child[method](),child[0]);
+                        console.log('sibling',sibling[method](),sibling[0]);
+                    }
+                    var foo, bar;
+                    if (side == 'left') {
+                        foo = child.offset().left;
+                        bar = sibling.offset().left+sibling.width();
+                    } else {
+                        bar = child.offset().left + child.width();
+                        foo = sibling.offset().left;
+                    }
+                    if (!(foo - bar - handle[method]())) {
+                        console.log('offset test passed!');
+                    } else {
+                        console.log('offset test failed :(');
+                        console.log('parent',parent_[method](),parent_[0]);
+                        console.log('child',child[method](),child[0]);
+                        console.log('sibling',sibling[method](),sibling[0]);
+                    }
+                }
+
+                child.one('resize',function(e) {
+                    do_recursive_size(e,side);
+                });
+                child.trigger('resize');
+*/
+
+                    }
+
+                    var children = panel.$.find('>.split');
+
+                    $.each(children, function(a,b) {
+                        $(b).trigger('resize', { recursive: true });
+                    });
+                }
+            };
+            panel.$.bind('resize',panel.resize);
+        };
+        
+        function Handle() {
+            var handle = this;
+                handle.$ = $('<a class="split-handle">');
+                handle.$.addClass(conf.type)
+                        .mousedown(function(e) {
+                            new handleHandler(e);
+                            e.stopPropogation? e.stopPropogation() : e.cancelBubble = true;
+                            return false;
+                        })
+                ;
+
+                var size = 4;
+                if (splitPanel.$[method]()%2) {
+                    handle.$[method](
+                        size + 1
+                    );
+                } else {
+                    handle.$[method](
+                        size
+                    );
+                }
+
+            function handleHandler(e) {
+                var handler = this;
+
+                handler.o     = $(e.originalTarget);
+                handler.ocx   = e.clientX;
+                handler.ocy   = e.clientY;
+                handler.op    = handler.o.parent();
+                handler.onext = handler.o.next();
+                handler.oprev = handler.o.prev();
+    
+                handler.proxy = $('<div><span>&#160;</span></div>');
+        
+                handler.get_diff = function(x,y) {
+                    var diff;
+    
+                    if (conf.type == 'v') {
+                        diff = x - handler.ocx;
+                    } else
+                    if (conf.type == 'h') {
+                        diff = y - handler.ocy;
+                    }
+        
+                    return -diff;
+                };
+        
+                handler.mousemove = function(e) {
+                    var offset, diff = handler.get_diff(e.clientX, e.clientY);
+                    if (conf.type == 'v') {
+                        offset = handler.o.offset().left - diff;
+                        handler.proxy.css({
+                            left: offset
+                        });
+                    } else
+                    if (conf.type == 'h') {
+                        offset = handler.o.offset().top - diff;
+                        handler.proxy.css({
+                            top: offset
+                        });
+                    }
+                };
+        
+                handler.mouseup = function(e) {
+                    var diff = handler.get_diff(e.clientX, e.clientY);
+
+                    splitPanel.topLeft.$.trigger('resize',{ diff: -diff });
+                    splitPanel.bottomRight.$.trigger('resize',{ diff: diff });
+        
+                    $(document.body).css({
+                        cursor: 'auto'
+                    });
+                    $(document).unbind('mousemove');
+                    $(document).unbind('mouseup');
+        
+                    handler.proxy.remove();
+                    
+                };
+        
+                handler.mousedown = function() {
+                    $(document).bind('mousemove', handler.mousemove);
+                    $(document).bind('mouseup', handler.mouseup);
+        
+                    handler.proxy.css({
+                        border: '1px dotted black',
+                        position: 'fixed',
+                        left: handler.o.offset().left,
+                        top: handler.o.offset().top
+                    });
+                    if (conf.type == 'v') {
+                        $(document.body).css({
+                            cursor: 'ew-resize'
+                        });
+                        handler.proxy.css({
+                            height: handler.onext.innerHeight(),
+                            width: 1
+                        });
+                    } else
+                    if (conf.type == 'h') {
+                        $(document.body).css({
+                            cursor: 'ns-resize'
+                        });
+                        handler.proxy.css({
+                            height: 1,
+                            width: handler.onext.innerWidth(),
+                        });
+                    }
+                    handler.op.append(handler.proxy);
+                }();
+            
+            };
+
+        };
+
+    };
+    /*
     function Toolbar(type) {
         var my = this;
 
@@ -450,25 +767,24 @@ $.fn.splitPanel = function(a,b) {
 
         return my.handle;
     };
-
+    */
 
     return this.each(function() {
-        var o = $(this);
-        new SplitPanel(o);
-        var splits = self.split(o,config);
+        new SplitPanel(this);
     });
 };
 $(document).ready(function() {
-$('#test').splitPanel('v',{
-    content: 'foo'
-});
-/*
-$('#foo').splitPanel('h',{
-    s1_id: 'two',
-    s2_id: 'bar',
-    s2_content: 'bar'
-});
-*/
+    $('#test')
+        .width(Math.ceil($(window).width() * 0.61819))
+        .height($(window).height() - 3)
+        .css({
+            'margin-left': 'auto',
+            'margin-right': 'auto'
+        })
+        .splitPanel({
+            type: 'vertical',
+            content: '<p>content for new split</p>'
+        });
 });
 /*
 function default_widths(o) {
